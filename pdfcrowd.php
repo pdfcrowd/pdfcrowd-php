@@ -53,7 +53,9 @@ class PdfCrowd {
         $this->useSSL(false);
         $this->fields = array(
             'username' => $username,
-            'key' => $apikey);
+            'key' => $apikey,
+            'pdf_scaling_factor' => 1,
+            'html_zoom' => 200);
     }
 
     //
