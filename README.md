@@ -24,7 +24,7 @@ the generated PDF to the browser:
     try
     {   
         // create an API client instance
-        $client = new Pdfcrowd("{{ username }}", "{{ apikey }}");
+        $client = new Pdfcrowd("username", "apikey");
     
         // convert a web page and store the generated PDF into a $pdf variable
         $pdf = $client->convertURI('http://example.com/');
@@ -53,6 +53,4 @@ Other basic operations:
     // convert an HTML file
     $pdf = $client->convertFile('/path/to/local/file.html');
 
-    // retrieve the number of conversion tokens in your account
-    $ntokens = $client->numTokens();
 
