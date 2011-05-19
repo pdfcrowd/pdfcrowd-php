@@ -17,7 +17,8 @@ to your source directory.
 ## Example
 
 Server side PDF generation. This code converts a web page and sends
-the generated PDF to the browser:
+the generated PDF to the browser (don't forget to use your `"username"`
+and `"apikey"`):
 
     require 'pdfcrowd.php';
     
