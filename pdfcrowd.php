@@ -296,6 +296,10 @@ class PdfCrowd {
         curl_setopt($c, CURLOPT_POST, true);
         curl_setopt($c, CURLOPT_PORT, $this->port);
         curl_setopt($c, CURLOPT_POSTFIELDS, $postfields);
+        if ($outstream) {
+            $this->outstream = $outstream;
+            curl_setopt($c, CURLOPT_WRITEFUNCTION, array($this, 'receive_to_stream'));
+        }
 
         if ($this->scheme == 'https' && self::$api_host == 'pdfcrowd.com') {
             curl_setopt($c, CURLOPT_SSL_VERIFYPEER, true);
@@ -313,13 +317,16 @@ class PdfCrowd {
             throw new PdfcrowdException($error_str, $error_nr);            
         }
         else if ($response_code == 200) {
-            if ($outstream != NULL)
-                fwrite($outstream, $response);
-            else
+            if ($outstream == NULL) {
                 return $response;
+            }
         } else {
             throw new PdfcrowdException($response, $response_code);
         }
+    }
+
+    private function receive_to_stream($curl, $data) {
+        return fwrite($this->outstream, $data);
     }
 
     private function set_or_unset($val, $field) {
