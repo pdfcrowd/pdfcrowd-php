@@ -271,6 +271,11 @@ class PdfCrowd {
     function setHeaderUrl($value) {
         $this->fields['header_url'] = $value;
     }
+
+    function setPageBackgroundColor($value) {
+        $this->fields['page_background_color'] = $value;
+    }
+    
     
     
     
