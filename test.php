@@ -97,7 +97,8 @@ $tests = array(
     'setFooterUrl' => 'http://google.com',
     'setHeaderHtml' => 'page %p out of %n',
     'setHeaderUrl' => 'http://google.com',             
-    'setAuthor' => 'Someone unknown.'
+    'setAuthor' => 'Someone unknown.',
+    'setPageBackgroundColor' => 'ee82EE'
     );
 
 try
