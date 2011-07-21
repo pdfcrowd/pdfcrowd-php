@@ -293,6 +293,10 @@ class PdfCrowd {
     public static $api_host = 'pdfcrowd.com';
 
     private function http_post($url, $postfields, $outstream) {
+        if (!function_exists("curl_init")) {
+            throw new PdfcrowdException("pdfcrowd.php requires curl but it is not installed on your system. Please, see: http://cz.php.net/manual/en/book.curl.php\n", 0);
+        }
+        
         $c = curl_init();
         curl_setopt($c, CURLOPT_URL,$url);
         curl_setopt($c, CURLOPT_HEADER, false);
