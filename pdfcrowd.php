@@ -276,7 +276,9 @@ class PdfCrowd {
         $this->fields['page_background_color'] = $value;
     }
     
-    
+    function setTransparentBackground($value=True) {
+        $this->set_or_unset($value, 'transparent_background');
+    }
     
     
 
