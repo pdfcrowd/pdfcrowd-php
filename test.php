@@ -98,7 +98,8 @@ $tests = array(
     'setHeaderHtml' => 'page %p out of %n',
     'setHeaderUrl' => 'http://google.com',             
     'setAuthor' => 'Someone unknown.',
-    'setPageBackgroundColor' => 'ee82EE'
+    'setPageBackgroundColor' => 'ee82EE',
+    'setTransparentBackground' => True
     );
 
 try
