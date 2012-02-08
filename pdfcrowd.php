@@ -279,6 +279,28 @@ class PdfCrowd {
     function setTransparentBackground($value=True) {
         $this->set_or_unset($value, 'transparent_background');
     }
+
+    function setPageNumberingOffset($value) {
+        $this->fields['page_numbering_offset'] = $value;
+    }
+
+    function setHeaderFooterPageExcludeList($value) {
+        $this->fields['header_footer_page_exclude_list'] = $value;
+    }
+        
+    function setWatermark($url, $offset_x=0, $offset_y=0) {
+        $this->fields["watermark_url"] = $url;
+        $this->fields["watermark_offset_x"] = $offset_x;
+        $this->fields["watermark_offset_y"] = $offset_y;
+    }
+    
+    function setWatermarkRotation($angle) {
+        $this->fields["watermark_rotation"] = $angle;
+    }
+
+    function setWatermarkInBackground($val=True) {
+        $this->set_or_unset($val, "watermark_in_background");
+    }
     
     
 
