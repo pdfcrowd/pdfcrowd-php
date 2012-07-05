@@ -56,6 +56,10 @@ class PdfCrowd {
             'key' => $apikey,
             'pdf_scaling_factor' => 1,
             'html_zoom' => 200);
+        $this->proxy_name = null;
+        $this->proxy_port = null;
+        $this->proxy_username = "";
+        $this->proxy_password = "";
     }
 
     //
@@ -301,6 +305,13 @@ class PdfCrowd {
     function setWatermarkInBackground($val=True) {
         $this->set_or_unset($val, "watermark_in_background");
     }
+
+    function setProxy($proxyname, $port, $username="", $password="") {
+        $this->proxy_name = $proxyname;
+        $this->proxy_port = $port;
+        $this->proxy_username = $username;
+        $this->proxy_password = $password;
+    }
     
     
 
@@ -338,6 +349,14 @@ class PdfCrowd {
             curl_setopt($c, CURLOPT_SSL_VERIFYPEER, true);
         } else {
             curl_setopt($c, CURLOPT_SSL_VERIFYPEER, false);
+        }
+
+        if ($this->proxy_name) {
+            curl_setopt($c, CURLOPT_PROXY, $this->proxy_name . ":" . $this->proxy_port);
+            if ($this->proxy_username) {
+                curl_setopt($c, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+                curl_setopt($c, CURLOPT_PROXYUSERPWD, $this->proxy_username . ":" . $this->proxy_password);
+            }
         }
 
         $response = curl_exec($c);
