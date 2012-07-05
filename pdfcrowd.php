@@ -388,7 +388,16 @@ class PdfCrowd {
     }
 
     private function receive_to_stream($curl, $data) {
-        return fwrite($this->outstream, $data);
+        $written = fwrite($this->outstream, $data);
+        if ($written != strlen($data)) {
+            if (get_magic_quotes_runtime()) {
+                throw new PdfcrowdException("Cannot write the PDF file because the 'magic_quotes_runtime' setting is enabled.
+Please disable it either in your php.ini file, or in your code by calling 'set_magic_quotes_runtime(false)'.");
+            } else {
+                throw new PdfcrowdException('Writing the PDF file failed. The disk may be full.');
+            }
+        }
+        return $written;
     }
 
     private function set_or_unset($val, $field) {
