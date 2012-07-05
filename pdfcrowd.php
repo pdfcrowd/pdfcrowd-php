@@ -349,6 +349,7 @@ class PdfCrowd {
         curl_setopt($c, CURLOPT_POST, true);
         curl_setopt($c, CURLOPT_PORT, $this->port);
         curl_setopt($c, CURLOPT_POSTFIELDS, $postfields);
+        curl_setopt($c, CURLOPT_DNS_USE_GLOBAL_CACHE, false);
         if ($outstream) {
             $this->outstream = $outstream;
             curl_setopt($c, CURLOPT_WRITEFUNCTION, array($this, 'receive_to_stream'));
