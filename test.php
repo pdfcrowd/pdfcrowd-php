@@ -49,7 +49,7 @@ foreach(array(False, True) as $i => $use_ssl) {
     {
         $ntokens = $client->numTokens();
         
-        $client->convertURI('http://www.jagpdf.org/', out_stream('uri', $use_ssl));
+        $client->convertURI('http://www.web-to-pdf.com/', out_stream('uri', $use_ssl));
         $client->convertHtml($html, out_stream('content', $use_ssl));
         $client->convertFile($test_dir . '/in/simple.html', out_stream('upload', $use_ssl));
         $client->convertFile($test_dir . '/in/archive.tar.gz', out_stream('archive', $use_ssl));
