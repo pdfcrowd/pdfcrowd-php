@@ -13,5 +13,5 @@ test:
 
 .PHONY: clean
 clean:
-	rm -rf dist/* 0
+	rm -rf dist/*
 
