@@ -79,6 +79,10 @@ class PdfCrowd {
     //              containing the PDF
     // 
     function convertHtml($src, $outstream=null){
+        if (!$src) {
+            throw new PdfcrowdException("convertHTML(): the src parameter must not be empty");
+        }
+        
         $this->fields['src'] = $src;
         $uri = $this->api_prefix . "/pdf/convert/html/";
         $postfields = http_build_query($this->fields, '', '&');
