@@ -97,8 +97,12 @@ class PdfCrowd {
     //              containing the PDF
     // 
     function convertFile($src, $outstream=null) {
-        if (!file_exists($src)){
-            throw new Exception("Cannot access {$src}.");
+        if (!is_file($src) || !is_readable($src)) {
+            throw new PdfcrowdException("convertFile(): cannot read '{$src}'");
+        }
+
+        if (!filesize($src)) {
+            throw new PdfcrowdException("convertFile(): '{$src}' must not be empty");
         }
         
         $this->fields['src'] = '@' . $src;
