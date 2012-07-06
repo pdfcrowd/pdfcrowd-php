@@ -349,9 +349,23 @@ class PdfCrowd {
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
 
+    private static $missing_curl = 'pdfcrowd.php requires cURL which is not installed on your system.
+
+How to install:
+  Windows: uncomment/add the "extension=php_curl.dll" line in php.ini
+  Linux:   should be a part of the distribution, 
+           e.g. on Debian/Ubuntu run "sudo apt-get install php5-curl"
+
+You need to restart your web server after installation.
+
+Links:
+ Installing the PHP/cURL binding:  <http://curl.haxx.se/libcurl/php/install.html>
+ PHP/cURL documentation:           <http://cz.php.net/manual/en/book.curl.php>';
+
+
     private function http_post($url, $postfields, $outstream) {
         if (!function_exists("curl_init")) {
-            throw new PdfcrowdException("pdfcrowd.php requires curl but it is not installed on your system. Please, see: http://cz.php.net/manual/en/book.curl.php\n", 0);
+            throw new PdfcrowdException(self::$missing_curl);
         }
         
         $c = curl_init();
