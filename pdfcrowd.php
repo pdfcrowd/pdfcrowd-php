@@ -118,6 +118,11 @@ class PdfCrowd {
     //              containing the PDF
     // 
     function convertURI($src, $outstream=null){
+        $src = trim($src);
+        if (!preg_match("/^https?:\/\/.*/i", $src)) {
+            throw new PdfcrowdException("convertURI(): the URL must start with http:// or https:// (got '$src')");
+        }
+        
         $this->fields['src'] = $src;
         $uri = $this->api_prefix . "/pdf/convert/uri/";
         $postfields = http_build_query($this->fields, '', '&');

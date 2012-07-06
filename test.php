@@ -48,7 +48,7 @@ foreach(array(False, True) as $i => $use_ssl) {
     try
     {
         $ntokens = $client->numTokens();
-        $client->convertURI('http://www.web-to-pdf.com/', out_stream('uri', $use_ssl));
+        $client->convertURI(' http://www.web-to-pdf.com/ ', out_stream('uri', $use_ssl));
         $client->convertHtml($html, out_stream('content', $use_ssl));
         $client->convertFile($test_dir . '/in/simple.html', out_stream('upload', $use_ssl));
         $client->convertFile($test_dir . '/in/archive.tar.gz', out_stream('archive', $use_ssl));
@@ -123,7 +123,8 @@ $failures = array(
     array("convertFile", "does-not-exist.html", "cannot read"),
     array("convertFile", "/", "cannot read"),
     array("convertFile", $test_dir."/in/empty.html", "must not be empty"),
-    array("convertURI", "http://pdfcrowd.com/this/url/does/not/exist/", "Received a non-2xx response")
+    array("convertURI", "domain.com", "must start with"),    
+    array("convertURI", "HtTps://pdfcrowd.com/this/url/does/not/exist/", "Received a non-2xx response")
     );
 $client = new Pdfcrowd($argv[1], $argv[2]);
 $client->setFailOnNon200(True);
