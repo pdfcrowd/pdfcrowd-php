@@ -369,8 +369,11 @@ class PdfCrowd {
             }
         }
 
+        $this->http_code = 0;
+        $this->error = "";
+
         $response = curl_exec($c);
-        $response_code = curl_getinfo($c, CURLINFO_HTTP_CODE);
+        $this->http_code = curl_getinfo($c, CURLINFO_HTTP_CODE);
         $error_str = curl_error($c);
         $error_nr = curl_errno($c);
         curl_close($c);
@@ -378,16 +381,25 @@ class PdfCrowd {
         if ($error_nr != 0) {
             throw new PdfcrowdException($error_str, $error_nr);            
         }
-        else if ($response_code == 200) {
+        else if ($this->http_code == 200) {
             if ($outstream == NULL) {
                 return $response;
             }
         } else {
-            throw new PdfcrowdException($response, $response_code);
+            throw new PdfcrowdException($this->error ? $this->error : $response, $this->http_code);
         }
     }
 
     private function receive_to_stream($curl, $data) {
+        if ($this->http_code == 0) {
+            $this->http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        }
+
+        if ($this->http_code >= 400) {
+            $this->error = $this->error . $data;
+            return strlen($data);
+        }
+        
         $written = fwrite($this->outstream, $data);
         if ($written != strlen($data)) {
             if (get_magic_quotes_runtime()) {
