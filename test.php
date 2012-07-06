@@ -48,7 +48,6 @@ foreach(array(False, True) as $i => $use_ssl) {
     try
     {
         $ntokens = $client->numTokens();
-        
         $client->convertURI('http://www.web-to-pdf.com/', out_stream('uri', $use_ssl));
         $client->convertHtml($html, out_stream('content', $use_ssl));
         $client->convertFile($test_dir . '/in/simple.html', out_stream('upload', $use_ssl));
@@ -96,7 +95,7 @@ $tests = array(
     'setFooterHtml' => '<b>bold</b> and <i>italic</i> <img src="http://pdfcrowd.com/static/images/logo175x30.png" />',
     'setFooterUrl' => 'http://google.com',
     'setHeaderHtml' => 'page %p out of %n',
-    'setHeaderUrl' => 'http://google.com',             
+    'setHeaderUrl' => 'http://google.com',
     'setAuthor' => 'Someone unknown.',
     'setPageBackgroundColor' => 'ee82EE',
     'setTransparentBackground' => True
@@ -118,19 +117,27 @@ catch(PdfcrowdException $e)
     exit(1);
 }
 
-
 // expected failures
-try
-{
-    $client = new Pdfcrowd($argv[1], $argv[2]);
-    $client->setFailOnNon200(True);
-    $client->convertURI("http://pdfcrowd.com/this/url/does/not/exist/");
-    echo "FAILED expected an exception";
-    exit(1);
-}
-catch(PdfcrowdException $e)
-{
-    ; // expected
+$failures = array(
+    array("convertHtml", "", "must not be empty"),
+    array("convertFile", "does-not-exist.html", "cannot read"),
+    array("convertFile", "/", "cannot read"),
+    array("convertFile", $test_dir."/in/empty.html", "must not be empty"),
+    array("convertURI", "http://pdfcrowd.com/this/url/does/not/exist/", "Received a non-2xx response")
+    );
+$client = new Pdfcrowd($argv[1], $argv[2]);
+$client->setFailOnNon200(True);
+foreach($failures as $failure) {
+    try {
+        $client->$failure[0]($failure[1]);
+        echo "FAILED expected an exception: ${failure}\n";
+        exit(1);
+    } catch(PdfcrowdException $e) {
+        if (!strstr($e->getMessage(), $failure[2])) {
+            echo "error message [". $e->getMessage() ."] is expected to contain [".$failure[2]."]\n";
+            exit(1);
+        }
+    }
 }
     
 
