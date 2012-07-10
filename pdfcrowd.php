@@ -363,6 +363,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix;
 
+    public static $client_version = "2.4";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
