@@ -120,8 +120,8 @@ catch(PdfcrowdException $e)
 // expected failures
 $failures = array(
     array("convertHtml", "", "must not be empty"),
-    array("convertFile", "does-not-exist.html", "cannot read"),
-    array("convertFile", "/", "cannot read"),
+    array("convertFile", "does-not-exist.html", "not found"),
+    array("convertFile", "/", "not a directory"),
     array("convertFile", $test_dir."/in/empty.html", "must not be empty"),
     array("convertURI", "domain.com", "must start with"),    
     array("convertURI", "HtTps://pdfcrowd.com/this/url/does/not/exist/", "Received a non-2xx response")
