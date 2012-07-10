@@ -97,14 +97,32 @@ class PdfCrowd {
     //              containing the PDF
     // 
     function convertFile($src, $outstream=null) {
-        if (!is_file($src) || !is_readable($src)) {
-            throw new PdfcrowdException("convertFile(): cannot read '{$src}'");
+        $src = trim($src);
+
+        if (!file_exists($src)) {
+            $cwd = getcwd();
+            throw new PdfcrowdException("convertFile(): '{$src}' not found
+Possible reasons:
+ 1. The file is missing.
+ 2. You misspelled the file name.
+ 3. You use a relative file path (e.g. 'index.html') but the current working
+    directory is somewhere else than you expect: '${cwd}'
+    Generally, it is safer to use an absolute file path instead of a relative one.
+");
+        }
+
+        if (is_dir($src)) {
+            throw new PdfcrowdException("convertFile(): '{$src}' must be file, not a directory");
+        }
+
+        if (!is_readable($src)) {
+            throw new PdfcrowdException("convertFile(): cannot read '{$src}', please check if the process has sufficient permissions");
         }
 
         if (!filesize($src)) {
             throw new PdfcrowdException("convertFile(): '{$src}' must not be empty");
         }
-        
+
         $this->fields['src'] = '@' . $src;
         $uri = $this->api_prefix . "/pdf/convert/html/";
         return $this->http_post($uri, $this->fields, $outstream);
