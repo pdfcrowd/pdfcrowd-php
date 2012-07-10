@@ -98,7 +98,8 @@ $tests = array(
     'setHeaderUrl' => 'http://google.com',
     'setAuthor' => 'Someone unknown.',
     'setPageBackgroundColor' => 'ee82EE',
-    'setTransparentBackground' => True
+    'setTransparentBackground' => True,
+    'setUserAgent' => "test user agent"
     );
 
 try

@@ -69,6 +69,8 @@ class PdfCrowd {
         $this->proxy_port = null;
         $this->proxy_username = "";
         $this->proxy_password = "";
+        
+        $this->user_agent = "pdfcrowd_php_client_".self::$client_version."_(http://pdfcrowd.com)";
     }
 
     //
@@ -352,6 +354,10 @@ Possible reasons:
         $this->proxy_username = $username;
         $this->proxy_password = $password;
     }
+
+    function setUserAgent($user_agent) {
+        $this->user_agent = $user_agent;
+    }
     
     
 
@@ -396,6 +402,7 @@ Links:
         curl_setopt($c, CURLOPT_PORT, $this->port);
         curl_setopt($c, CURLOPT_POSTFIELDS, $postfields);
         curl_setopt($c, CURLOPT_DNS_USE_GLOBAL_CACHE, false);
+        curl_setopt($c, CURLOPT_USERAGENT, $this->user_agent);
         if ($outstream) {
             $this->outstream = $outstream;
             curl_setopt($c, CURLOPT_WRITEFUNCTION, array($this, 'receive_to_stream'));
