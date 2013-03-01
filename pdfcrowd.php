@@ -1,6 +1,6 @@
 <?php
 
-// Copyright (C) 2010 pdfcrowd.com
+// Copyright (C) 2010-2013 pdfcrowd.com
 //
 // Inspired by code written by Jawaad Mahmood
 //  <http://www.tokyomuslim.com/2010/04/php-class-to-run-pdfcrowd-com/>
