@@ -27,11 +27,11 @@ echo "using {$api_host} ports {$http_port} {$https_port}\n";
 
 
 chdir(dirname($argv[0]));
-$test_dir = '../test_files';
+$test_dir = './test_files';
 
 function out_stream($name, $use_ssl)
 {
-    $fname = "./out/php_client_{$name}";
+    $fname = "./test_files/out/php_client_{$name}";
     if ($use_ssl)
         $fname .= "_ssl";
     return fopen($fname . '.pdf', 'wb');
