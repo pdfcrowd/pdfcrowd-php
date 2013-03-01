@@ -40,12 +40,6 @@ function out_stream($name, $use_ssl)
     return fopen($fname . '.pdf', 'wb');
 }
 
-// margins
-$client = new Pdfcrowd($argv[1], $argv[2]);
-$client->setPageMargins('0.25in', '0.5in', '0.75in', '1.0in');
-$client->convertHtml('<div style="background-color:red;height:100%">4 margins</div>', out_stream('4margins', False));
-$aa=$bb;
-
 $html = "<html><body>Uploaded content!</body></html>";
 $client = new Pdfcrowd($argv[1], $argv[2]);
 foreach(array(False, True) as $i => $use_ssl) {
