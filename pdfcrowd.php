@@ -184,11 +184,18 @@ Possible reasons:
     }
     
     function setHorizontalMargin($value) {
-        $this->fields['hmargin'] = $value;
+        $this->fields['margin_right'] = $this->fields['margin_left'] = $value;
     }
     
     function setVerticalMargin($value) {
-        $this->fields['vmargin'] = $value;
+        $this->fields['margin_top'] = $this->fields['margin_bottom'] = $value;
+    }
+
+    function setPageMargins($top, $right, $bottom, $left) {
+      $this->fields['margin_top'] = $top;
+      $this->fields['margin_right'] = $right;
+      $this->fields['margin_bottom'] = $bottom;
+      $this->fields['margin_left'] = $left;
     }
 
     function setEncrypted($val=True) {
