@@ -89,10 +89,10 @@ $tests = array(
     'setInitialPdfExactZoom' => 113,
     'setPdfScalingFactor' => 0.5,
     'setFooterHtml' => '<b>bold</b> and <i>italic</i> <img src="http://pdfcrowd.com/static/images/logo175x30.png" />',
-    'setFooterUrl' => 'http://google.com',
+    'setFooterUrl' => 'http://pdfcrowd.com/hub/random/footer.html',
     'setHeaderHtml' => 'page %p out of %n',
-    'setHeaderUrl' => 'http://google.com',
-    'setAuthor' => 'Someone unknown.',
+    'setHeaderUrl' => 'http://pdfcrowd.com/hub/random/header.html',
+    'setAuthor' => 'Custom Author',
     'setPageBackgroundColor' => 'ee82EE',
     'setTransparentBackground' => True,
     'setUserAgent' => "test user agent"
