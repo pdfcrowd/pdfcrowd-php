@@ -88,10 +88,10 @@ $tests = array(
     'setInitialPdfZoomType' => Pdfcrowd::FIT_PAGE,
     'setInitialPdfExactZoom' => 113,
     'setPdfScalingFactor' => 0.5,
-    'setFooterHtml' => '<b>bold</b> and <i>italic</i> <img src="http://pdfcrowd.com/static/images/logo175x30.png" />',
-    'setFooterUrl' => 'http://pdfcrowd.com/hub/random/footer.html',
+    'setFooterHtml' => '<b>bold</b> and <i>italic</i> <img src="http://s3.pdfcrowd.com/test-resources/logo175x30.png" />',
+    'setFooterUrl' => 'http://s3.pdfcrowd.com/test-resources/footer.html',
     'setHeaderHtml' => 'page %p out of %n',
-    'setHeaderUrl' => 'http://pdfcrowd.com/hub/random/header.html',
+    'setHeaderUrl' => 'http://s3.pdfcrowd.com/test-resources/header.html',
     'setAuthor' => 'Custom Author',
     'setPageBackgroundColor' => 'ee82EE',
     'setTransparentBackground' => True,
@@ -127,7 +127,7 @@ $failures = array(
     array("convertFile", "/", "not a directory"),
     array("convertFile", $test_dir."/in/empty.html", "must not be empty"),
     array("convertURI", "domain.com", "must start with"),    
-    array("convertURI", "HtTps://pdfcrowd.com/this/url/does/not/exist/", "Received a non-2xx response")
+    array("convertURI", "HtTp://s3.pdfcrowd.com/this/url/does/not/exist/", "Received a non-2xx response")
     );
 $client = new Pdfcrowd($argv[1], $argv[2]);
 $client->setFailOnNon200(True);
