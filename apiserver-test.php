@@ -12,7 +12,7 @@ if ($argc < 3) {
 }
 
 $c = new Pdfcrowd($argv[1], $argv[2], $argv[3]);
-$c->convertURI('http://www.web-to-pdf.com');
+$c->convertURI('http://dl.dropboxusercontent.com/u/9346438/tests/webtopdfcom.html');
 $c->convertHtml('raw html');
 $c->convertFile('../test_files/in/simple.html');
 
