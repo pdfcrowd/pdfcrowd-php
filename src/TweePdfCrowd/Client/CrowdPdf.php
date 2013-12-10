@@ -14,6 +14,13 @@ class CrowdPdf
     const CONTINUOUS = 2;
     const CONTINUOUS_FACING = 3;
 
+    private $fields, $scheme, $port, $api_prefix;
+
+    public static $http_port  = 80;
+    public static $https_port = 443;
+    public static $api_host   = 'pdfcrowd.com';
+
+
     //
     // Pdfcrowd constructor.
     //
@@ -33,13 +40,6 @@ class CrowdPdf
             'key' => $apikey,
             'pdf_scaling_factor' => 1,
             'html_zoom' => 200);
-
-        $this->proxy_name = null;
-        $this->proxy_port = null;
-        $this->proxy_username = "";
-        $this->proxy_password = "";
-
-        $this->user_agent = "pdfcrowd_php_client_" . self::$client_version . "_(http://pdfcrowd.com)";
     }
 
     //
@@ -75,14 +75,7 @@ class CrowdPdf
 
         if (!file_exists($src)) {
             $cwd = getcwd();
-            throw new InvalidArgumentException("convertFile(): '{$src}' not found
-Possible reasons:
- 1. The file is missing.
- 2. You misspelled the file name.
- 3. You use a relative file path (e.g. 'index.html') but the current working
-    directory is somewhere else than you expect: '${cwd}'
-    Generally, it is safer to use an absolute file path instead of a relative one.
-");
+            throw new InvalidArgumentException("convertFile(): '{$src}' not found");
         }
 
         if (is_dir($src)) {
@@ -361,48 +354,16 @@ Possible reasons:
         $this->set_or_unset($val, "watermark_in_background");
     }
 
-    public function setProxy($proxyname, $port, $username="", $password="")
-    {
-        $this->proxy_name = $proxyname;
-        $this->proxy_port = $port;
-        $this->proxy_username = $username;
-        $this->proxy_password = $password;
-    }
-
-    public function setUserAgent($user_agent)
-    {
-        $this->user_agent = $user_agent;
-    }
-
     // ----------------------------------------------------------------------
     //
     //                        Private stuff
     //
 
-    private $fields, $scheme, $port, $api_prefix;
-
-    public static $client_version = "2.6";
-    public static $http_port = 80;
-    public static $https_port = 443;
-    public static $api_host = 'pdfcrowd.com';
-
-    private static $missing_curl = 'pdfcrowd.php requires cURL which is not installed on your system.
-
-How to install:
-  Windows: uncomment/add the "extension=php_curl.dll" line in php.ini
-  Linux:   should be a part of the distribution,
-           e.g. on Debian/Ubuntu run "sudo apt-get install php5-curl"
-
-You need to restart your web server after installation.
-
-Links:
- Installing the PHP/cURL binding:  <http://curl.haxx.se/libcurl/php/install.html>
- PHP/cURL documentation:           <http://cz.php.net/manual/en/book.curl.php>';
 
     private function http_post($url, $postfields, $outstream)
     {
         if (!function_exists("curl_init")) {
-            throw new InvalidArgumentException(self::$missing_curl);
+            throw new InvalidArgumentException('pdfcrowd.php requires cURL which is not installed on your system');
         }
 
         $c = curl_init();
@@ -414,7 +375,7 @@ Links:
         curl_setopt($c, CURLOPT_PORT, $this->port);
         curl_setopt($c, CURLOPT_POSTFIELDS, $postfields);
         curl_setopt($c, CURLOPT_DNS_USE_GLOBAL_CACHE, false);
-        curl_setopt($c, CURLOPT_USERAGENT, $this->user_agent);
+        //curl_setopt($c, CURLOPT_USERAGENT, $this->user_agent);
         if ($outstream) {
             $this->outstream = $outstream;
             curl_setopt($c, CURLOPT_WRITEFUNCTION, array($this, 'receive_to_stream'));
@@ -424,14 +385,6 @@ Links:
             curl_setopt($c, CURLOPT_SSL_VERIFYPEER, true);
         } else {
             curl_setopt($c, CURLOPT_SSL_VERIFYPEER, false);
-        }
-
-        if ($this->proxy_name) {
-            curl_setopt($c, CURLOPT_PROXY, $this->proxy_name . ":" . $this->proxy_port);
-            if ($this->proxy_username) {
-                curl_setopt($c, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-                curl_setopt($c, CURLOPT_PROXYUSERPWD, $this->proxy_username . ":" . $this->proxy_password);
-            }
         }
 
         $this->http_code = 0;
