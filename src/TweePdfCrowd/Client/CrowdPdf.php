@@ -1,52 +1,19 @@
 <?php
+namespace TweePdfCrowd\Client;
+use InvalidArgumentException;
 
-// Copyright (C) 2010-2013 pdfcrowd.com
-//
-// Inspired by code written by Jawaad Mahmood
-//  <http://www.tokyomuslim.com/2010/04/php-class-to-run-pdfcrowd-com/>
-// 
-// Permission is hereby granted, free of charge, to any person
-// obtaining a copy of this software and associated documentation
-// files (the "Software"), to deal in the Software without
-// restriction, including without limitation the rights to use,
-// copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following
-// conditions:
-// 
-// The above copyright notice and this permission notice shall be
-// included in all copies or substantial portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-// OTHER DEALINGS IN THE SOFTWARE.
-
-
-
-//
-// Thrown when an error occurs.
-// 
-class PdfcrowdException extends Exception {
-    // custom string representation of object
-    public function __toString() {
-        if ($this->code) {
-            return "[{$this->code}] {$this->message}\n";
-        } else {
-            return "{$this->message}\n";
-        }
-    }
-}
-
-
-//
-// Pdfcrowd API client.
-// 
 class PdfCrowd {
+
+    // constants for setPageMode()
+    const NONE_VISIBLE = 1;
+    const THUMBNAILS_VISIBLE = 2;
+    const FULLSCREEN = 3;
+
+    // constants for setPageLayout()
+    const SINGLE_PAGE = 1;
+    const CONTINUOUS = 2;
+    const CONTINUOUS_FACING = 3;
+
     //
     // Pdfcrowd constructor.
     // 
@@ -54,7 +21,8 @@ class PdfCrowd {
     // $apikey  - your API key
     // $hostname - API hostname, defaults to pdfcrowd.com
     // 
-    function __construct($username, $apikey, $hostname=null){
+    function __construct($username, $apikey, $hostname=null)
+    {
         if ($hostname)
             $this->hostname = $hostname;
         else
@@ -65,12 +33,13 @@ class PdfCrowd {
             'key' => $apikey,
             'pdf_scaling_factor' => 1,
             'html_zoom' => 200);
+        
         $this->proxy_name = null;
         $this->proxy_port = null;
         $this->proxy_username = "";
         $this->proxy_password = "";
         
-        $this->user_agent = "pdfcrowd_php_client_".self::$client_version."_(http://pdfcrowd.com)";
+        $this->user_agent = "pdfcrowd_php_client_" . self::$client_version . "_(http://pdfcrowd.com)";
     }
 
     //
@@ -82,7 +51,7 @@ class PdfCrowd {
     // 
     function convertHtml($src, $outstream=null){
         if (!$src) {
-            throw new PdfcrowdException("convertHTML(): the src parameter must not be empty");
+            throw new InvalidArgumentException("convertHTML(): the src parameter must not be empty");
         }
         
         $this->fields['src'] = $src;
@@ -103,7 +72,7 @@ class PdfCrowd {
 
         if (!file_exists($src)) {
             $cwd = getcwd();
-            throw new PdfcrowdException("convertFile(): '{$src}' not found
+            throw new InvalidArgumentException("convertFile(): '{$src}' not found
 Possible reasons:
  1. The file is missing.
  2. You misspelled the file name.
@@ -114,15 +83,15 @@ Possible reasons:
         }
 
         if (is_dir($src)) {
-            throw new PdfcrowdException("convertFile(): '{$src}' must be file, not a directory");
+            throw new InvalidArgumentException("convertFile(): '{$src}' must be file, not a directory");
         }
 
         if (!is_readable($src)) {
-            throw new PdfcrowdException("convertFile(): cannot read '{$src}', please check if the process has sufficient permissions");
+            throw new InvalidArgumentException("convertFile(): cannot read '{$src}', please check if the process has sufficient permissions");
         }
 
         if (!filesize($src)) {
-            throw new PdfcrowdException("convertFile(): '{$src}' must not be empty");
+            throw new InvalidArgumentException("convertFile(): '{$src}' must not be empty");
         }
 
         $this->fields['src'] = '@' . $src;
@@ -140,7 +109,7 @@ Possible reasons:
     function convertURI($src, $outstream=null){
         $src = trim($src);
         if (!preg_match("/^https?:\/\/.*/i", $src)) {
-            throw new PdfcrowdException("convertURI(): the URL must start with http:// or https:// (got '$src')");
+            throw new InvalidArgumentException("convertURI(): the URL must start with http:// or https:// (got '$src')");
         }
         
         $this->fields['src'] = $src;
@@ -198,7 +167,7 @@ Possible reasons:
       $this->fields['margin_left'] = $left;
     }
 
-    function setEncrypted($val=True) {
+    function setEncrypted($val=true) {
         $this->set_or_unset($val, 'encrypted');
     }
     
@@ -210,32 +179,25 @@ Possible reasons:
         $this->set_or_unset($pwd, 'owner_pwd');
     }
     
-    function setNoPrint($val=True) {
+    function setNoPrint($val=true) {
         $this->set_or_unset($val, 'no_print');
     }
     
-    function setNoModify($val=True) {
+    function setNoModify($val=true) {
         $this->set_or_unset($val, 'no_modify');
     }
     
-    function setNoCopy($val=True) {
+    function setNoCopy($val=true) {
         $this->set_or_unset($val, 'no_copy');
     }
 
-    // constants for setPageLayout()
-    const SINGLE_PAGE = 1;
-    const CONTINUOUS = 2;
-    const CONTINUOUS_FACING = 3;
     
     function setPageLayout($value) {
         assert($value > 0 && $value <= 3);
         $this->fields['page_layout'] = $value;
     }
 
-    // constants for setPageMode()
-    const NONE_VISIBLE = 1;
-    const THUMBNAILS_VISIBLE = 2;
-    const FULLSCREEN = 3;
+
     
     function setPageMode($value) {
         assert($value > 0 && $value <= 3);
@@ -246,11 +208,11 @@ Possible reasons:
         $this->set_or_unset($value, 'footer_text');
     }
     
-    function enableImages($value=True) {
+    function enableImages($value=true) {
         $this->set_or_unset(!$value, 'no_images');
     }
     
-    function enableBackgrounds($value=True) {
+    function enableBackgrounds($value=true) {
         $this->set_or_unset(!$value, 'no_backgrounds');
     }
     
@@ -258,11 +220,11 @@ Possible reasons:
         $this->set_or_unset($value, 'html_zoom');
     }
     
-    function enableJavaScript($value=True) {
+    function enableJavaScript($value=true) {
         $this->set_or_unset(!$value, 'no_javascript');
     }
     
-    function enableHyperlinks($value=True) {
+    function enableHyperlinks($value=true) {
         $this->set_or_unset(!$value, 'no_hyperlinks');
     }
     
@@ -270,7 +232,7 @@ Possible reasons:
         $this->set_or_unset($value, 'text_encoding');
     }
     
-    function usePrintMedia($value=True) {
+    function usePrintMedia($value=true) {
         $this->set_or_unset($value, 'use_print_media');
     }
     
@@ -278,7 +240,7 @@ Possible reasons:
         $this->fields['max_pages'] = $value;
     }
     
-    function enablePdfcrowdLogo($value=True) {
+    function enablePdfcrowdLogo($value=true) {
         $this->set_or_unset($value, 'pdfcrowd_logo');
     }
 
@@ -329,7 +291,7 @@ Possible reasons:
         $this->fields['page_background_color'] = $value;
     }
     
-    function setTransparentBackground($value=True) {
+    function setTransparentBackground($value=true) {
         $this->set_or_unset($value, 'transparent_background');
     }
 
@@ -351,7 +313,7 @@ Possible reasons:
         $this->fields["watermark_rotation"] = $angle;
     }
 
-    function setWatermarkInBackground($val=True) {
+    function setWatermarkInBackground($val=true) {
         $this->set_or_unset($val, "watermark_in_background");
     }
 
@@ -397,7 +359,7 @@ Links:
 
     private function http_post($url, $postfields, $outstream) {
         if (!function_exists("curl_init")) {
-            throw new PdfcrowdException(self::$missing_curl);
+            throw new InvalidArgumentException(self::$missing_curl);
         }
         
         $c = curl_init();
@@ -439,14 +401,14 @@ Links:
         curl_close($c);
 
         if ($error_nr != 0) {
-            throw new PdfcrowdException($error_str, $error_nr);            
+            throw new InvalidArgumentException($error_str, $error_nr);            
         }
         else if ($this->http_code == 200) {
             if ($outstream == NULL) {
                 return $response;
             }
         } else {
-            throw new PdfcrowdException($this->error ? $this->error : $response, $this->http_code);
+            throw new InvalidArgumentException($this->error ? $this->error : $response, $this->http_code);
         }
     }
 
@@ -462,11 +424,7 @@ Links:
         
         $written = fwrite($this->outstream, $data);
         if ($written != strlen($data)) {
-            if (get_magic_quotes_runtime()) {
-                throw new PdfcrowdException("Cannot write the PDF file because the 'magic_quotes_runtime' setting is enabled.
-Please disable it either in your php.ini file, or in your code by calling 'set_magic_quotes_runtime(false)'.");
-            } else {
-                throw new PdfcrowdException('Writing the PDF file failed. The disk may be full.');
+                throw new InvalidArgumentException('Writing the PDF file failed. The disk may be full.');
             }
         }
         return $written;
@@ -478,8 +436,4 @@ Please disable it either in your php.ini file, or in your code by calling 'set_m
         else
             unset($this->fields[$field]);
     }
-
-    
 }
-
-?>
