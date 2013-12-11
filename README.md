@@ -30,13 +30,13 @@ Server side PDF generation. This code converts a web page and sends
 the generated PDF to the browser (don't forget to use your `"username"`
 and `"apikey"`):
 
-    use TweePdfCrowd\Client\CrowdPdf;
+    use TweePdfCrowd\Client\PdfCrowd;
     use Exception;
     
     try
     {   
         // create an API client instance
-        $client = new Pdfcrowd("username", "apikey");
+        $client = new PdfCrowd(array('username' =>  'myusername', 'apikey' => 'myapikey'));
     
         // convert a web page and store the generated PDF into a $pdf variable
         $pdf = $client->convertURI('http://example.com/');
