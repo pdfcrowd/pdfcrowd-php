@@ -14,7 +14,7 @@ you a username and an API key.
 
 ```json
 "require": {
-    "necromant2005/gearman-stats": "@dev",
+    "necromant2005/pdfcrowd-php": "@dev",
 }
 ```
 
