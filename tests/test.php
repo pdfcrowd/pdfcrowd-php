@@ -25,7 +25,6 @@ $http_port = Pdfcrowd::$http_port;
 $https_port = Pdfcrowd::$https_port;
 echo "using {$api_host} ports {$http_port} {$https_port}\n";
 
-
 chdir(dirname($argv[0]));
 $test_dir = './test_files';
 
@@ -34,15 +33,15 @@ function out_stream($name, $use_ssl)
     $fname = "./test_files/out/php_client_{$name}";
     if ($use_ssl)
         $fname .= "_ssl";
+
     return fopen($fname . '.pdf', 'wb');
 }
 
 $html = "<html><body>Uploaded content!</body></html>";
 $client = new Pdfcrowd($argv[1], $argv[2]);
-foreach(array(False, True) as $i => $use_ssl) {
+foreach (array(False, True) as $i => $use_ssl) {
     $client->useSSL($use_ssl);
-    try
-    {
+    try {
         $ntokens = $client->numTokens();
         $client->convertURI('http://dl.dropboxusercontent.com/u/9346438/tests/webtopdfcom.html', out_stream('uri', $use_ssl));
         $client->convertHtml($html, out_stream('content', $use_ssl));
@@ -53,14 +52,11 @@ foreach(array(False, True) as $i => $use_ssl) {
         if ($ntokens - 4 != $after_tokens) {
             throw new Exception("Mismatch in the number of tokens.");
         }
-    }
-    catch(PdfcrowdException $e)
-    {
+    } catch (PdfcrowdException $e) {
         echo "EXCEPTION: " . $e->getMessage();
         exit(1);
     }
 }
-
 
 $tests = array(
     'setPageWidth' => 500,
@@ -98,18 +94,14 @@ $tests = array(
     'setUserAgent' => "test user agent"
     );
 
-try
-{
-    foreach($tests as $method => $arg)
-    {
+try {
+    foreach ($tests as $method => $arg) {
         $client = new Pdfcrowd($argv[1], $argv[2]);
         $client->$method($arg);
         $client->setVerticalMargin('1in');
         $client->convertFile($test_dir . '/in/simple.html', out_stream(strtolower($method), False));
     }
-}
-catch(PdfcrowdException $e)
-{
+} catch (PdfcrowdException $e) {
     echo "EXCEPTION: " . $e->getMessage();
     exit(1);
 }
@@ -119,31 +111,28 @@ $client = new Pdfcrowd($argv[1], $argv[2]);
 $client->setPageMargins('0.25in', '0.5in', '0.75in', '1.0in');
 $client->convertHtml('<div style="background-color:red;height:100%">4 margins</div>', out_stream('4margins', False));
 
-
 // expected failures
 $failures = array(
     array("convertHtml", "", "must not be empty"),
     array("convertFile", "does-not-exist.html", "not found"),
     array("convertFile", "/", "not a directory"),
     array("convertFile", $test_dir."/in/empty.html", "must not be empty"),
-    array("convertURI", "domain.com", "must start with"),    
+    array("convertURI", "domain.com", "must start with"),
     array("convertURI", "HtTp://s3.pdfcrowd.com/this/url/does/not/exist/", "Received a non-2xx response")
     );
 $client = new Pdfcrowd($argv[1], $argv[2]);
 $client->setFailOnNon200(True);
-foreach($failures as $failure) {
+foreach ($failures as $failure) {
     try {
         $client->$failure[0]($failure[1]);
         echo "FAILED expected an exception: ${failure}\n";
         exit(1);
-    } catch(PdfcrowdException $e) {
+    } catch (PdfcrowdException $e) {
         if (!strstr($e->getMessage(), $failure[2])) {
             echo "error message [". $e->getMessage() ."] is expected to contain [".$failure[2]."]\n";
             exit(1);
         }
     }
 }
-    
-
 
 ?>
