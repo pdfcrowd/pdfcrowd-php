@@ -33,8 +33,7 @@ and `"apikey"`):
     use TweePdfCrowd\Client\PdfCrowd;
     use Exception;
     
-    try
-    {   
+    try {   
         // create an API client instance
         $client = new PdfCrowd(array('username' =>  'myusername', 'apikey' => 'myapikey'));
     
@@ -49,9 +48,7 @@ and `"apikey"`):
     
         // send the generated PDF 
         echo $pdf;
-    }
-    catch(Exception $e)
-    {
+    } catch(Exception $e) {
         echo "Pdfcrowd Error: " . $e->getMessage();
     }
 
