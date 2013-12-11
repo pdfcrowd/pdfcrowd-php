@@ -36,7 +36,7 @@ and `"apikey"`):
     try
     {   
         // create an API client instance
-        $client = new Pdfcrowd("username", "apikey");
+        $client = new CrowdPdf("username", "apikey");
     
         // convert a web page and store the generated PDF into a $pdf variable
         $pdf = $client->convertURI('http://example.com/');
