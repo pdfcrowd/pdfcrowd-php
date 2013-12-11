@@ -10,9 +10,19 @@ you a username and an API key.
 
 ## Installation
 
-Copy
-[pdfcrowd.php](https://github.com/pdfcrowd/pdfcrowd-php/blob/master/pdfcrowd.php)
-to your source directory.
+1. Add this to your composer.json:
+
+```json
+"require": {
+    "necromant2005/gearman-stats": "@dev",
+}
+```
+
+2. Now tell composer to download TweeGearmanStat by running the command:
+
+```bash
+$ php composer.phar update
+```
 
 ## Example
 
@@ -20,7 +30,8 @@ Server side PDF generation. This code converts a web page and sends
 the generated PDF to the browser (don't forget to use your `"username"`
 and `"apikey"`):
 
-    require 'pdfcrowd.php';
+    use TweePdfCrowd\Client\CrowdPdf;
+    use Exception;
     
     try
     {   
@@ -39,7 +50,7 @@ and `"apikey"`):
         // send the generated PDF 
         echo $pdf;
     }
-    catch(PdfcrowdException $e)
+    catch(Exception $e)
     {
         echo "Pdfcrowd Error: " . $e->getMessage();
     }
