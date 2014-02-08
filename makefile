@@ -1,4 +1,5 @@
 VERSION = 2.6
+PHP ?= php
 
 all:
 
@@ -10,7 +11,7 @@ dist/pdfcrowd-$(VERSION)-php.zip:
 	zip dist/pdfcrowd-$(VERSION)-php.zip pdfcrowd.php
 
 test:
-	php test.php $(API_USERNAME) $(API_TOKEN) $(API_HOSTNAME) $(API_HTTP_PORT) $(API_HTTPS_PORT)
+	$(PHP) test.php $(API_USERNAME) $(API_TOKEN) $(API_HOSTNAME) $(API_HTTP_PORT) $(API_HTTPS_PORT)
 
 init:
 	test -d ../test_files/out || mkdir -p ../test_files/out
