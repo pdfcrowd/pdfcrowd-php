@@ -125,7 +125,12 @@ Possible reasons:
             throw new PdfcrowdException("convertFile(): '{$src}' must not be empty");
         }
 
-        $this->fields['src'] = '@' . $src;
+        if (version_compare(PHP_VERSION, '5.5.0') >= 0) {
+            $this->fields['src'] = new CurlFile($src);
+        } else {
+            $this->fields['src'] = '@' . $src;
+        }
+
         $uri = $this->api_prefix . "/pdf/convert/html/";
         return $this->http_post($uri, $this->fields, $outstream);
     }
