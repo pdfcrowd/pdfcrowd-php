@@ -370,6 +370,12 @@ Possible reasons:
     function setUserAgent($user_agent) {
         $this->user_agent = $user_agent;
     }
+
+    function setTimeout($timeout) {
+        if (is_int($timeout) && $timeout > 0) {
+            $this->curlopt_timeout = $timeout;
+        }
+    }
     
     
 
@@ -379,7 +385,7 @@ Possible reasons:
     //                        Private stuff
     //
 
-    private $fields, $scheme, $port, $api_prefix;
+    private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
     public static $client_version = "2.7";
     public static $http_port = 80;
@@ -415,6 +421,9 @@ Links:
         curl_setopt($c, CURLOPT_POSTFIELDS, $postfields);
         curl_setopt($c, CURLOPT_DNS_USE_GLOBAL_CACHE, false);
         curl_setopt($c, CURLOPT_USERAGENT, $this->user_agent);
+        if (isset($this->curlopt_timeout)) {
+            curl_setopt($c, CURLOPT_TIMEOUT, $this->curlopt_timeout);
+        }
         if ($outstream) {
             $this->outstream = $outstream;
             curl_setopt($c, CURLOPT_WRITEFUNCTION, array($this, 'receive_to_stream'));
