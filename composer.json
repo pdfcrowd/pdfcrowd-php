@@ -1,0 +1,18 @@
+{
+    "name": "pdfcrowd/pdfcrowd-php",
+    "description": "A wrapper for the Pdfcrowd API. It allows you to convert web pages or raw HTML code to PDF.",
+    "homepage": "https://pdfcrowd.com/html-to-pdf-api/",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Pdfcrowd Team",
+            "email": "info@pdfcrowd.com"
+        }
+    ],
+    "autoload": {
+        "classmap": [
+            "pdfcrowd.php"
+        ]
+    }
+}
