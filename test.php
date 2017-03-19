@@ -44,7 +44,7 @@ foreach(array(False, True) as $i => $use_ssl) {
     try
     {
         $ntokens = $client->numTokens();
-        $client->convertURI('http://dl.dropboxusercontent.com/u/9346438/tests/webtopdfcom.html', out_stream('uri', $use_ssl));
+        $client->convertURI('https://storage.googleapis.com/pdfcrowd-legacy-tests/tests/webtopdfcom.html', out_stream('uri', $use_ssl));
         $client->convertHtml($html, out_stream('content', $use_ssl));
         $client->convertFile($test_dir . '/in/simple.html', out_stream('upload', $use_ssl));
         $client->convertFile($test_dir . '/in/archive.tar.gz', out_stream('archive', $use_ssl));
