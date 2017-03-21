@@ -5,3 +5,6 @@
 
 dist/
 test_files
+
+# Composer Dependencies
+/vendor/
