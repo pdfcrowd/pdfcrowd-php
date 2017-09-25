@@ -1,0 +1,23 @@
+{
+    "name": "pdfcrowd/pdfcrowd-beta",
+    "type": "library",
+    "version": "4.0.0",
+    "description": "A client for Pdfcrowd API.",
+    "keywords": ["html", "pdf", "web service", "api", "client", "convert", "web page"],
+    "homepage": "http://pdfcrowd.com/html-to-pdf-api/",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Pdfcrowd Team",
+            "email": "info@pdfcrowd.com",
+            "homepage": "https://github.com/pdfcrowd"
+        }
+    ],
+    "require": {
+        "php": ">=5.5",
+        "ext-curl": "*"
+    },
+    "autoload": {
+        "classmap": ["pdfcrowd.php"]
+    }
+}
