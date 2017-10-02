@@ -1,5 +1,5 @@
 {
-    "name": "pdfcrowd/pdfcrowd-beta",
+    "name": "pdfcrowd/pdfcrowd",
     "type": "library",
     "version": "4.0.0",
     "description": "A client for Pdfcrowd API.",
