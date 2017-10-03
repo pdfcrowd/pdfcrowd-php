@@ -433,6 +433,7 @@ Links:
             curl_setopt($c, CURLOPT_SSL_VERIFYPEER, true);
         } else {
             curl_setopt($c, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($c, CURLOPT_SSL_VERIFYHOST, false);
         }
 
         if ($this->proxy_name) {

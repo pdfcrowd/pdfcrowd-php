@@ -2,15 +2,15 @@
     "name": "pdfcrowd/pdfcrowd",
     "type": "library",
     "version": "4.0.0",
-    "description": "A client for Pdfcrowd API.",
+    "description": "A client library for the Pdfcrowd API. It lets you convert between HTML, PDF and various image formats",
     "keywords": ["html", "pdf", "web service", "api", "client", "convert", "web page"],
-    "homepage": "http://pdfcrowd.com/html-to-pdf-api/",
+    "homepage": "https://pdfcrowd.com/doc/api/",
     "license": "MIT",
     "authors": [
         {
             "name": "Pdfcrowd Team",
-            "email": "info@pdfcrowd.com",
-            "homepage": "https://github.com/pdfcrowd"
+            "email": "support@pdfcrowd.com",
+            "homepage": "https://pdfcrowd.com/doc/api/"
         }
     ],
     "require": {

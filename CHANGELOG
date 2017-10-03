@@ -1,3 +1,6 @@
+* version 4.0
+  - added support for the new API
+
 * version 2.7
   - fixed a cURL PHP 5.5 deprecation warning
 
