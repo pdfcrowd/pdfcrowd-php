@@ -1,4 +1,4 @@
-VERSION = 2.7
+VERSION = 4.0.0
 PHP ?= php
 DIR_NAME := pdfcrowd-4.0.0
 
@@ -9,7 +9,7 @@ dist/pdfcrowd-$(VERSION)-php.zip:
 	@cd dist && mkdir -p $(DIR_NAME) && cp ../pdfcrowd.php $(DIR_NAME) && zip pdfcrowd-$(VERSION)-php.zip $(DIR_NAME)/*
 
 publish:
-	curl -XPOST -H'content-type:application/json' "https://packagist.org/api/update-package?username=Pdfcrowd&apiToken=$API_TOKEN" -d'{"repository":{"url":"https://packagist.org/packages/pdfcrowd/pdfcrowd"}}'
+	curl -XPOST -H'content-type:application/json' "https://packagist.org/api/update-package?username=Pdfcrowd&apiToken=$(API_TOKEN)" -d'{"repository":{"url":"https://github.com/pdfcrowd/pdfcrowd-php"}}'
 
 .PHONY: clean
 clean:
