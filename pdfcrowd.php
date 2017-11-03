@@ -513,7 +513,7 @@ class Error extends \Exception {
     }
 }
 
-define('HOST', getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com');
+define('PDFCROWD_HOST', getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com');
 
 const CLIENT_VERSION = '4.0.0';
 const MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
@@ -624,7 +624,7 @@ Links:
         curl_setopt($c, CURLOPT_USERAGENT, $this->user_agent);
         curl_setopt($c, CURLOPT_USERPWD, "{$this->user_name}:{$this->api_key}");
 
-        if ($this->scheme == 'https' && HOST == 'api.pdfcrowd.com') {
+        if ($this->scheme == 'https' && PDFCROWD_HOST == 'api.pdfcrowd.com') {
             curl_setopt($c, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($c, CURLOPT_SSL_VERIFYHOST, true);
         } else {
@@ -750,7 +750,7 @@ Links:
         }
 
         $this->use_http = $use_http;
-        $this->url = "{$this->scheme}://".HOST.'/convert/';
+        $this->url = "{$this->scheme}://".PDFCROWD_HOST.'/convert/';
     }
 
     function setProxy($host, $port, $user_name, $password) {
