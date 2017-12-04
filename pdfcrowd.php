@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "4.1.0";
+    public static $client_version = "4.1.1";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -515,7 +515,7 @@ class Error extends \Exception {
 
 define('Pdfcrowd\HOST', getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com');
 
-const CLIENT_VERSION = '4.1.0';
+const CLIENT_VERSION = '4.1.1';
 const MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
 function float_to_string($value) {
@@ -539,7 +539,7 @@ class ConnectionHelper
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/4.1.0 (http://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/4.1.1 (http://pdfcrowd.com)');
 
         $this->retry_count = 1;
     }
@@ -738,7 +738,7 @@ Links:
         }
     }
 
-    private function exec_request($c, $out_stream) {
+    private function exec_request($c) {
         $response = curl_exec($c);
         $http_code = curl_getinfo($c, CURLINFO_HTTP_CODE);
         if (($http_code == 502 || getenv('PDFCROWD_UNIT_TEST_MODE'))
@@ -749,7 +749,7 @@ Links:
 
             // wait a while before retry
             usleep($this->retry * 100000);
-            return $this->exec_request($c, $out_stream);
+            return $this->exec_request($c);
         }
         return $response;
     }
@@ -1832,7 +1832,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Specifies number of retries after HTTP status code 502 was received. The status 502 occurs seldom due to network problems. This feature can be disabled by setting to 0.
+    * Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     * 
     * @param retry_count Number of retries wanted.
     * @return The converter object.
@@ -2383,7 +2383,7 @@ class HtmlToImageClient {
     }
 
     /**
-    * Specifies number of retries after HTTP status code 502 was received. The status 502 occurs seldom due to network problems. This feature can be disabled by setting to 0.
+    * Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     * 
     * @param retry_count Number of retries wanted.
     * @return The converter object.
@@ -2665,7 +2665,7 @@ class ImageToImageClient {
     }
 
     /**
-    * Specifies number of retries after HTTP status code 502 was received. The status 502 occurs seldom due to network problems. This feature can be disabled by setting to 0.
+    * Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     * 
     * @param retry_count Number of retries wanted.
     * @return The converter object.
@@ -2871,7 +2871,7 @@ class PdfToPdfClient {
     }
 
     /**
-    * Specifies number of retries after HTTP status code 502 was received. The status 502 occurs seldom due to network problems. This feature can be disabled by setting to 0.
+    * Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     * 
     * @param retry_count Number of retries wanted.
     * @return The converter object.
@@ -3139,7 +3139,7 @@ class ImageToPdfClient {
     }
 
     /**
-    * Specifies number of retries after HTTP status code 502 was received. The status 502 occurs seldom due to network problems. This feature can be disabled by setting to 0.
+    * Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     * 
     * @param retry_count Number of retries wanted.
     * @return The converter object.
