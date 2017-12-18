@@ -1002,14 +1002,14 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the output page height.
+    * Set the output page height. Use <span class='field-value'>-1</span> for a single page PDF.
     * 
-    * @param page_height Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+    * @param page_height Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @return The converter object.
     */
     function setPageHeight($page_height) {
-        if (!preg_match("/(?i)^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$/", $page_height))
-            throw new Error(create_invalid_value_message($page_height, "page_height", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_page_height"), 470);
+        if (!preg_match("/(?i)^\-1$|^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$/", $page_height))
+            throw new Error(create_invalid_value_message($page_height, "page_height", "html-to-pdf", "Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_page_height"), 470);
         
         $this->fields['page_height'] = $page_height;
         return $this;
@@ -1019,7 +1019,7 @@ class HtmlToPdfClient {
     * Set the output page dimensions.
     * 
     * @param width Set the output page width. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
-    * @param height Set the output page height. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+    * @param height Set the output page height. Use <span class='field-value'>-1</span> for a single page PDF. Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @return The converter object.
     */
     function setPageDimensions($width, $height) {
