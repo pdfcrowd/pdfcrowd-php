@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "4.1.1";
+    public static $client_version = "4.2.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -515,7 +515,7 @@ class Error extends \Exception {
 
 define('Pdfcrowd\HOST', getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com');
 
-const CLIENT_VERSION = '4.1.1';
+const CLIENT_VERSION = '4.2.0';
 const MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
 function float_to_string($value) {
@@ -539,7 +539,7 @@ class ConnectionHelper
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/4.1.1 (http://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/4.2.0 (http://pdfcrowd.com)');
 
         $this->retry_count = 1;
     }
@@ -2716,7 +2716,7 @@ class PdfToPdfClient {
     * Perform an action on the input files.
     * @return Byte array containing the output PDF.
     */
-    function convertFiles() {
+    function convert() {
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
 
@@ -2725,7 +2725,7 @@ class PdfToPdfClient {
     * 
     * @param out_stream The output stream that will contain the output PDF.
     */
-    function convertFilesToStream($out_stream) {
+    function convertToStream($out_stream) {
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
 
@@ -2734,12 +2734,12 @@ class PdfToPdfClient {
     * 
     * @param file_path The output file path. The string must not be empty.
     */
-    function convertFilesToFile($file_path) {
+    function convertToFile($file_path) {
         if (!($file_path != null && $file_path !== ''))
-            throw new Error(create_invalid_value_message($file_path, "file_path", "pdf-to-pdf", "The string must not be empty.", "convert_files_to_file"), 470);
+            throw new Error(create_invalid_value_message($file_path, "file_path", "pdf-to-pdf", "The string must not be empty.", "convert_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        $this->convertFilesToStream($output_file);
+        $this->convertToStream($output_file);
         fclose($output_file);
     }
 
@@ -2759,7 +2759,7 @@ class PdfToPdfClient {
     }
 
     /**
-    * Add in-memory raw PDF data to the list of the input PDFs.
+    * Add in-memory raw PDF data to the list of the input PDFs.<br>Typical usage is for adding PDF created by another Pdfcrowd converter.<br><br> Example in PHP:<br> <b>$clientPdf2Pdf</b>-&gt;addPdfRawData(<b>$clientHtml2Pdf</b>-&gt;convertUrl('http://www.example.com'));
     * 
     * @param pdf_raw_data The raw PDF data. The input data must be PDF content.
     * @return The converter object.
