@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "4.2.0";
+    public static $client_version = "4.2.1";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -396,7 +396,7 @@ Possible reasons:
 
 How to install:
   Windows: uncomment/add the "extension=php_curl.dll" line in php.ini
-  Linux:   should be a part of the distribution, 
+  Linux:   should be a part of the distribution,
            e.g. on Debian/Ubuntu run "sudo apt-get install php5-curl"
 
 You need to restart your web server after installation.
@@ -419,7 +419,12 @@ Links:
         curl_setopt($c, CURLOPT_POST, true);
         curl_setopt($c, CURLOPT_PORT, $this->port);
         curl_setopt($c, CURLOPT_POSTFIELDS, $postfields);
-        curl_setopt($c, CURLOPT_DNS_USE_GLOBAL_CACHE, false);
+        if (!PHP_ZTS) {
+            // don't disable CURLOPT_DNS_USE_GLOBAL_CACHE in ZTS mode
+            // it's disabled by default and
+            // calling this method produces a warning always
+            curl_setopt($c, CURLOPT_DNS_USE_GLOBAL_CACHE, false);
+        }
         curl_setopt($c, CURLOPT_USERAGENT, $this->user_agent);
         if (isset($this->curlopt_timeout)) {
             curl_setopt($c, CURLOPT_TIMEOUT, $this->curlopt_timeout);
@@ -515,7 +520,7 @@ class Error extends \Exception {
 
 define('Pdfcrowd\HOST', getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com');
 
-const CLIENT_VERSION = '4.2.0';
+const CLIENT_VERSION = '4.2.1';
 const MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
 function float_to_string($value) {
@@ -539,7 +544,7 @@ class ConnectionHelper
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/4.2.0 (http://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/4.2.1 (http://pdfcrowd.com)');
 
         $this->retry_count = 1;
     }
@@ -626,7 +631,12 @@ Links:
         curl_setopt($c, CURLOPT_HEADER, true);
         curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($c, CURLOPT_POST, true);
-        curl_setopt($c, CURLOPT_DNS_USE_GLOBAL_CACHE, false);
+        if (!PHP_ZTS) {
+            // don't disable CURLOPT_DNS_USE_GLOBAL_CACHE in ZTS mode
+            // it's disabled by default and
+            // calling this method produces a warning always
+            curl_setopt($c, CURLOPT_DNS_USE_GLOBAL_CACHE, false);
+        }
         curl_setopt($c, CURLOPT_USERAGENT, $this->user_agent);
         curl_setopt($c, CURLOPT_USERPWD, "{$this->user_name}:{$this->api_key}");
 
