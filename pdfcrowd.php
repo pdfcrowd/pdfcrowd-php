@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "4.2.1";
+    public static $client_version = "4.3.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -520,7 +520,7 @@ class Error extends \Exception {
 
 define('Pdfcrowd\HOST', getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com');
 
-const CLIENT_VERSION = '4.2.1';
+const CLIENT_VERSION = '4.3.0';
 const MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
 function float_to_string($value) {
@@ -544,7 +544,7 @@ class ConnectionHelper
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/4.2.1 (http://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/4.3.0 (http://pdfcrowd.com)');
 
         $this->retry_count = 1;
     }
@@ -887,8 +887,17 @@ class HtmlToPdfClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "html-to-pdf", "The string must not be empty.", "convert_url_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        $this->convertUrlToStream($url, $output_file);
-        fclose($output_file);
+        try
+        {
+            $this->convertUrlToStream($url, $output_file);
+            fclose($output_file);
+        }
+        catch(Error $why)
+        {
+            fclose($output_file);
+            unlink($file_path);
+            throw $why;
+        }
     }
 
     /**
@@ -936,8 +945,17 @@ class HtmlToPdfClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "html-to-pdf", "The string must not be empty.", "convert_file_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        $this->convertFileToStream($file, $output_file);
-        fclose($output_file);
+        try
+        {
+            $this->convertFileToStream($file, $output_file);
+            fclose($output_file);
+        }
+        catch(Error $why)
+        {
+            fclose($output_file);
+            unlink($file_path);
+            throw $why;
+        }
     }
 
     /**
@@ -979,8 +997,17 @@ class HtmlToPdfClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "html-to-pdf", "The string must not be empty.", "convert_string_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        $this->convertStringToStream($text, $output_file);
-        fclose($output_file);
+        try
+        {
+            $this->convertStringToStream($text, $output_file);
+            fclose($output_file);
+        }
+        catch(Error $why)
+        {
+            fclose($output_file);
+            unlink($file_path);
+            throw $why;
+        }
     }
 
     /**
@@ -998,7 +1025,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the output page width.
+    * Set the output page width. The safe maximum is <span class='field-value'>200in</span> otherwise some PDF viewers may be unable to open the PDF.
     * 
     * @param page_width Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @return The converter object.
@@ -1012,7 +1039,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the output page height. Use <span class='field-value'>-1</span> for a single page PDF.
+    * Set the output page height. Use <span class='field-value'>-1</span> for a single page PDF. The safe maximum is <span class='field-value'>200in</span> otherwise some PDF viewers may be unable to open the PDF.
     * 
     * @param page_height Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @return The converter object.
@@ -1028,8 +1055,8 @@ class HtmlToPdfClient {
     /**
     * Set the output page dimensions.
     * 
-    * @param width Set the output page width. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
-    * @param height Set the output page height. Use <span class='field-value'>-1</span> for a single page PDF. Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+    * @param width Set the output page width. The safe maximum is <span class='field-value'>200in</span> otherwise some PDF viewers may be unable to open the PDF. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+    * @param height Set the output page height. Use <span class='field-value'>-1</span> for a single page PDF. The safe maximum is <span class='field-value'>200in</span> otherwise some PDF viewers may be unable to open the PDF. Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @return The converter object.
     */
     function setPageDimensions($width, $height) {
@@ -1543,7 +1570,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Convert only the specified element and its children. The element is specified by one or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a>. If the element is not found, the conversion fails. If multiple elements are found, the first one is used.
+    * Convert only the specified element from the main document and its children. The element is specified by one or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a>. If the element is not found, the conversion fails. If multiple elements are found, the first one is used.
     * 
     * @param selectors One or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a> separated by commas. The string must not be empty.
     * @return The converter object.
@@ -1571,7 +1598,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Wait for the specified element in a source document. The element is specified by one or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a>. If the element is not found, the conversion fails.
+    * Wait for the specified element in a source document. The element is specified by one or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a>. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails.
     * 
     * @param selectors One or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a> separated by commas. The string must not be empty.
     * @return The converter object.
@@ -1745,7 +1772,198 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Turn on the debug logging.
+    * Set the title of the PDF.
+    * 
+    * @param title The title.
+    * @return The converter object.
+    */
+    function setTitle($title) {
+        $this->fields['title'] = $title;
+        return $this;
+    }
+
+    /**
+    * Set the subject of the PDF.
+    * 
+    * @param subject The subject.
+    * @return The converter object.
+    */
+    function setSubject($subject) {
+        $this->fields['subject'] = $subject;
+        return $this;
+    }
+
+    /**
+    * Set the author of the PDF.
+    * 
+    * @param author The author.
+    * @return The converter object.
+    */
+    function setAuthor($author) {
+        $this->fields['author'] = $author;
+        return $this;
+    }
+
+    /**
+    * Associate keywords with the document.
+    * 
+    * @param keywords The string with the keywords.
+    * @return The converter object.
+    */
+    function setKeywords($keywords) {
+        $this->fields['keywords'] = $keywords;
+        return $this;
+    }
+
+    /**
+    * Specify the page layout to be used when the document is opened.
+    * 
+    * @param page_layout Allowed values are single-page, one-column, two-column-left, two-column-right.
+    * @return The converter object.
+    */
+    function setPageLayout($page_layout) {
+        if (!preg_match("/(?i)^(single-page|one-column|two-column-left|two-column-right)$/", $page_layout))
+            throw new Error(create_invalid_value_message($page_layout, "page_layout", "html-to-pdf", "Allowed values are single-page, one-column, two-column-left, two-column-right.", "set_page_layout"), 470);
+        
+        $this->fields['page_layout'] = $page_layout;
+        return $this;
+    }
+
+    /**
+    * Specify how the document should be displayed when opened.
+    * 
+    * @param page_mode Allowed values are full-screen, thumbnails, outlines.
+    * @return The converter object.
+    */
+    function setPageMode($page_mode) {
+        if (!preg_match("/(?i)^(full-screen|thumbnails|outlines)$/", $page_mode))
+            throw new Error(create_invalid_value_message($page_mode, "page_mode", "html-to-pdf", "Allowed values are full-screen, thumbnails, outlines.", "set_page_mode"), 470);
+        
+        $this->fields['page_mode'] = $page_mode;
+        return $this;
+    }
+
+    /**
+    * Specify how the page should be displayed when opened.
+    * 
+    * @param initial_zoom_type Allowed values are fit-width, fit-height, fit-page.
+    * @return The converter object.
+    */
+    function setInitialZoomType($initial_zoom_type) {
+        if (!preg_match("/(?i)^(fit-width|fit-height|fit-page)$/", $initial_zoom_type))
+            throw new Error(create_invalid_value_message($initial_zoom_type, "initial_zoom_type", "html-to-pdf", "Allowed values are fit-width, fit-height, fit-page.", "set_initial_zoom_type"), 470);
+        
+        $this->fields['initial_zoom_type'] = $initial_zoom_type;
+        return $this;
+    }
+
+    /**
+    * Display the specified page when the document is opened.
+    * 
+    * @param initial_page Must be a positive integer number.
+    * @return The converter object.
+    */
+    function setInitialPage($initial_page) {
+        if (!(intval($initial_page) > 0))
+            throw new Error(create_invalid_value_message($initial_page, "initial_page", "html-to-pdf", "Must be a positive integer number.", "set_initial_page"), 470);
+        
+        $this->fields['initial_page'] = $initial_page;
+        return $this;
+    }
+
+    /**
+    * Specify the initial page zoom in percents when the document is opened.
+    * 
+    * @param initial_zoom Must be a positive integer number.
+    * @return The converter object.
+    */
+    function setInitialZoom($initial_zoom) {
+        if (!(intval($initial_zoom) > 0))
+            throw new Error(create_invalid_value_message($initial_zoom, "initial_zoom", "html-to-pdf", "Must be a positive integer number.", "set_initial_zoom"), 470);
+        
+        $this->fields['initial_zoom'] = $initial_zoom;
+        return $this;
+    }
+
+    /**
+    * Specify whether to hide the viewer application's tool bars when the document is active.
+    * 
+    * @param hide_toolbar Set to <span class='field-value'>true</span> to hide tool bars.
+    * @return The converter object.
+    */
+    function setHideToolbar($hide_toolbar) {
+        $this->fields['hide_toolbar'] = $hide_toolbar;
+        return $this;
+    }
+
+    /**
+    * Specify whether to hide the viewer application's menu bar when the document is active.
+    * 
+    * @param hide_menubar Set to <span class='field-value'>true</span> to hide the menu bar.
+    * @return The converter object.
+    */
+    function setHideMenubar($hide_menubar) {
+        $this->fields['hide_menubar'] = $hide_menubar;
+        return $this;
+    }
+
+    /**
+    * Specify whether to hide user interface elements in the document's window (such as scroll bars and navigation controls), leaving only the document's contents displayed.
+    * 
+    * @param hide_window_ui Set to <span class='field-value'>true</span> to hide ui elements.
+    * @return The converter object.
+    */
+    function setHideWindowUi($hide_window_ui) {
+        $this->fields['hide_window_ui'] = $hide_window_ui;
+        return $this;
+    }
+
+    /**
+    * Specify whether to resize the document's window to fit the size of the first displayed page.
+    * 
+    * @param fit_window Set to <span class='field-value'>true</span> to resize the window.
+    * @return The converter object.
+    */
+    function setFitWindow($fit_window) {
+        $this->fields['fit_window'] = $fit_window;
+        return $this;
+    }
+
+    /**
+    * Specify whether to position the document's window in the center of the screen.
+    * 
+    * @param center_window Set to <span class='field-value'>true</span> to center the window.
+    * @return The converter object.
+    */
+    function setCenterWindow($center_window) {
+        $this->fields['center_window'] = $center_window;
+        return $this;
+    }
+
+    /**
+    * Specify whether the window's title bar should display the document title. If false , the title bar should instead display the name of the PDF file containing the document.
+    * 
+    * @param display_title Set to <span class='field-value'>true</span> to display the title.
+    * @return The converter object.
+    */
+    function setDisplayTitle($display_title) {
+        $this->fields['display_title'] = $display_title;
+        return $this;
+    }
+
+    /**
+    * Set the predominant reading order for text to right-to-left. This option has no direct effect on the document's contents or page numbering but can be used to determine the relative positioning of pages when displayed side by side or printed n-up
+    * 
+    * @param right_to_left Set to <span class='field-value'>true</span> to set right-to-left reading order.
+    * @return The converter object.
+    */
+    function setRightToLeft($right_to_left) {
+        $this->fields['right_to_left'] = $right_to_left;
+        return $this;
+    }
+
+    /**
+    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method.
     * 
     * @param debug_log Set to <span class='field-value'>true</span> to enable the debug logging.
     * @return The converter object.
@@ -1928,8 +2146,17 @@ class HtmlToImageClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "html-to-image", "The string must not be empty.", "convert_url_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        $this->convertUrlToStream($url, $output_file);
-        fclose($output_file);
+        try
+        {
+            $this->convertUrlToStream($url, $output_file);
+            fclose($output_file);
+        }
+        catch(Error $why)
+        {
+            fclose($output_file);
+            unlink($file_path);
+            throw $why;
+        }
     }
 
     /**
@@ -1977,8 +2204,17 @@ class HtmlToImageClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "html-to-image", "The string must not be empty.", "convert_file_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        $this->convertFileToStream($file, $output_file);
-        fclose($output_file);
+        try
+        {
+            $this->convertFileToStream($file, $output_file);
+            fclose($output_file);
+        }
+        catch(Error $why)
+        {
+            fclose($output_file);
+            unlink($file_path);
+            throw $why;
+        }
     }
 
     /**
@@ -2020,8 +2256,17 @@ class HtmlToImageClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "html-to-image", "The string must not be empty.", "convert_string_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        $this->convertStringToStream($text, $output_file);
-        fclose($output_file);
+        try
+        {
+            $this->convertStringToStream($text, $output_file);
+            fclose($output_file);
+        }
+        catch(Error $why)
+        {
+            fclose($output_file);
+            unlink($file_path);
+            throw $why;
+        }
     }
 
     /**
@@ -2234,7 +2479,7 @@ class HtmlToImageClient {
     }
 
     /**
-    * Convert only the specified element and its children. The element is specified by one or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a>. If the element is not found, the conversion fails. If multiple elements are found, the first one is used.
+    * Convert only the specified element from the main document and its children. The element is specified by one or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a>. If the element is not found, the conversion fails. If multiple elements are found, the first one is used.
     * 
     * @param selectors One or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a> separated by commas. The string must not be empty.
     * @return The converter object.
@@ -2262,7 +2507,7 @@ class HtmlToImageClient {
     }
 
     /**
-    * Wait for the specified element in a source document. The element is specified by one or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a>. If the element is not found, the conversion fails.
+    * Wait for the specified element in a source document. The element is specified by one or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a>. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails.
     * 
     * @param selectors One or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a> separated by commas. The string must not be empty.
     * @return The converter object.
@@ -2304,7 +2549,7 @@ class HtmlToImageClient {
     }
 
     /**
-    * Turn on the debug logging.
+    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method.
     * 
     * @param debug_log Set to <span class='field-value'>true</span> to enable the debug logging.
     * @return The converter object.
@@ -2465,8 +2710,17 @@ class ImageToImageClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "image-to-image", "The string must not be empty.", "convert_url_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        $this->convertUrlToStream($url, $output_file);
-        fclose($output_file);
+        try
+        {
+            $this->convertUrlToStream($url, $output_file);
+            fclose($output_file);
+        }
+        catch(Error $why)
+        {
+            fclose($output_file);
+            unlink($file_path);
+            throw $why;
+        }
     }
 
     /**
@@ -2508,8 +2762,17 @@ class ImageToImageClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "image-to-image", "The string must not be empty.", "convert_file_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        $this->convertFileToStream($file, $output_file);
-        fclose($output_file);
+        try
+        {
+            $this->convertFileToStream($file, $output_file);
+            fclose($output_file);
+        }
+        catch(Error $why)
+        {
+            fclose($output_file);
+            unlink($file_path);
+            throw $why;
+        }
     }
 
     /**
@@ -2545,8 +2808,17 @@ class ImageToImageClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "image-to-image", "The string must not be empty.", "convert_raw_data_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        $this->convertRawDataToStream($data, $output_file);
-        fclose($output_file);
+        try
+        {
+            $this->convertRawDataToStream($data, $output_file);
+            fclose($output_file);
+        }
+        catch(Error $why)
+        {
+            fclose($output_file);
+            unlink($file_path);
+            throw $why;
+        }
     }
 
     /**
@@ -2586,7 +2858,7 @@ class ImageToImageClient {
     }
 
     /**
-    * Turn on the debug logging.
+    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method.
     * 
     * @param debug_log Set to <span class='field-value'>true</span> to enable the debug logging.
     * @return The converter object.
@@ -2784,7 +3056,7 @@ class PdfToPdfClient {
     }
 
     /**
-    * Turn on the debug logging.
+    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method.
     * 
     * @param debug_log Set to <span class='field-value'>true</span> to enable the debug logging.
     * @return The converter object.
@@ -2953,8 +3225,17 @@ class ImageToPdfClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "image-to-pdf", "The string must not be empty.", "convert_url_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        $this->convertUrlToStream($url, $output_file);
-        fclose($output_file);
+        try
+        {
+            $this->convertUrlToStream($url, $output_file);
+            fclose($output_file);
+        }
+        catch(Error $why)
+        {
+            fclose($output_file);
+            unlink($file_path);
+            throw $why;
+        }
     }
 
     /**
@@ -2996,8 +3277,17 @@ class ImageToPdfClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "image-to-pdf", "The string must not be empty.", "convert_file_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        $this->convertFileToStream($file, $output_file);
-        fclose($output_file);
+        try
+        {
+            $this->convertFileToStream($file, $output_file);
+            fclose($output_file);
+        }
+        catch(Error $why)
+        {
+            fclose($output_file);
+            unlink($file_path);
+            throw $why;
+        }
     }
 
     /**
@@ -3033,8 +3323,17 @@ class ImageToPdfClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "image-to-pdf", "The string must not be empty.", "convert_raw_data_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        $this->convertRawDataToStream($data, $output_file);
-        fclose($output_file);
+        try
+        {
+            $this->convertRawDataToStream($data, $output_file);
+            fclose($output_file);
+        }
+        catch(Error $why)
+        {
+            fclose($output_file);
+            unlink($file_path);
+            throw $why;
+        }
     }
 
     /**
@@ -3060,7 +3359,7 @@ class ImageToPdfClient {
     }
 
     /**
-    * Turn on the debug logging.
+    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method.
     * 
     * @param debug_log Set to <span class='field-value'>true</span> to enable the debug logging.
     * @return The converter object.
