@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "4.3.0";
+    public static $client_version = "4.3.1";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -520,7 +520,7 @@ class Error extends \Exception {
 
 define('Pdfcrowd\HOST', getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com');
 
-const CLIENT_VERSION = '4.3.0';
+const CLIENT_VERSION = '4.3.1';
 const MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
 function float_to_string($value) {
@@ -544,7 +544,7 @@ class ConnectionHelper
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/4.3.0 (http://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/4.3.1 (http://pdfcrowd.com)');
 
         $this->retry_count = 1;
     }
@@ -582,22 +582,6 @@ Links:
  Installing the PHP/cURL binding:  <http://curl.haxx.se/libcurl/php/install.html>
  PHP/cURL documentation:           <http://cz.php.net/manual/en/book.curl.php>';
 
-    public function post($fields, $files, $raw_data, $out_stream = null) {
-        if(empty($files) and empty($raw_data)) {
-            return $this->post_url_encoded($fields, $out_stream);
-        }
-        return $this->post_multipart($fields, $files, $raw_data, $out_stream);
-    }
-
-    private function post_url_encoded($fields, $out_stream) {
-        $post_fields = http_build_query($fields, '', '&');
-        return $this->do_post($post_fields, null, null, $out_stream);
-    }
-
-    private function post_multipart($fields, $files, $raw_data, $out_stream) {
-        return $this->do_post($fields, $files, $raw_data, $out_stream);
-    }
-
     private function add_file_field($name, $file_name, $data, &$body) {
         $body .= "--" . MULTIPART_BOUNDARY . "\r\n";
         $body .= 'Content-Disposition: form-data; name="' . $name . '";' . ' filename="' . $file_name . '"' . "\r\n";
@@ -616,7 +600,7 @@ Links:
         $this->retry = 0;
     }
 
-    private function do_post($fields, $files, $raw_data, $out_stream) {
+    public function post($fields, $files, $raw_data, $out_stream = null) {
         if (!function_exists('curl_init'))
             throw new Error(self::$MISSING_CURL);
 
@@ -1449,7 +1433,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the HTTP authentication.
+    * Set credentials to access HTTP base authentication protected websites.
     * 
     * @param user_name Set the HTTP authentication user name.
     * @param password Set the HTTP authentication password.
@@ -2358,7 +2342,7 @@ class HtmlToImageClient {
     }
 
     /**
-    * Set the HTTP authentication.
+    * Set credentials to access HTTP base authentication protected websites.
     * 
     * @param user_name Set the HTTP authentication user name.
     * @param password Set the HTTP authentication password.
