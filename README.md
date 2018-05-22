@@ -7,11 +7,13 @@ To use the API, you need an account on
 [http://pdfcrowd.com](https://pdfcrowd.com). If you don't have one, you
 can sign up [here](https://pdfcrowd.com/pricing/api/).
 
+## Installation
+
+To install via Packagist:
+
+    $ composer require pdfcrowd/pdfcrowd
+
 ## Documentation
 
-* Current stable API
-  * API Home:  <https://pdfcrowd.com/html-to-pdf-api/>
-  * API Reference:  <https://pdfcrowd.com/web-html-to-pdf-php/>
-* New API (Beta)
-  * API Home:  <https://pdfcrowd.com/doc/api/>
-
+* API Home:  <https://pdfcrowd.com/doc/api/>
+* API Reference:  <https://pdfcrowd.com/doc/api/html-to-pdf/php/>
