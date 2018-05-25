@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "4.3.1";
+    public static $client_version = "4.3.2";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -520,7 +520,7 @@ class Error extends \Exception {
 
 define('Pdfcrowd\HOST', getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com');
 
-const CLIENT_VERSION = '4.3.1';
+const CLIENT_VERSION = '4.3.2';
 const MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
 function float_to_string($value) {
@@ -544,7 +544,7 @@ class ConnectionHelper
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/4.3.1 (http://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/4.3.2 (http://pdfcrowd.com)');
 
         $this->retry_count = 1;
     }
@@ -1675,6 +1675,17 @@ class HtmlToPdfClient {
             throw new Error(create_invalid_value_message($header_footer_scale_factor, "header_footer_scale_factor", "html-to-pdf", "The value must be in a range 10-500.", "set_header_footer_scale_factor"), 470);
         
         $this->fields['header_footer_scale_factor'] = $header_footer_scale_factor;
+        return $this;
+    }
+
+    /**
+    * Disable the intelligent shrinking strategy that tries to optimally fit the HTML contents to a PDF page.
+    * 
+    * @param disable_smart_shrinking Set to <span class='field-value'>true</span> to disable the intelligent shrinking strategy.
+    * @return The converter object.
+    */
+    function setDisableSmartShrinking($disable_smart_shrinking) {
+        $this->fields['disable_smart_shrinking'] = $disable_smart_shrinking;
         return $this;
     }
 
