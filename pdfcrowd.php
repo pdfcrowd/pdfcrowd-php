@@ -582,6 +582,8 @@ Links:
  Installing the PHP/cURL binding:  <http://curl.haxx.se/libcurl/php/install.html>
  PHP/cURL documentation:           <http://cz.php.net/manual/en/book.curl.php>';
 
+    private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
+
     private function add_file_field($name, $file_name, $data, &$body) {
         $body .= "--" . MULTIPART_BOUNDARY . "\r\n";
         $body .= 'Content-Disposition: form-data; name="' . $name . '";' . ' filename="' . $file_name . '"' . "\r\n";
@@ -712,6 +714,12 @@ Links:
         curl_close($c);
 
         if ($error_nr != 0) {
+            if (in_array($error_nr, self::$SSL_ERRORS)) {
+                throw new Error("There was a problem connecting to Pdfcrowd servers over HTTPS:\n" .
+                                "{$error_str} ({$error_nr})" .
+                                "\nYou can still use the API over HTTP, you just need to add the following line right after Pdfcrowd client initialization:\n\$client->setUseHttp(true);",
+                                481);
+            }
             throw new Error($error_str, $error_nr);
         }
         else if ($http_code < 300) {
