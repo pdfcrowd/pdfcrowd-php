@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "4.3.2";
+    public static $client_version = "4.3.3";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -520,7 +520,7 @@ class Error extends \Exception {
 
 define('Pdfcrowd\HOST', getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com');
 
-const CLIENT_VERSION = '4.3.2';
+const CLIENT_VERSION = '4.3.3';
 const MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
 function float_to_string($value) {
@@ -544,7 +544,7 @@ class ConnectionHelper
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/4.3.2 (http://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/4.3.3 (http://pdfcrowd.com)');
 
         $this->retry_count = 1;
     }

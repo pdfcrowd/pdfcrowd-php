@@ -1,6 +1,6 @@
-VERSION = 4.3.2
+VERSION = 4.3.3
 PHP ?= php
-DIR_NAME := pdfcrowd-4.3.2
+DIR_NAME := pdfcrowd-4.3.3
 
 dist: dist/pdfcrowd-$(VERSION)-php.zip
 
