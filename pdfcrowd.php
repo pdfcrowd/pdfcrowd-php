@@ -879,6 +879,8 @@ class HtmlToPdfClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "html-to-pdf", "The string must not be empty.", "convert_url_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
+        if (!$output_file)
+            throw new \Exception(error_get_last()['message']);
         try
         {
             $this->convertUrlToStream($url, $output_file);
@@ -937,6 +939,8 @@ class HtmlToPdfClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "html-to-pdf", "The string must not be empty.", "convert_file_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
+        if (!$output_file)
+            throw new \Exception(error_get_last()['message']);
         try
         {
             $this->convertFileToStream($file, $output_file);
@@ -989,6 +993,8 @@ class HtmlToPdfClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "html-to-pdf", "The string must not be empty.", "convert_string_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
+        if (!$output_file)
+            throw new \Exception(error_get_last()['message']);
         try
         {
             $this->convertStringToStream($text, $output_file);
@@ -2149,6 +2155,8 @@ class HtmlToImageClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "html-to-image", "The string must not be empty.", "convert_url_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
+        if (!$output_file)
+            throw new \Exception(error_get_last()['message']);
         try
         {
             $this->convertUrlToStream($url, $output_file);
@@ -2207,6 +2215,8 @@ class HtmlToImageClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "html-to-image", "The string must not be empty.", "convert_file_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
+        if (!$output_file)
+            throw new \Exception(error_get_last()['message']);
         try
         {
             $this->convertFileToStream($file, $output_file);
@@ -2259,6 +2269,8 @@ class HtmlToImageClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "html-to-image", "The string must not be empty.", "convert_string_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
+        if (!$output_file)
+            throw new \Exception(error_get_last()['message']);
         try
         {
             $this->convertStringToStream($text, $output_file);
@@ -2713,6 +2725,8 @@ class ImageToImageClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "image-to-image", "The string must not be empty.", "convert_url_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
+        if (!$output_file)
+            throw new \Exception(error_get_last()['message']);
         try
         {
             $this->convertUrlToStream($url, $output_file);
@@ -2765,6 +2779,8 @@ class ImageToImageClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "image-to-image", "The string must not be empty.", "convert_file_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
+        if (!$output_file)
+            throw new \Exception(error_get_last()['message']);
         try
         {
             $this->convertFileToStream($file, $output_file);
@@ -2811,6 +2827,8 @@ class ImageToImageClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "image-to-image", "The string must not be empty.", "convert_raw_data_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
+        if (!$output_file)
+            throw new \Exception(error_get_last()['message']);
         try
         {
             $this->convertRawDataToStream($data, $output_file);
@@ -3228,6 +3246,8 @@ class ImageToPdfClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "image-to-pdf", "The string must not be empty.", "convert_url_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
+        if (!$output_file)
+            throw new \Exception(error_get_last()['message']);
         try
         {
             $this->convertUrlToStream($url, $output_file);
@@ -3280,6 +3300,8 @@ class ImageToPdfClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "image-to-pdf", "The string must not be empty.", "convert_file_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
+        if (!$output_file)
+            throw new \Exception(error_get_last()['message']);
         try
         {
             $this->convertFileToStream($file, $output_file);
@@ -3326,6 +3348,8 @@ class ImageToPdfClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "image-to-pdf", "The string must not be empty.", "convert_raw_data_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
+        if (!$output_file)
+            throw new \Exception(error_get_last()['message']);
         try
         {
             $this->convertRawDataToStream($data, $output_file);
