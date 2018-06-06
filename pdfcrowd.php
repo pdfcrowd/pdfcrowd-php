@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "4.3.3";
+    public static $client_version = "4.3.4";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -520,7 +520,7 @@ class Error extends \Exception {
 
 define('Pdfcrowd\HOST', getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com');
 
-const CLIENT_VERSION = '4.3.3';
+const CLIENT_VERSION = '4.3.4';
 const MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
 function float_to_string($value) {
@@ -544,7 +544,7 @@ class ConnectionHelper
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/4.3.3 (http://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/4.3.4 (http://pdfcrowd.com)');
 
         $this->retry_count = 1;
     }
@@ -568,19 +568,7 @@ class ConnectionHelper
 
     private $retry_count;
     private $retry;
-
-    private static $MISSING_CURL = 'pdfcrowd.php requires cURL which is not installed on your system.
-
-How to install:
-  Windows: uncomment/add the "extension=php_curl.dll" line in php.ini
-  Linux:   should be a part of the distribution,
-           e.g. on Debian/Ubuntu run "sudo apt-get install php-curl"
-
-You need to restart your web server after installation.
-
-Links:
- Installing the PHP/cURL binding:  <http://curl.haxx.se/libcurl/php/install.html>
- PHP/cURL documentation:           <http://cz.php.net/manual/en/book.curl.php>';
+    private $error_message;
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
@@ -602,14 +590,66 @@ Links:
         $this->retry = 0;
     }
 
-    public function post($fields, $files, $raw_data, $out_stream = null) {
-        if (!function_exists('curl_init'))
-            throw new Error(self::$MISSING_CURL);
+    private function build_body($fields, $files, $raw_data) {
+        $body = '';
 
+        foreach ($fields as $name => $content) {
+            $body .= "--" . MULTIPART_BOUNDARY . "\r\n";
+            $body .= 'Content-Disposition: form-data; name="' . $name . '"' . "\r\n\r\n";
+            $body .= $content . "\r\n";
+        }
+
+        foreach ($files as $name => $file_name) {
+            $this->add_file_field($name, $file_name, file_get_contents($file_name), $body);
+        }
+
+        foreach ($raw_data as $name => $data) {
+            $this->add_file_field($name, $name, $data, $body);
+        }
+
+        return $body . "--" . MULTIPART_BOUNDARY . "--\r\n";
+    }
+
+    private function output_body($http_code, $body, $out_stream) {
+        if ($http_code >= 300)
+            throw new Error($body, $http_code);
+
+        if ($out_stream == null)
+            return $body;
+
+        $written = fwrite($out_stream, $body);
+        if ($written != strlen($body)) {
+            if (get_magic_quotes_runtime()) {
+                throw new Error("Cannot write the PDF file because the 'magic_quotes_runtime' setting is enabled. Please disable it either in your php.ini file, or in your code by calling 'set_magic_quotes_runtime(false)'.");
+            }
+            throw new Error('Writing the PDF file failed. The disk may be full.');
+        }
+    }
+
+    private function should_retry($code) {
+        if (($code == 502 || getenv('PDFCROWD_UNIT_TEST_MODE'))
+            && $this->retry_count > $this->retry) {
+            // http error 502 occures sometimes due to network problems
+            // so retry request
+            $this->retry++;
+
+            // wait a while before retry
+            usleep($this->retry * 100000);
+            return true;
+        }
+        return false;
+    }
+
+    public function post($fields, $files, $raw_data, $out_stream = null) {
         if ($this->proxy_host && !$this->use_http)
             throw new Error('HTTPS over a proxy is not supported.');
 
         $this->reset_response_data();
+
+        if (!function_exists('curl_init') || getenv('PDFCROWD_UNIT_TEST_MODE')) {
+            // use implementation without curl as a fallback
+            return $this->post_no_curl($fields, $files, $raw_data, $out_stream);
+        }
 
         $c = curl_init();
         curl_setopt($c, CURLOPT_URL, $this->url);
@@ -645,23 +685,7 @@ Links:
         if ($files === null) {
             curl_setopt($c, CURLOPT_POSTFIELDS, $fields);
         } else {
-            $body = '';
-
-            foreach ($fields as $name => $content) {
-               $body .= "--" . MULTIPART_BOUNDARY . "\r\n";
-               $body .= 'Content-Disposition: form-data; name="' . $name . '"' . "\r\n\r\n";
-               $body .= $content . "\r\n";
-            }
-
-            foreach ($files as $name => $file_name) {
-               $this->add_file_field($name, $file_name, file_get_contents($file_name), $body);
-            }
-
-            foreach ($raw_data as $name => $data) {
-               $this->add_file_field($name, $name, $data, $body);
-            }
-
-            $body .= "--" . MULTIPART_BOUNDARY . "--\r\n";
+            $body = $this->build_body($fields, $files, $raw_data);
 
             curl_setopt($c, CURLOPT_HTTPHEADER , array(
                 'Content-Type: multipart/form-data; boundary=' . MULTIPART_BOUNDARY,
@@ -676,41 +700,7 @@ Links:
         $header_size = curl_getinfo($c, CURLINFO_HEADER_SIZE);
         $headers = array_map("rtrim", explode("\n", substr($response, 0, $header_size)));
         $body = substr($response, $header_size);
-        foreach($headers as $header) {
-            $value = $this->get_header_value('X-Pdfcrowd-Debug-Log', $header);
-            if ($value) {
-               $this->debug_log_url = $value;
-               continue;
-            }
-
-            $value = $this->get_header_value('X-Pdfcrowd-Remaining-Credits', $header);
-            if ($value) {
-               $this->credits = intval($value);
-               continue;
-            }
-
-            $value = $this->get_header_value('X-Pdfcrowd-Consumed-Credits', $header);
-            if ($value) {
-               $this->consumed_credits = intval($value);
-               continue;
-            }
-
-            $value = $this->get_header_value('X-Pdfcrowd-Job-Id', $header);
-            if ($value) {
-               $this->job_id = $value;
-               continue;
-            }
-
-            $value = $this->get_header_value('X-Pdfcrowd-Pages', $header);
-            if ($value) {
-               $this->page_count = intval($value);
-            }
-
-            $value = $this->get_header_value('X-Pdfcrowd-Output-Size', $header);
-            if ($value) {
-               $this->output_size = intval($value);
-            }
-        }
+        $this->parse_response_headers($headers);
         curl_close($c);
 
         if ($error_nr != 0) {
@@ -722,45 +712,109 @@ Links:
             }
             throw new Error($error_str, $error_nr);
         }
-        else if ($http_code < 300) {
-            if ($out_stream == null) {
-                return $body;
-            }
 
-            $written = fwrite($out_stream, $body);
-            if ($written != strlen($body)) {
-                if (get_magic_quotes_runtime()) {
-                    throw new Error("Cannot write the PDF file because the 'magic_quotes_runtime' setting is enabled. Please disable it either in your php.ini file, or in your code by calling 'set_magic_quotes_runtime(false)'.");
-                } else {
-                    throw new Error('Writing the PDF file failed. The disk may be full.');
-                }
-            }
-        } else {
-            throw new Error($body, $http_code);
-        }
+        return $this->output_body($http_code, $body, $out_stream);
     }
 
     private function exec_request($c) {
         $response = curl_exec($c);
         $http_code = curl_getinfo($c, CURLINFO_HTTP_CODE);
-        if (($http_code == 502 || getenv('PDFCROWD_UNIT_TEST_MODE'))
-            && $this->retry_count > $this->retry) {
-            // http error 502 occures sometimes due to network problems
-            // so retry request
-            $this->retry++;
-
-            // wait a while before retry
-            usleep($this->retry * 100000);
+        if ($this->should_retry($http_code)) {
             return $this->exec_request($c);
         }
         return $response;
     }
 
-    private function get_header_value($name, $data) {
-        $pos = strpos($data, $name);
-        if ($pos !== false) {
-            return substr($data, strlen($name) + 2);
+    private function post_no_curl($fields, $files, $raw_data, $out_stream) {
+        $body = $this->build_body($fields, $files, $raw_data);
+        $auth = base64_encode("{$this->user_name}:{$this->api_key}");
+        $headers = [
+            'Content-Type: multipart/form-data; boundary=' . MULTIPART_BOUNDARY,
+            'Content-Length: ' . strlen($body),
+            'Authorization: Basic ' . $auth
+        ];
+
+        $context_options = array(
+            'http' => array(
+                'method' => 'POST',
+                'content' => $body,
+                'ignore_errors' => true
+            )
+        );
+
+        if (HOST != 'api.pdfcrowd.com') {
+            $context_options['ssl'] = array(
+                'verify_peer_name' => false
+            );
         }
+
+        if ($this->proxy_host) {
+            $context_options['http']['proxy'] = $this->proxy_host . ':' . $this->proxy_port;
+            $context_options['http']['request_fulluri'] = true;
+            if ($this->proxy_user_name) {
+                $auth = base64_encode("{$this->proxy_user_name}:{$this->proxy_password}");
+                $headers[] = "Proxy-Authorization: Basic $auth";
+            }
+        }
+
+        $context_options['http']['header'] = $headers;
+
+        $context = stream_context_create($context_options);
+        $response = $this->exec_request_no_curl($this->url, $context);
+
+        return $this->output_body($response['code'], $response['body'], $out_stream);
+    }
+
+    private function parse_response_headers($headers) {
+        $code = 555;
+        foreach ($headers as $header) {
+            if (preg_match('/HTTP\/\d\.\d\s+(\d+)\s*.*/', $header, $matches)) {
+                $code = intval($matches[1]);
+            } else if(preg_match('/X-Pdfcrowd-Job-Id:\s+(.*)/', $header, $matches)) {
+                $this->job_id = $matches[1];
+            } else if(preg_match('/X-Pdfcrowd-Pages:\s+(.*)/', $header, $matches)) {
+                $this->page_count = intval($matches[1]);
+            } else if(preg_match('/X-Pdfcrowd-Output-Size:\s+(.*)/', $header, $matches)) {
+                $this->output_size = intval($matches[1]);
+            } else if(preg_match('/X-Pdfcrowd-Remaining-Credits:\s+(.*)/', $header, $matches)) {
+                $this->credits = intval($matches[1]);
+            } else if(preg_match('/X-Pdfcrowd-Consumed-Credits:\s+(.*)/', $header, $matches)) {
+                $this->consumed_credits = intval($matches[1]);
+            } else if(preg_match('/X-Pdfcrowd-Debug-Log:\s+(.*)/', $header, $matches)) {
+                $this->debug_log_url = $matches[1];
+            }
+        }
+        return $code;
+    }
+
+    function custom_error_handler($severity, $message, $file, $line) {
+        $this->error_message .= $message . "\n";
+    }
+
+    private function exec_request_no_curl($url, $context) {
+        $this->error_message = '';
+        set_error_handler(array($this, 'custom_error_handler'));
+        $body = file_get_contents($url, false, $context);
+        restore_error_handler();
+
+        if($body === false) {
+            if(strpos($this->error_message, "SSL") === false) {
+                throw new Error($this->error_message);
+            }
+            throw new Error("There was a problem connecting to Pdfcrowd servers over HTTPS:\n" .
+                            $this->error_message .
+                            "\nYou can still use the API over HTTP, you just need to add the following line right after Pdfcrowd client initialization:\n\$client->setUseHttp(true);",
+                            481);
+        }
+
+        $code = $this->parse_response_headers($http_response_header);
+        if ($this->should_retry($code)) {
+            return $this->exec_request_no_curl($url, $context);
+        }
+        return array(
+            'code' => $code,
+            'body' => $body
+        );
     }
 
     function setUseHttp($use_http) {
