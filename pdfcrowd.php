@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "4.3.4";
+    public static $client_version = "4.3.5";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -520,7 +520,7 @@ class Error extends \Exception {
 
 define('Pdfcrowd\HOST', getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com');
 
-const CLIENT_VERSION = '4.3.4';
+const CLIENT_VERSION = '4.3.5';
 const MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
 function float_to_string($value) {
@@ -544,7 +544,7 @@ class ConnectionHelper
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/4.3.4 (http://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/4.3.5 (http://pdfcrowd.com)');
 
         $this->retry_count = 1;
     }
@@ -2087,6 +2087,17 @@ class HtmlToPdfClient {
     }
 
     /**
+    * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
+    * 
+    * @param tag A string with the custom tag.
+    * @return The converter object.
+    */
+    function setTag($tag) {
+        $this->fields['tag'] = $tag;
+        return $this;
+    }
+
+    /**
     * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
     * 
     * @param use_http Set to <span class='field-value'>true</span> to use HTTP.
@@ -2671,6 +2682,17 @@ class HtmlToImageClient {
     }
 
     /**
+    * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
+    * 
+    * @param tag A string with the custom tag.
+    * @return The converter object.
+    */
+    function setTag($tag) {
+        $this->fields['tag'] = $tag;
+        return $this;
+    }
+
+    /**
     * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
     * 
     * @param use_http Set to <span class='field-value'>true</span> to use HTTP.
@@ -2986,6 +3008,17 @@ class ImageToImageClient {
     }
 
     /**
+    * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
+    * 
+    * @param tag A string with the custom tag.
+    * @return The converter object.
+    */
+    function setTag($tag) {
+        $this->fields['tag'] = $tag;
+        return $this;
+    }
+
+    /**
     * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
     * 
     * @param use_http Set to <span class='field-value'>true</span> to use HTTP.
@@ -3189,6 +3222,17 @@ class PdfToPdfClient {
     */
     function getOutputSize() {
         return $this->helper->getOutputSize();
+    }
+
+    /**
+    * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
+    * 
+    * @param tag A string with the custom tag.
+    * @return The converter object.
+    */
+    function setTag($tag) {
+        $this->fields['tag'] = $tag;
+        return $this;
     }
 
     /**
@@ -3490,6 +3534,17 @@ class ImageToPdfClient {
     */
     function getOutputSize() {
         return $this->helper->getOutputSize();
+    }
+
+    /**
+    * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
+    * 
+    * @param tag A string with the custom tag.
+    * @return The converter object.
+    */
+    function setTag($tag) {
+        $this->fields['tag'] = $tag;
+        return $this;
     }
 
     /**
