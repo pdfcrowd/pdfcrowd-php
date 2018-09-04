@@ -1,7 +1,7 @@
 <?php
 
-// Copyright (C) 2009-2016 pdfcrowd.com
-// 
+// Copyright (C) 2009-2018 pdfcrowd.com
+//
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
 // files (the "Software"), to deal in the Software without
@@ -10,10 +10,10 @@
 // copies of the Software, and to permit persons to whom the
 // Software is furnished to do so, subject to the following
 // conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
 // OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "4.3.5";
+    public static $client_version = "4.3.6";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -520,12 +520,8 @@ class Error extends \Exception {
 
 define('Pdfcrowd\HOST', getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com');
 
-const CLIENT_VERSION = '4.3.5';
+const CLIENT_VERSION = '4.3.6';
 const MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
-
-function float_to_string($value) {
-    return str_replace(',', '.', strval($value));
-}
 
 function create_invalid_value_message($value, $field, $converter, $hint, $id) {
     $message = "Invalid value '$value' for a field '$field'.";
@@ -544,9 +540,11 @@ class ConnectionHelper
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/4.3.5 (http://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/4.3.6 (http://pdfcrowd.com)');
 
         $this->retry_count = 1;
+
+        $this->use_curl = false;
     }
 
     private $user_name;
@@ -569,6 +567,8 @@ class ConnectionHelper
     private $retry_count;
     private $retry;
     private $error_message;
+
+    private $use_curl;
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
@@ -646,8 +646,12 @@ class ConnectionHelper
 
         $this->reset_response_data();
 
-        if (!function_exists('curl_init') || getenv('PDFCROWD_UNIT_TEST_MODE')) {
-            // use implementation without curl as a fallback
+        if (!($this->use_curl || getenv('PDFCROWD_UNIT_TEST_MODE'))) {
+            if (!$this->use_http && !extension_loaded('openssl')) {
+                throw new Error('The Open SSL PHP extension is not enabled. Check your php.ini file.');
+            }
+
+            // use implementation without curl
             return $this->post_no_curl($fields, $files, $raw_data, $out_stream);
         }
 
@@ -728,11 +732,12 @@ class ConnectionHelper
     private function post_no_curl($fields, $files, $raw_data, $out_stream) {
         $body = $this->build_body($fields, $files, $raw_data);
         $auth = base64_encode("{$this->user_name}:{$this->api_key}");
-        $headers = [
+        $headers = array(
             'Content-Type: multipart/form-data; boundary=' . MULTIPART_BOUNDARY,
             'Content-Length: ' . strlen($body),
-            'Authorization: Basic ' . $auth
-        ];
+            'Authorization: Basic ' . $auth,
+            'User-Agent: ' . $this->user_agent
+        );
 
         $context_options = array(
             'http' => array(
@@ -869,6 +874,10 @@ class ConnectionHelper
     function getOutputSize() {
         return $this->output_size;
     }
+
+    function setUseCurl($use_curl) {
+        $this->use_curl = $use_curl;
+    }
 }
 
 // generated code
@@ -882,7 +891,7 @@ class HtmlToPdfClient {
 
     /**
     * Constructor for the Pdfcrowd API client.
-    * 
+    *
     * @param user_name Your username at Pdfcrowd.
     * @param api_key Your API key.
     */
@@ -896,7 +905,7 @@ class HtmlToPdfClient {
 
     /**
     * Convert a web page.
-    * 
+    *
     * @param url The address of the web page to convert. The supported protocols are http:// and https://.
     * @return Byte array containing the conversion output.
     */
@@ -910,7 +919,7 @@ class HtmlToPdfClient {
 
     /**
     * Convert a web page and write the result to an output stream.
-    * 
+    *
     * @param url The address of the web page to convert. The supported protocols are http:// and https://.
     * @param out_stream The output stream that will contain the conversion output.
     */
@@ -924,7 +933,7 @@ class HtmlToPdfClient {
 
     /**
     * Convert a web page and write the result to a local file.
-    * 
+    *
     * @param url The address of the web page to convert. The supported protocols are http:// and https://.
     * @param file_path The output file path. The string must not be empty.
     */
@@ -933,15 +942,15 @@ class HtmlToPdfClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "html-to-pdf", "The string must not be empty.", "convert_url_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        if (!$output_file)
-            throw new \Exception(error_get_last()['message']);
-        try
-        {
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
             $this->convertUrlToStream($url, $output_file);
             fclose($output_file);
         }
-        catch(Error $why)
-        {
+        catch(Error $why) {
             fclose($output_file);
             unlink($file_path);
             throw $why;
@@ -950,7 +959,7 @@ class HtmlToPdfClient {
 
     /**
     * Convert a local file.
-    * 
+    *
     * @param file The path to a local file to convert.<br> The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip).<br> If the HTML document refers to local external assets (images, style sheets, javascript), zip the document together with the assets. The file must exist and not be empty. The file name must have a valid extension.
     * @return Byte array containing the conversion output.
     */
@@ -967,7 +976,7 @@ class HtmlToPdfClient {
 
     /**
     * Convert a local file and write the result to an output stream.
-    * 
+    *
     * @param file The path to a local file to convert.<br> The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip).<br> If the HTML document refers to local external assets (images, style sheets, javascript), zip the document together with the assets. The file must exist and not be empty. The file name must have a valid extension.
     * @param out_stream The output stream that will contain the conversion output.
     */
@@ -984,7 +993,7 @@ class HtmlToPdfClient {
 
     /**
     * Convert a local file and write the result to a local file.
-    * 
+    *
     * @param file The path to a local file to convert.<br> The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip).<br> If the HTML document refers to local external assets (images, style sheets, javascript), zip the document together with the assets. The file must exist and not be empty. The file name must have a valid extension.
     * @param file_path The output file path. The string must not be empty.
     */
@@ -993,15 +1002,15 @@ class HtmlToPdfClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "html-to-pdf", "The string must not be empty.", "convert_file_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        if (!$output_file)
-            throw new \Exception(error_get_last()['message']);
-        try
-        {
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
             $this->convertFileToStream($file, $output_file);
             fclose($output_file);
         }
-        catch(Error $why)
-        {
+        catch(Error $why) {
             fclose($output_file);
             unlink($file_path);
             throw $why;
@@ -1010,7 +1019,7 @@ class HtmlToPdfClient {
 
     /**
     * Convert a string.
-    * 
+    *
     * @param text The string content to convert. The string must not be empty.
     * @return Byte array containing the conversion output.
     */
@@ -1024,7 +1033,7 @@ class HtmlToPdfClient {
 
     /**
     * Convert a string and write the output to an output stream.
-    * 
+    *
     * @param text The string content to convert. The string must not be empty.
     * @param out_stream The output stream that will contain the conversion output.
     */
@@ -1038,7 +1047,7 @@ class HtmlToPdfClient {
 
     /**
     * Convert a string and write the output to a file.
-    * 
+    *
     * @param text The string content to convert. The string must not be empty.
     * @param file_path The output file path. The string must not be empty.
     */
@@ -1047,15 +1056,15 @@ class HtmlToPdfClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "html-to-pdf", "The string must not be empty.", "convert_string_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        if (!$output_file)
-            throw new \Exception(error_get_last()['message']);
-        try
-        {
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
             $this->convertStringToStream($text, $output_file);
             fclose($output_file);
         }
-        catch(Error $why)
-        {
+        catch(Error $why) {
             fclose($output_file);
             unlink($file_path);
             throw $why;
@@ -1064,7 +1073,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the output page size.
-    * 
+    *
     * @param page_size Allowed values are A2, A3, A4, A5, A6, Letter.
     * @return The converter object.
     */
@@ -1078,7 +1087,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the output page width. The safe maximum is <span class='field-value'>200in</span> otherwise some PDF viewers may be unable to open the PDF.
-    * 
+    *
     * @param page_width Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @return The converter object.
     */
@@ -1092,7 +1101,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the output page height. Use <span class='field-value'>-1</span> for a single page PDF. The safe maximum is <span class='field-value'>200in</span> otherwise some PDF viewers may be unable to open the PDF.
-    * 
+    *
     * @param page_height Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @return The converter object.
     */
@@ -1106,7 +1115,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the output page dimensions.
-    * 
+    *
     * @param width Set the output page width. The safe maximum is <span class='field-value'>200in</span> otherwise some PDF viewers may be unable to open the PDF. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @param height Set the output page height. Use <span class='field-value'>-1</span> for a single page PDF. The safe maximum is <span class='field-value'>200in</span> otherwise some PDF viewers may be unable to open the PDF. Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @return The converter object.
@@ -1119,7 +1128,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the output page orientation.
-    * 
+    *
     * @param orientation Allowed values are landscape, portrait.
     * @return The converter object.
     */
@@ -1133,7 +1142,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the output page top margin.
-    * 
+    *
     * @param margin_top Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @return The converter object.
     */
@@ -1147,7 +1156,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the output page right margin.
-    * 
+    *
     * @param margin_right Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @return The converter object.
     */
@@ -1161,7 +1170,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the output page bottom margin.
-    * 
+    *
     * @param margin_bottom Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @return The converter object.
     */
@@ -1175,7 +1184,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the output page left margin.
-    * 
+    *
     * @param margin_left Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @return The converter object.
     */
@@ -1189,7 +1198,7 @@ class HtmlToPdfClient {
 
     /**
     * Disable margins.
-    * 
+    *
     * @param no_margins Set to <span class='field-value'>true</span> to disable margins.
     * @return The converter object.
     */
@@ -1200,7 +1209,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the output page margins.
-    * 
+    *
     * @param top Set the output page top margin. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @param right Set the output page right margin. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @param bottom Set the output page bottom margin. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
@@ -1218,7 +1227,7 @@ class HtmlToPdfClient {
     /**
     * Load an HTML code from the specified URL and use it as the page header. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: <ul> <li><span class='field-value'>pdfcrowd-page-count</span> - the total page count of printed pages</li> <li><span class='field-value'>pdfcrowd-page-number</span> - the current page number</li> <li><span class='field-value'>pdfcrowd-source-url</span> - the source URL of a converted document</li> </ul> The following attributes can be used: <ul> <li><span class='field-value'>data-pdfcrowd-number-format</span> - specifies the type of the used numerals <ul> <li>Arabic numerals are used by default.</li> <li>Roman numerals can be generated by the <span class='field-value'>roman</span> and <span class='field-value'>roman-lowercase</span> values</li> <li>Example: &lt;span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'&gt;&lt;/span&gt;</li> </ul> </li> <li><span class='field-value'>data-pdfcrowd-placement</span> - specifies where to place the source URL, allowed values: <ul> <li>The URL is inserted to the content <ul> <li> Example: &lt;span class='pdfcrowd-source-url'&gt;&lt;/span&gt;<br> will produce &lt;span&gt;http://example.com&lt;/span&gt; </li> </ul>
 </li> <li><span class='field-value'>href</span> - the URL is set to the href attribute <ul> <li> Example: &lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'&gt;Link to source&lt;/a&gt;<br> will produce &lt;a href='http://example.com'&gt;Link to source&lt;/a&gt; </li> </ul> </li> <li><span class='field-value'>href-and-content</span> - the URL is set to the href attribute and to the content <ul> <li> Example: &lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'&gt;&lt;/a&gt;<br> will produce &lt;a href='http://example.com'&gt;http://example.com&lt;/a&gt; </li> </ul> </li> </ul> </li> </ul>
-    * 
+    *
     * @param header_url The supported protocols are http:// and https://.
     * @return The converter object.
     */
@@ -1233,7 +1242,7 @@ class HtmlToPdfClient {
     /**
     * Use the specified HTML code as the page header. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: <ul> <li><span class='field-value'>pdfcrowd-page-count</span> - the total page count of printed pages</li> <li><span class='field-value'>pdfcrowd-page-number</span> - the current page number</li> <li><span class='field-value'>pdfcrowd-source-url</span> - the source URL of a converted document</li> </ul> The following attributes can be used: <ul> <li><span class='field-value'>data-pdfcrowd-number-format</span> - specifies the type of the used numerals <ul> <li>Arabic numerals are used by default.</li> <li>Roman numerals can be generated by the <span class='field-value'>roman</span> and <span class='field-value'>roman-lowercase</span> values</li> <li>Example: &lt;span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'&gt;&lt;/span&gt;</li> </ul> </li> <li><span class='field-value'>data-pdfcrowd-placement</span> - specifies where to place the source URL, allowed values: <ul> <li>The URL is inserted to the content <ul> <li> Example: &lt;span class='pdfcrowd-source-url'&gt;&lt;/span&gt;<br> will produce &lt;span&gt;http://example.com&lt;/span&gt; </li> </ul>
 </li> <li><span class='field-value'>href</span> - the URL is set to the href attribute <ul> <li> Example: &lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'&gt;Link to source&lt;/a&gt;<br> will produce &lt;a href='http://example.com'&gt;Link to source&lt;/a&gt; </li> </ul> </li> <li><span class='field-value'>href-and-content</span> - the URL is set to the href attribute and to the content <ul> <li> Example: &lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'&gt;&lt;/a&gt;<br> will produce &lt;a href='http://example.com'&gt;http://example.com&lt;/a&gt; </li> </ul> </li> </ul> </li> </ul>
-    * 
+    *
     * @param header_html The string must not be empty.
     * @return The converter object.
     */
@@ -1247,7 +1256,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the header height.
-    * 
+    *
     * @param header_height Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @return The converter object.
     */
@@ -1262,7 +1271,7 @@ class HtmlToPdfClient {
     /**
     * Load an HTML code from the specified URL and use it as the page footer. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: <ul> <li><span class='field-value'>pdfcrowd-page-count</span> - the total page count of printed pages</li> <li><span class='field-value'>pdfcrowd-page-number</span> - the current page number</li> <li><span class='field-value'>pdfcrowd-source-url</span> - the source URL of a converted document</li> </ul> The following attributes can be used: <ul> <li><span class='field-value'>data-pdfcrowd-number-format</span> - specifies the type of the used numerals <ul> <li>Arabic numerals are used by default.</li> <li>Roman numerals can be generated by the <span class='field-value'>roman</span> and <span class='field-value'>roman-lowercase</span> values</li> <li>Example: &lt;span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'&gt;&lt;/span&gt;</li> </ul> </li> <li><span class='field-value'>data-pdfcrowd-placement</span> - specifies where to place the source URL, allowed values: <ul> <li>The URL is inserted to the content <ul> <li> Example: &lt;span class='pdfcrowd-source-url'&gt;&lt;/span&gt;<br> will produce &lt;span&gt;http://example.com&lt;/span&gt; </li> </ul>
 </li> <li><span class='field-value'>href</span> - the URL is set to the href attribute <ul> <li> Example: &lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'&gt;Link to source&lt;/a&gt;<br> will produce &lt;a href='http://example.com'&gt;Link to source&lt;/a&gt; </li> </ul> </li> <li><span class='field-value'>href-and-content</span> - the URL is set to the href attribute and to the content <ul> <li> Example: &lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'&gt;&lt;/a&gt;<br> will produce &lt;a href='http://example.com'&gt;http://example.com&lt;/a&gt; </li> </ul> </li> </ul> </li> </ul>
-    * 
+    *
     * @param footer_url The supported protocols are http:// and https://.
     * @return The converter object.
     */
@@ -1277,7 +1286,7 @@ class HtmlToPdfClient {
     /**
     * Use the specified HTML as the page footer. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: <ul> <li><span class='field-value'>pdfcrowd-page-count</span> - the total page count of printed pages</li> <li><span class='field-value'>pdfcrowd-page-number</span> - the current page number</li> <li><span class='field-value'>pdfcrowd-source-url</span> - the source URL of a converted document</li> </ul> The following attributes can be used: <ul> <li><span class='field-value'>data-pdfcrowd-number-format</span> - specifies the type of the used numerals <ul> <li>Arabic numerals are used by default.</li> <li>Roman numerals can be generated by the <span class='field-value'>roman</span> and <span class='field-value'>roman-lowercase</span> values</li> <li>Example: &lt;span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'&gt;&lt;/span&gt;</li> </ul> </li> <li><span class='field-value'>data-pdfcrowd-placement</span> - specifies where to place the source URL, allowed values: <ul> <li>The URL is inserted to the content <ul> <li> Example: &lt;span class='pdfcrowd-source-url'&gt;&lt;/span&gt;<br> will produce &lt;span&gt;http://example.com&lt;/span&gt; </li> </ul>
 </li> <li><span class='field-value'>href</span> - the URL is set to the href attribute <ul> <li> Example: &lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'&gt;Link to source&lt;/a&gt;<br> will produce &lt;a href='http://example.com'&gt;Link to source&lt;/a&gt; </li> </ul> </li> <li><span class='field-value'>href-and-content</span> - the URL is set to the href attribute and to the content <ul> <li> Example: &lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'&gt;&lt;/a&gt;<br> will produce &lt;a href='http://example.com'&gt;http://example.com&lt;/a&gt; </li> </ul> </li> </ul> </li> </ul>
-    * 
+    *
     * @param footer_html The string must not be empty.
     * @return The converter object.
     */
@@ -1291,7 +1300,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the footer height.
-    * 
+    *
     * @param footer_height Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @return The converter object.
     */
@@ -1305,7 +1314,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the page range to print.
-    * 
+    *
     * @param pages A comma seperated list of page numbers or ranges.
     * @return The converter object.
     */
@@ -1319,7 +1328,7 @@ class HtmlToPdfClient {
 
     /**
     * Apply the first page of the watermark PDF to every page of the output PDF.
-    * 
+    *
     * @param page_watermark The file path to a local watermark PDF file. The file must exist and not be empty.
     * @return The converter object.
     */
@@ -1333,7 +1342,7 @@ class HtmlToPdfClient {
 
     /**
     * Apply each page of the specified watermark PDF to the corresponding page of the output PDF.
-    * 
+    *
     * @param multipage_watermark The file path to a local watermark PDF file. The file must exist and not be empty.
     * @return The converter object.
     */
@@ -1347,7 +1356,7 @@ class HtmlToPdfClient {
 
     /**
     * Apply the first page of the specified PDF to the background of every page of the output PDF.
-    * 
+    *
     * @param page_background The file path to a local background PDF file. The file must exist and not be empty.
     * @return The converter object.
     */
@@ -1361,7 +1370,7 @@ class HtmlToPdfClient {
 
     /**
     * Apply each page of the specified PDF to the background of the corresponding page of the output PDF.
-    * 
+    *
     * @param multipage_background The file path to a local background PDF file. The file must exist and not be empty.
     * @return The converter object.
     */
@@ -1375,7 +1384,7 @@ class HtmlToPdfClient {
 
     /**
     * The page header is not printed on the specified pages.
-    * 
+    *
     * @param pages List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma seperated list of page numbers.
     * @return The converter object.
     */
@@ -1389,7 +1398,7 @@ class HtmlToPdfClient {
 
     /**
     * The page footer is not printed on the specified pages.
-    * 
+    *
     * @param pages List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma seperated list of page numbers.
     * @return The converter object.
     */
@@ -1403,7 +1412,7 @@ class HtmlToPdfClient {
 
     /**
     * Set an offset between physical and logical page numbers.
-    * 
+    *
     * @param offset Integer specifying page offset.
     * @return The converter object.
     */
@@ -1414,7 +1423,7 @@ class HtmlToPdfClient {
 
     /**
     * Do not print the background graphics.
-    * 
+    *
     * @param no_background Set to <span class='field-value'>true</span> to disable the background graphics.
     * @return The converter object.
     */
@@ -1425,7 +1434,7 @@ class HtmlToPdfClient {
 
     /**
     * Do not execute JavaScript.
-    * 
+    *
     * @param disable_javascript Set to <span class='field-value'>true</span> to disable JavaScript in web pages.
     * @return The converter object.
     */
@@ -1436,7 +1445,7 @@ class HtmlToPdfClient {
 
     /**
     * Do not load images.
-    * 
+    *
     * @param disable_image_loading Set to <span class='field-value'>true</span> to disable loading of images.
     * @return The converter object.
     */
@@ -1447,7 +1456,7 @@ class HtmlToPdfClient {
 
     /**
     * Disable loading fonts from remote sources.
-    * 
+    *
     * @param disable_remote_fonts Set to <span class='field-value'>true</span> disable loading remote fonts.
     * @return The converter object.
     */
@@ -1458,7 +1467,7 @@ class HtmlToPdfClient {
 
     /**
     * Try to block ads. Enabling this option can produce smaller output and speed up the conversion.
-    * 
+    *
     * @param block_ads Set to <span class='field-value'>true</span> to block ads in web pages.
     * @return The converter object.
     */
@@ -1469,7 +1478,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the default HTML content text encoding.
-    * 
+    *
     * @param default_encoding The text encoding of the HTML content.
     * @return The converter object.
     */
@@ -1480,7 +1489,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the HTTP authentication user name.
-    * 
+    *
     * @param user_name The user name.
     * @return The converter object.
     */
@@ -1491,7 +1500,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the HTTP authentication password.
-    * 
+    *
     * @param password The password.
     * @return The converter object.
     */
@@ -1502,7 +1511,7 @@ class HtmlToPdfClient {
 
     /**
     * Set credentials to access HTTP base authentication protected websites.
-    * 
+    *
     * @param user_name Set the HTTP authentication user name.
     * @param password Set the HTTP authentication password.
     * @return The converter object.
@@ -1515,7 +1524,7 @@ class HtmlToPdfClient {
 
     /**
     * Use the print version of the page if available (@media print).
-    * 
+    *
     * @param use_print_media Set to <span class='field-value'>true</span> to use the print version of the page.
     * @return The converter object.
     */
@@ -1526,7 +1535,7 @@ class HtmlToPdfClient {
 
     /**
     * Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.
-    * 
+    *
     * @param no_xpdfcrowd_header Set to <span class='field-value'>true</span> to disable sending X-Pdfcrowd HTTP header.
     * @return The converter object.
     */
@@ -1537,7 +1546,7 @@ class HtmlToPdfClient {
 
     /**
     * Set cookies that are sent in Pdfcrowd HTTP requests.
-    * 
+    *
     * @param cookies The cookie string.
     * @return The converter object.
     */
@@ -1548,7 +1557,7 @@ class HtmlToPdfClient {
 
     /**
     * Do not allow insecure HTTPS connections.
-    * 
+    *
     * @param verify_ssl_certificates Set to <span class='field-value'>true</span> to enable SSL certificate verification.
     * @return The converter object.
     */
@@ -1559,7 +1568,7 @@ class HtmlToPdfClient {
 
     /**
     * Abort the conversion if the main URL HTTP status code is greater than or equal to 400.
-    * 
+    *
     * @param fail_on_error Set to <span class='field-value'>true</span> to abort the conversion.
     * @return The converter object.
     */
@@ -1569,8 +1578,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400.
-    * 
+    * Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400 or if some sub-requests are still pending. See details in a debug log.
+    *
     * @param fail_on_error Set to <span class='field-value'>true</span> to abort the conversion.
     * @return The converter object.
     */
@@ -1581,7 +1590,7 @@ class HtmlToPdfClient {
 
     /**
     * Run a custom JavaScript after the document is loaded. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...).
-    * 
+    *
     * @param custom_javascript String containing a JavaScript code. The string must not be empty.
     * @return The converter object.
     */
@@ -1595,7 +1604,7 @@ class HtmlToPdfClient {
 
     /**
     * Set a custom HTTP header that is sent in Pdfcrowd HTTP requests.
-    * 
+    *
     * @param custom_http_header A string containing the header name and value separated by a colon.
     * @return The converter object.
     */
@@ -1609,7 +1618,7 @@ class HtmlToPdfClient {
 
     /**
     * Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. The maximum value is determined by your API license.
-    * 
+    *
     * @param javascript_delay The number of milliseconds to wait. Must be a positive integer number or 0.
     * @return The converter object.
     */
@@ -1623,7 +1632,7 @@ class HtmlToPdfClient {
 
     /**
     * Convert only the specified element from the main document and its children. The element is specified by one or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a>. If the element is not found, the conversion fails. If multiple elements are found, the first one is used.
-    * 
+    *
     * @param selectors One or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a> separated by commas. The string must not be empty.
     * @return The converter object.
     */
@@ -1637,7 +1646,7 @@ class HtmlToPdfClient {
 
     /**
     * Specify the DOM handling when only a part of the document is converted.
-    * 
+    *
     * @param mode Allowed values are cut-out, remove-siblings, hide-siblings.
     * @return The converter object.
     */
@@ -1650,8 +1659,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Wait for the specified element in a source document. The element is specified by one or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a>. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails.
-    * 
+    * Wait for the specified element in a source document. The element is specified by one or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a>. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your API license defines the maximum wait time by "Max Delay" parameter.
+    *
     * @param selectors One or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a> separated by commas. The string must not be empty.
     * @return The converter object.
     */
@@ -1665,7 +1674,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the viewport width in pixels. The viewport is the user's visible area of the page.
-    * 
+    *
     * @param viewport_width The value must be in a range 96-7680.
     * @return The converter object.
     */
@@ -1679,7 +1688,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the viewport height in pixels. The viewport is the user's visible area of the page.
-    * 
+    *
     * @param viewport_height Must be a positive integer number.
     * @return The converter object.
     */
@@ -1693,7 +1702,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the viewport size. The viewport is the user's visible area of the page.
-    * 
+    *
     * @param width Set the viewport width in pixels. The viewport is the user's visible area of the page. The value must be in a range 96-7680.
     * @param height Set the viewport height in pixels. The viewport is the user's visible area of the page. Must be a positive integer number.
     * @return The converter object.
@@ -1706,7 +1715,7 @@ class HtmlToPdfClient {
 
     /**
     * Sets the rendering mode.
-    * 
+    *
     * @param rendering_mode The rendering mode. Allowed values are default, viewport.
     * @return The converter object.
     */
@@ -1720,7 +1729,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the scaling factor (zoom) for the main page area.
-    * 
+    *
     * @param scale_factor The scale factor. The value must be in a range 10-500.
     * @return The converter object.
     */
@@ -1734,7 +1743,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the scaling factor (zoom) for the header and footer.
-    * 
+    *
     * @param header_footer_scale_factor The scale factor. The value must be in a range 10-500.
     * @return The converter object.
     */
@@ -1748,7 +1757,7 @@ class HtmlToPdfClient {
 
     /**
     * Disable the intelligent shrinking strategy that tries to optimally fit the HTML contents to a PDF page.
-    * 
+    *
     * @param disable_smart_shrinking Set to <span class='field-value'>true</span> to disable the intelligent shrinking strategy.
     * @return The converter object.
     */
@@ -1759,7 +1768,7 @@ class HtmlToPdfClient {
 
     /**
     * Create linearized PDF. This is also known as Fast Web View.
-    * 
+    *
     * @param linearize Set to <span class='field-value'>true</span> to create linearized PDF.
     * @return The converter object.
     */
@@ -1770,7 +1779,7 @@ class HtmlToPdfClient {
 
     /**
     * Encrypt the PDF. This prevents search engines from indexing the contents.
-    * 
+    *
     * @param encrypt Set to <span class='field-value'>true</span> to enable PDF encryption.
     * @return The converter object.
     */
@@ -1781,7 +1790,7 @@ class HtmlToPdfClient {
 
     /**
     * Protect the PDF with a user password. When a PDF has a user password, it must be supplied in order to view the document and to perform operations allowed by the access permissions.
-    * 
+    *
     * @param user_password The user password.
     * @return The converter object.
     */
@@ -1792,7 +1801,7 @@ class HtmlToPdfClient {
 
     /**
     * Protect the PDF with an owner password.  Supplying an owner password grants unlimited access to the PDF including changing the passwords and access permissions.
-    * 
+    *
     * @param owner_password The owner password.
     * @return The converter object.
     */
@@ -1803,7 +1812,7 @@ class HtmlToPdfClient {
 
     /**
     * Disallow printing of the output PDF.
-    * 
+    *
     * @param no_print Set to <span class='field-value'>true</span> to set the no-print flag in the output PDF.
     * @return The converter object.
     */
@@ -1814,7 +1823,7 @@ class HtmlToPdfClient {
 
     /**
     * Disallow modification of the ouput PDF.
-    * 
+    *
     * @param no_modify Set to <span class='field-value'>true</span> to set the read-only only flag in the output PDF.
     * @return The converter object.
     */
@@ -1825,7 +1834,7 @@ class HtmlToPdfClient {
 
     /**
     * Disallow text and graphics extraction from the output PDF.
-    * 
+    *
     * @param no_copy Set to <span class='field-value'>true</span> to set the no-copy flag in the output PDF.
     * @return The converter object.
     */
@@ -1836,7 +1845,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the title of the PDF.
-    * 
+    *
     * @param title The title.
     * @return The converter object.
     */
@@ -1847,7 +1856,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the subject of the PDF.
-    * 
+    *
     * @param subject The subject.
     * @return The converter object.
     */
@@ -1858,7 +1867,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the author of the PDF.
-    * 
+    *
     * @param author The author.
     * @return The converter object.
     */
@@ -1869,7 +1878,7 @@ class HtmlToPdfClient {
 
     /**
     * Associate keywords with the document.
-    * 
+    *
     * @param keywords The string with the keywords.
     * @return The converter object.
     */
@@ -1880,7 +1889,7 @@ class HtmlToPdfClient {
 
     /**
     * Specify the page layout to be used when the document is opened.
-    * 
+    *
     * @param page_layout Allowed values are single-page, one-column, two-column-left, two-column-right.
     * @return The converter object.
     */
@@ -1894,7 +1903,7 @@ class HtmlToPdfClient {
 
     /**
     * Specify how the document should be displayed when opened.
-    * 
+    *
     * @param page_mode Allowed values are full-screen, thumbnails, outlines.
     * @return The converter object.
     */
@@ -1908,7 +1917,7 @@ class HtmlToPdfClient {
 
     /**
     * Specify how the page should be displayed when opened.
-    * 
+    *
     * @param initial_zoom_type Allowed values are fit-width, fit-height, fit-page.
     * @return The converter object.
     */
@@ -1922,7 +1931,7 @@ class HtmlToPdfClient {
 
     /**
     * Display the specified page when the document is opened.
-    * 
+    *
     * @param initial_page Must be a positive integer number.
     * @return The converter object.
     */
@@ -1936,7 +1945,7 @@ class HtmlToPdfClient {
 
     /**
     * Specify the initial page zoom in percents when the document is opened.
-    * 
+    *
     * @param initial_zoom Must be a positive integer number.
     * @return The converter object.
     */
@@ -1950,7 +1959,7 @@ class HtmlToPdfClient {
 
     /**
     * Specify whether to hide the viewer application's tool bars when the document is active.
-    * 
+    *
     * @param hide_toolbar Set to <span class='field-value'>true</span> to hide tool bars.
     * @return The converter object.
     */
@@ -1961,7 +1970,7 @@ class HtmlToPdfClient {
 
     /**
     * Specify whether to hide the viewer application's menu bar when the document is active.
-    * 
+    *
     * @param hide_menubar Set to <span class='field-value'>true</span> to hide the menu bar.
     * @return The converter object.
     */
@@ -1972,7 +1981,7 @@ class HtmlToPdfClient {
 
     /**
     * Specify whether to hide user interface elements in the document's window (such as scroll bars and navigation controls), leaving only the document's contents displayed.
-    * 
+    *
     * @param hide_window_ui Set to <span class='field-value'>true</span> to hide ui elements.
     * @return The converter object.
     */
@@ -1983,7 +1992,7 @@ class HtmlToPdfClient {
 
     /**
     * Specify whether to resize the document's window to fit the size of the first displayed page.
-    * 
+    *
     * @param fit_window Set to <span class='field-value'>true</span> to resize the window.
     * @return The converter object.
     */
@@ -1994,7 +2003,7 @@ class HtmlToPdfClient {
 
     /**
     * Specify whether to position the document's window in the center of the screen.
-    * 
+    *
     * @param center_window Set to <span class='field-value'>true</span> to center the window.
     * @return The converter object.
     */
@@ -2005,7 +2014,7 @@ class HtmlToPdfClient {
 
     /**
     * Specify whether the window's title bar should display the document title. If false , the title bar should instead display the name of the PDF file containing the document.
-    * 
+    *
     * @param display_title Set to <span class='field-value'>true</span> to display the title.
     * @return The converter object.
     */
@@ -2016,7 +2025,7 @@ class HtmlToPdfClient {
 
     /**
     * Set the predominant reading order for text to right-to-left. This option has no direct effect on the document's contents or page numbering but can be used to determine the relative positioning of pages when displayed side by side or printed n-up
-    * 
+    *
     * @param right_to_left Set to <span class='field-value'>true</span> to set right-to-left reading order.
     * @return The converter object.
     */
@@ -2026,8 +2035,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method.
-    * 
+    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method or available in <a href='/user/account/log/conversion/'>conversion statistics</a>.
+    *
     * @param debug_log Set to <span class='field-value'>true</span> to enable the debug logging.
     * @return The converter object.
     */
@@ -2088,7 +2097,7 @@ class HtmlToPdfClient {
 
     /**
     * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
-    * 
+    *
     * @param tag A string with the custom tag.
     * @return The converter object.
     */
@@ -2099,7 +2108,7 @@ class HtmlToPdfClient {
 
     /**
     * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
-    * 
+    *
     * @param use_http Set to <span class='field-value'>true</span> to use HTTP.
     * @return The converter object.
     */
@@ -2110,7 +2119,7 @@ class HtmlToPdfClient {
 
     /**
     * Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall.
-    * 
+    *
     * @param user_agent The user agent string.
     * @return The converter object.
     */
@@ -2121,7 +2130,7 @@ class HtmlToPdfClient {
 
     /**
     * Specifies an HTTP proxy that the API client library will use to connect to the internet.
-    * 
+    *
     * @param host The proxy hostname.
     * @param port The proxy port.
     * @param user_name The username.
@@ -2135,7 +2144,7 @@ class HtmlToPdfClient {
 
     /**
     * Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
-    * 
+    *
     * @param retry_count Number of retries wanted.
     * @return The converter object.
     */
@@ -2144,6 +2153,9 @@ class HtmlToPdfClient {
         return $this;
     }
 
+    function setUseCurl($use_curl) {
+        $this->helper->setUseCurl($use_curl);
+    }
 }
 
 /**
@@ -2155,7 +2167,7 @@ class HtmlToImageClient {
 
     /**
     * Constructor for the Pdfcrowd API client.
-    * 
+    *
     * @param user_name Your username at Pdfcrowd.
     * @param api_key Your API key.
     */
@@ -2169,7 +2181,7 @@ class HtmlToImageClient {
 
     /**
     * The format of the output file.
-    * 
+    *
     * @param output_format Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.
     * @return The converter object.
     */
@@ -2183,7 +2195,7 @@ class HtmlToImageClient {
 
     /**
     * Convert a web page.
-    * 
+    *
     * @param url The address of the web page to convert. The supported protocols are http:// and https://.
     * @return Byte array containing the conversion output.
     */
@@ -2197,7 +2209,7 @@ class HtmlToImageClient {
 
     /**
     * Convert a web page and write the result to an output stream.
-    * 
+    *
     * @param url The address of the web page to convert. The supported protocols are http:// and https://.
     * @param out_stream The output stream that will contain the conversion output.
     */
@@ -2211,7 +2223,7 @@ class HtmlToImageClient {
 
     /**
     * Convert a web page and write the result to a local file.
-    * 
+    *
     * @param url The address of the web page to convert. The supported protocols are http:// and https://.
     * @param file_path The output file path. The string must not be empty.
     */
@@ -2220,15 +2232,15 @@ class HtmlToImageClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "html-to-image", "The string must not be empty.", "convert_url_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        if (!$output_file)
-            throw new \Exception(error_get_last()['message']);
-        try
-        {
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
             $this->convertUrlToStream($url, $output_file);
             fclose($output_file);
         }
-        catch(Error $why)
-        {
+        catch(Error $why) {
             fclose($output_file);
             unlink($file_path);
             throw $why;
@@ -2237,7 +2249,7 @@ class HtmlToImageClient {
 
     /**
     * Convert a local file.
-    * 
+    *
     * @param file The path to a local file to convert.<br> The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip).<br> If the HTML document refers to local external assets (images, style sheets, javascript), zip the document together with the assets. The file must exist and not be empty. The file name must have a valid extension.
     * @return Byte array containing the conversion output.
     */
@@ -2254,7 +2266,7 @@ class HtmlToImageClient {
 
     /**
     * Convert a local file and write the result to an output stream.
-    * 
+    *
     * @param file The path to a local file to convert.<br> The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip).<br> If the HTML document refers to local external assets (images, style sheets, javascript), zip the document together with the assets. The file must exist and not be empty. The file name must have a valid extension.
     * @param out_stream The output stream that will contain the conversion output.
     */
@@ -2271,7 +2283,7 @@ class HtmlToImageClient {
 
     /**
     * Convert a local file and write the result to a local file.
-    * 
+    *
     * @param file The path to a local file to convert.<br> The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip).<br> If the HTML document refers to local external assets (images, style sheets, javascript), zip the document together with the assets. The file must exist and not be empty. The file name must have a valid extension.
     * @param file_path The output file path. The string must not be empty.
     */
@@ -2280,15 +2292,15 @@ class HtmlToImageClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "html-to-image", "The string must not be empty.", "convert_file_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        if (!$output_file)
-            throw new \Exception(error_get_last()['message']);
-        try
-        {
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
             $this->convertFileToStream($file, $output_file);
             fclose($output_file);
         }
-        catch(Error $why)
-        {
+        catch(Error $why) {
             fclose($output_file);
             unlink($file_path);
             throw $why;
@@ -2297,7 +2309,7 @@ class HtmlToImageClient {
 
     /**
     * Convert a string.
-    * 
+    *
     * @param text The string content to convert. The string must not be empty.
     * @return Byte array containing the conversion output.
     */
@@ -2311,7 +2323,7 @@ class HtmlToImageClient {
 
     /**
     * Convert a string and write the output to an output stream.
-    * 
+    *
     * @param text The string content to convert. The string must not be empty.
     * @param out_stream The output stream that will contain the conversion output.
     */
@@ -2325,7 +2337,7 @@ class HtmlToImageClient {
 
     /**
     * Convert a string and write the output to a file.
-    * 
+    *
     * @param text The string content to convert. The string must not be empty.
     * @param file_path The output file path. The string must not be empty.
     */
@@ -2334,15 +2346,15 @@ class HtmlToImageClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "html-to-image", "The string must not be empty.", "convert_string_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        if (!$output_file)
-            throw new \Exception(error_get_last()['message']);
-        try
-        {
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
             $this->convertStringToStream($text, $output_file);
             fclose($output_file);
         }
-        catch(Error $why)
-        {
+        catch(Error $why) {
             fclose($output_file);
             unlink($file_path);
             throw $why;
@@ -2351,7 +2363,7 @@ class HtmlToImageClient {
 
     /**
     * Do not print the background graphics.
-    * 
+    *
     * @param no_background Set to <span class='field-value'>true</span> to disable the background graphics.
     * @return The converter object.
     */
@@ -2362,7 +2374,7 @@ class HtmlToImageClient {
 
     /**
     * Do not execute JavaScript.
-    * 
+    *
     * @param disable_javascript Set to <span class='field-value'>true</span> to disable JavaScript in web pages.
     * @return The converter object.
     */
@@ -2373,7 +2385,7 @@ class HtmlToImageClient {
 
     /**
     * Do not load images.
-    * 
+    *
     * @param disable_image_loading Set to <span class='field-value'>true</span> to disable loading of images.
     * @return The converter object.
     */
@@ -2384,7 +2396,7 @@ class HtmlToImageClient {
 
     /**
     * Disable loading fonts from remote sources.
-    * 
+    *
     * @param disable_remote_fonts Set to <span class='field-value'>true</span> disable loading remote fonts.
     * @return The converter object.
     */
@@ -2395,7 +2407,7 @@ class HtmlToImageClient {
 
     /**
     * Try to block ads. Enabling this option can produce smaller output and speed up the conversion.
-    * 
+    *
     * @param block_ads Set to <span class='field-value'>true</span> to block ads in web pages.
     * @return The converter object.
     */
@@ -2406,7 +2418,7 @@ class HtmlToImageClient {
 
     /**
     * Set the default HTML content text encoding.
-    * 
+    *
     * @param default_encoding The text encoding of the HTML content.
     * @return The converter object.
     */
@@ -2417,7 +2429,7 @@ class HtmlToImageClient {
 
     /**
     * Set the HTTP authentication user name.
-    * 
+    *
     * @param user_name The user name.
     * @return The converter object.
     */
@@ -2428,7 +2440,7 @@ class HtmlToImageClient {
 
     /**
     * Set the HTTP authentication password.
-    * 
+    *
     * @param password The password.
     * @return The converter object.
     */
@@ -2439,7 +2451,7 @@ class HtmlToImageClient {
 
     /**
     * Set credentials to access HTTP base authentication protected websites.
-    * 
+    *
     * @param user_name Set the HTTP authentication user name.
     * @param password Set the HTTP authentication password.
     * @return The converter object.
@@ -2452,7 +2464,7 @@ class HtmlToImageClient {
 
     /**
     * Use the print version of the page if available (@media print).
-    * 
+    *
     * @param use_print_media Set to <span class='field-value'>true</span> to use the print version of the page.
     * @return The converter object.
     */
@@ -2463,7 +2475,7 @@ class HtmlToImageClient {
 
     /**
     * Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.
-    * 
+    *
     * @param no_xpdfcrowd_header Set to <span class='field-value'>true</span> to disable sending X-Pdfcrowd HTTP header.
     * @return The converter object.
     */
@@ -2474,7 +2486,7 @@ class HtmlToImageClient {
 
     /**
     * Set cookies that are sent in Pdfcrowd HTTP requests.
-    * 
+    *
     * @param cookies The cookie string.
     * @return The converter object.
     */
@@ -2485,7 +2497,7 @@ class HtmlToImageClient {
 
     /**
     * Do not allow insecure HTTPS connections.
-    * 
+    *
     * @param verify_ssl_certificates Set to <span class='field-value'>true</span> to enable SSL certificate verification.
     * @return The converter object.
     */
@@ -2496,7 +2508,7 @@ class HtmlToImageClient {
 
     /**
     * Abort the conversion if the main URL HTTP status code is greater than or equal to 400.
-    * 
+    *
     * @param fail_on_error Set to <span class='field-value'>true</span> to abort the conversion.
     * @return The converter object.
     */
@@ -2506,8 +2518,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400.
-    * 
+    * Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400 or if some sub-requests are still pending. See details in a debug log.
+    *
     * @param fail_on_error Set to <span class='field-value'>true</span> to abort the conversion.
     * @return The converter object.
     */
@@ -2518,7 +2530,7 @@ class HtmlToImageClient {
 
     /**
     * Run a custom JavaScript after the document is loaded. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...).
-    * 
+    *
     * @param custom_javascript String containing a JavaScript code. The string must not be empty.
     * @return The converter object.
     */
@@ -2532,7 +2544,7 @@ class HtmlToImageClient {
 
     /**
     * Set a custom HTTP header that is sent in Pdfcrowd HTTP requests.
-    * 
+    *
     * @param custom_http_header A string containing the header name and value separated by a colon.
     * @return The converter object.
     */
@@ -2546,7 +2558,7 @@ class HtmlToImageClient {
 
     /**
     * Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. The maximum value is determined by your API license.
-    * 
+    *
     * @param javascript_delay The number of milliseconds to wait. Must be a positive integer number or 0.
     * @return The converter object.
     */
@@ -2560,7 +2572,7 @@ class HtmlToImageClient {
 
     /**
     * Convert only the specified element from the main document and its children. The element is specified by one or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a>. If the element is not found, the conversion fails. If multiple elements are found, the first one is used.
-    * 
+    *
     * @param selectors One or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a> separated by commas. The string must not be empty.
     * @return The converter object.
     */
@@ -2574,7 +2586,7 @@ class HtmlToImageClient {
 
     /**
     * Specify the DOM handling when only a part of the document is converted.
-    * 
+    *
     * @param mode Allowed values are cut-out, remove-siblings, hide-siblings.
     * @return The converter object.
     */
@@ -2587,8 +2599,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * Wait for the specified element in a source document. The element is specified by one or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a>. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails.
-    * 
+    * Wait for the specified element in a source document. The element is specified by one or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a>. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your API license defines the maximum wait time by "Max Delay" parameter.
+    *
     * @param selectors One or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a> separated by commas. The string must not be empty.
     * @return The converter object.
     */
@@ -2602,7 +2614,7 @@ class HtmlToImageClient {
 
     /**
     * Set the output image width in pixels.
-    * 
+    *
     * @param screenshot_width The value must be in a range 96-7680.
     * @return The converter object.
     */
@@ -2616,7 +2628,7 @@ class HtmlToImageClient {
 
     /**
     * Set the output image height in pixels. If it's not specified, actual document height is used.
-    * 
+    *
     * @param screenshot_height Must be a positive integer number.
     * @return The converter object.
     */
@@ -2629,8 +2641,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method.
-    * 
+    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method or available in <a href='/user/account/log/conversion/'>conversion statistics</a>.
+    *
     * @param debug_log Set to <span class='field-value'>true</span> to enable the debug logging.
     * @return The converter object.
     */
@@ -2683,7 +2695,7 @@ class HtmlToImageClient {
 
     /**
     * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
-    * 
+    *
     * @param tag A string with the custom tag.
     * @return The converter object.
     */
@@ -2694,7 +2706,7 @@ class HtmlToImageClient {
 
     /**
     * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
-    * 
+    *
     * @param use_http Set to <span class='field-value'>true</span> to use HTTP.
     * @return The converter object.
     */
@@ -2705,7 +2717,7 @@ class HtmlToImageClient {
 
     /**
     * Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall.
-    * 
+    *
     * @param user_agent The user agent string.
     * @return The converter object.
     */
@@ -2716,7 +2728,7 @@ class HtmlToImageClient {
 
     /**
     * Specifies an HTTP proxy that the API client library will use to connect to the internet.
-    * 
+    *
     * @param host The proxy hostname.
     * @param port The proxy port.
     * @param user_name The username.
@@ -2730,7 +2742,7 @@ class HtmlToImageClient {
 
     /**
     * Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
-    * 
+    *
     * @param retry_count Number of retries wanted.
     * @return The converter object.
     */
@@ -2739,6 +2751,9 @@ class HtmlToImageClient {
         return $this;
     }
 
+    function setUseCurl($use_curl) {
+        $this->helper->setUseCurl($use_curl);
+    }
 }
 
 /**
@@ -2750,7 +2765,7 @@ class ImageToImageClient {
 
     /**
     * Constructor for the Pdfcrowd API client.
-    * 
+    *
     * @param user_name Your username at Pdfcrowd.
     * @param api_key Your API key.
     */
@@ -2764,7 +2779,7 @@ class ImageToImageClient {
 
     /**
     * Convert an image.
-    * 
+    *
     * @param url The address of the image to convert. The supported protocols are http:// and https://.
     * @return Byte array containing the conversion output.
     */
@@ -2778,7 +2793,7 @@ class ImageToImageClient {
 
     /**
     * Convert an image and write the result to an output stream.
-    * 
+    *
     * @param url The address of the image to convert. The supported protocols are http:// and https://.
     * @param out_stream The output stream that will contain the conversion output.
     */
@@ -2792,7 +2807,7 @@ class ImageToImageClient {
 
     /**
     * Convert an image and write the result to a local file.
-    * 
+    *
     * @param url The address of the image to convert. The supported protocols are http:// and https://.
     * @param file_path The output file path. The string must not be empty.
     */
@@ -2801,15 +2816,15 @@ class ImageToImageClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "image-to-image", "The string must not be empty.", "convert_url_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        if (!$output_file)
-            throw new \Exception(error_get_last()['message']);
-        try
-        {
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
             $this->convertUrlToStream($url, $output_file);
             fclose($output_file);
         }
-        catch(Error $why)
-        {
+        catch(Error $why) {
             fclose($output_file);
             unlink($file_path);
             throw $why;
@@ -2818,7 +2833,7 @@ class ImageToImageClient {
 
     /**
     * Convert a local file.
-    * 
+    *
     * @param file The path to a local file to convert.<br> The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). The file must exist and not be empty.
     * @return Byte array containing the conversion output.
     */
@@ -2832,7 +2847,7 @@ class ImageToImageClient {
 
     /**
     * Convert a local file and write the result to an output stream.
-    * 
+    *
     * @param file The path to a local file to convert.<br> The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). The file must exist and not be empty.
     * @param out_stream The output stream that will contain the conversion output.
     */
@@ -2846,7 +2861,7 @@ class ImageToImageClient {
 
     /**
     * Convert a local file and write the result to a local file.
-    * 
+    *
     * @param file The path to a local file to convert.<br> The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). The file must exist and not be empty.
     * @param file_path The output file path. The string must not be empty.
     */
@@ -2855,15 +2870,15 @@ class ImageToImageClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "image-to-image", "The string must not be empty.", "convert_file_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        if (!$output_file)
-            throw new \Exception(error_get_last()['message']);
-        try
-        {
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
             $this->convertFileToStream($file, $output_file);
             fclose($output_file);
         }
-        catch(Error $why)
-        {
+        catch(Error $why) {
             fclose($output_file);
             unlink($file_path);
             throw $why;
@@ -2872,7 +2887,7 @@ class ImageToImageClient {
 
     /**
     * Convert raw data.
-    * 
+    *
     * @param data The raw content to be converted.
     * @return Byte array with the output.
     */
@@ -2883,7 +2898,7 @@ class ImageToImageClient {
 
     /**
     * Convert raw data and write the result to an output stream.
-    * 
+    *
     * @param data The raw content to be converted.
     * @param out_stream The output stream that will contain the conversion output.
     */
@@ -2894,7 +2909,7 @@ class ImageToImageClient {
 
     /**
     * Convert raw data to a file.
-    * 
+    *
     * @param data The raw content to be converted.
     * @param file_path The output file path. The string must not be empty.
     */
@@ -2903,15 +2918,15 @@ class ImageToImageClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "image-to-image", "The string must not be empty.", "convert_raw_data_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        if (!$output_file)
-            throw new \Exception(error_get_last()['message']);
-        try
-        {
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
             $this->convertRawDataToStream($data, $output_file);
             fclose($output_file);
         }
-        catch(Error $why)
-        {
+        catch(Error $why) {
             fclose($output_file);
             unlink($file_path);
             throw $why;
@@ -2920,7 +2935,7 @@ class ImageToImageClient {
 
     /**
     * The format of the output file.
-    * 
+    *
     * @param output_format Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.
     * @return The converter object.
     */
@@ -2934,7 +2949,7 @@ class ImageToImageClient {
 
     /**
     * Resize the image.
-    * 
+    *
     * @param resize The resize percentage or new image dimensions.
     * @return The converter object.
     */
@@ -2945,7 +2960,7 @@ class ImageToImageClient {
 
     /**
     * Rotate the image.
-    * 
+    *
     * @param rotate The rotation specified in degrees.
     * @return The converter object.
     */
@@ -2955,8 +2970,8 @@ class ImageToImageClient {
     }
 
     /**
-    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method.
-    * 
+    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method or available in <a href='/user/account/log/conversion/'>conversion statistics</a>.
+    *
     * @param debug_log Set to <span class='field-value'>true</span> to enable the debug logging.
     * @return The converter object.
     */
@@ -3009,7 +3024,7 @@ class ImageToImageClient {
 
     /**
     * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
-    * 
+    *
     * @param tag A string with the custom tag.
     * @return The converter object.
     */
@@ -3020,7 +3035,7 @@ class ImageToImageClient {
 
     /**
     * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
-    * 
+    *
     * @param use_http Set to <span class='field-value'>true</span> to use HTTP.
     * @return The converter object.
     */
@@ -3031,7 +3046,7 @@ class ImageToImageClient {
 
     /**
     * Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall.
-    * 
+    *
     * @param user_agent The user agent string.
     * @return The converter object.
     */
@@ -3042,7 +3057,7 @@ class ImageToImageClient {
 
     /**
     * Specifies an HTTP proxy that the API client library will use to connect to the internet.
-    * 
+    *
     * @param host The proxy hostname.
     * @param port The proxy port.
     * @param user_name The username.
@@ -3056,7 +3071,7 @@ class ImageToImageClient {
 
     /**
     * Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
-    * 
+    *
     * @param retry_count Number of retries wanted.
     * @return The converter object.
     */
@@ -3065,6 +3080,9 @@ class ImageToImageClient {
         return $this;
     }
 
+    function setUseCurl($use_curl) {
+        $this->helper->setUseCurl($use_curl);
+    }
 }
 
 /**
@@ -3076,7 +3094,7 @@ class PdfToPdfClient {
 
     /**
     * Constructor for the Pdfcrowd API client.
-    * 
+    *
     * @param user_name Your username at Pdfcrowd.
     * @param api_key Your API key.
     */
@@ -3090,7 +3108,7 @@ class PdfToPdfClient {
 
     /**
     * Specifies the action to be performed on the input PDFs.
-    * 
+    *
     * @param action Allowed values are join, shuffle.
     * @return The converter object.
     */
@@ -3112,7 +3130,7 @@ class PdfToPdfClient {
 
     /**
     * Perform an action on the input files and write the output PDF to an output stream.
-    * 
+    *
     * @param out_stream The output stream that will contain the output PDF.
     */
     function convertToStream($out_stream) {
@@ -3121,7 +3139,7 @@ class PdfToPdfClient {
 
     /**
     * Perform an action on the input files and write the output PDF to a file.
-    * 
+    *
     * @param file_path The output file path. The string must not be empty.
     */
     function convertToFile($file_path) {
@@ -3135,7 +3153,7 @@ class PdfToPdfClient {
 
     /**
     * Add a PDF file to the list of the input PDFs.
-    * 
+    *
     * @param file_path The file path to a local PDF file. The file must exist and not be empty.
     * @return The converter object.
     */
@@ -3150,7 +3168,7 @@ class PdfToPdfClient {
 
     /**
     * Add in-memory raw PDF data to the list of the input PDFs.<br>Typical usage is for adding PDF created by another Pdfcrowd converter.<br><br> Example in PHP:<br> <b>$clientPdf2Pdf</b>-&gt;addPdfRawData(<b>$clientHtml2Pdf</b>-&gt;convertUrl('http://www.example.com'));
-    * 
+    *
     * @param pdf_raw_data The raw PDF data. The input data must be PDF content.
     * @return The converter object.
     */
@@ -3164,8 +3182,8 @@ class PdfToPdfClient {
     }
 
     /**
-    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method.
-    * 
+    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method or available in <a href='/user/account/log/conversion/'>conversion statistics</a>.
+    *
     * @param debug_log Set to <span class='field-value'>true</span> to enable the debug logging.
     * @return The converter object.
     */
@@ -3226,7 +3244,7 @@ class PdfToPdfClient {
 
     /**
     * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
-    * 
+    *
     * @param tag A string with the custom tag.
     * @return The converter object.
     */
@@ -3237,7 +3255,7 @@ class PdfToPdfClient {
 
     /**
     * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
-    * 
+    *
     * @param use_http Set to <span class='field-value'>true</span> to use HTTP.
     * @return The converter object.
     */
@@ -3248,7 +3266,7 @@ class PdfToPdfClient {
 
     /**
     * Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall.
-    * 
+    *
     * @param user_agent The user agent string.
     * @return The converter object.
     */
@@ -3259,7 +3277,7 @@ class PdfToPdfClient {
 
     /**
     * Specifies an HTTP proxy that the API client library will use to connect to the internet.
-    * 
+    *
     * @param host The proxy hostname.
     * @param port The proxy port.
     * @param user_name The username.
@@ -3273,7 +3291,7 @@ class PdfToPdfClient {
 
     /**
     * Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
-    * 
+    *
     * @param retry_count Number of retries wanted.
     * @return The converter object.
     */
@@ -3282,6 +3300,9 @@ class PdfToPdfClient {
         return $this;
     }
 
+    function setUseCurl($use_curl) {
+        $this->helper->setUseCurl($use_curl);
+    }
 }
 
 /**
@@ -3293,7 +3314,7 @@ class ImageToPdfClient {
 
     /**
     * Constructor for the Pdfcrowd API client.
-    * 
+    *
     * @param user_name Your username at Pdfcrowd.
     * @param api_key Your API key.
     */
@@ -3307,7 +3328,7 @@ class ImageToPdfClient {
 
     /**
     * Convert an image.
-    * 
+    *
     * @param url The address of the image to convert. The supported protocols are http:// and https://.
     * @return Byte array containing the conversion output.
     */
@@ -3321,7 +3342,7 @@ class ImageToPdfClient {
 
     /**
     * Convert an image and write the result to an output stream.
-    * 
+    *
     * @param url The address of the image to convert. The supported protocols are http:// and https://.
     * @param out_stream The output stream that will contain the conversion output.
     */
@@ -3335,7 +3356,7 @@ class ImageToPdfClient {
 
     /**
     * Convert an image and write the result to a local file.
-    * 
+    *
     * @param url The address of the image to convert. The supported protocols are http:// and https://.
     * @param file_path The output file path. The string must not be empty.
     */
@@ -3344,15 +3365,15 @@ class ImageToPdfClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "image-to-pdf", "The string must not be empty.", "convert_url_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        if (!$output_file)
-            throw new \Exception(error_get_last()['message']);
-        try
-        {
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
             $this->convertUrlToStream($url, $output_file);
             fclose($output_file);
         }
-        catch(Error $why)
-        {
+        catch(Error $why) {
             fclose($output_file);
             unlink($file_path);
             throw $why;
@@ -3361,7 +3382,7 @@ class ImageToPdfClient {
 
     /**
     * Convert a local file.
-    * 
+    *
     * @param file The path to a local file to convert.<br> The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). The file must exist and not be empty.
     * @return Byte array containing the conversion output.
     */
@@ -3375,7 +3396,7 @@ class ImageToPdfClient {
 
     /**
     * Convert a local file and write the result to an output stream.
-    * 
+    *
     * @param file The path to a local file to convert.<br> The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). The file must exist and not be empty.
     * @param out_stream The output stream that will contain the conversion output.
     */
@@ -3389,7 +3410,7 @@ class ImageToPdfClient {
 
     /**
     * Convert a local file and write the result to a local file.
-    * 
+    *
     * @param file The path to a local file to convert.<br> The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). The file must exist and not be empty.
     * @param file_path The output file path. The string must not be empty.
     */
@@ -3398,15 +3419,15 @@ class ImageToPdfClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "image-to-pdf", "The string must not be empty.", "convert_file_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        if (!$output_file)
-            throw new \Exception(error_get_last()['message']);
-        try
-        {
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
             $this->convertFileToStream($file, $output_file);
             fclose($output_file);
         }
-        catch(Error $why)
-        {
+        catch(Error $why) {
             fclose($output_file);
             unlink($file_path);
             throw $why;
@@ -3415,7 +3436,7 @@ class ImageToPdfClient {
 
     /**
     * Convert raw data.
-    * 
+    *
     * @param data The raw content to be converted.
     * @return Byte array with the output.
     */
@@ -3426,7 +3447,7 @@ class ImageToPdfClient {
 
     /**
     * Convert raw data and write the result to an output stream.
-    * 
+    *
     * @param data The raw content to be converted.
     * @param out_stream The output stream that will contain the conversion output.
     */
@@ -3437,7 +3458,7 @@ class ImageToPdfClient {
 
     /**
     * Convert raw data to a file.
-    * 
+    *
     * @param data The raw content to be converted.
     * @param file_path The output file path. The string must not be empty.
     */
@@ -3446,15 +3467,15 @@ class ImageToPdfClient {
             throw new Error(create_invalid_value_message($file_path, "file_path", "image-to-pdf", "The string must not be empty.", "convert_raw_data_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        if (!$output_file)
-            throw new \Exception(error_get_last()['message']);
-        try
-        {
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
             $this->convertRawDataToStream($data, $output_file);
             fclose($output_file);
         }
-        catch(Error $why)
-        {
+        catch(Error $why) {
             fclose($output_file);
             unlink($file_path);
             throw $why;
@@ -3463,7 +3484,7 @@ class ImageToPdfClient {
 
     /**
     * Resize the image.
-    * 
+    *
     * @param resize The resize percentage or new image dimensions.
     * @return The converter object.
     */
@@ -3474,7 +3495,7 @@ class ImageToPdfClient {
 
     /**
     * Rotate the image.
-    * 
+    *
     * @param rotate The rotation specified in degrees.
     * @return The converter object.
     */
@@ -3484,8 +3505,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method.
-    * 
+    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method or available in <a href='/user/account/log/conversion/'>conversion statistics</a>.
+    *
     * @param debug_log Set to <span class='field-value'>true</span> to enable the debug logging.
     * @return The converter object.
     */
@@ -3538,7 +3559,7 @@ class ImageToPdfClient {
 
     /**
     * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
-    * 
+    *
     * @param tag A string with the custom tag.
     * @return The converter object.
     */
@@ -3549,7 +3570,7 @@ class ImageToPdfClient {
 
     /**
     * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
-    * 
+    *
     * @param use_http Set to <span class='field-value'>true</span> to use HTTP.
     * @return The converter object.
     */
@@ -3560,7 +3581,7 @@ class ImageToPdfClient {
 
     /**
     * Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall.
-    * 
+    *
     * @param user_agent The user agent string.
     * @return The converter object.
     */
@@ -3571,7 +3592,7 @@ class ImageToPdfClient {
 
     /**
     * Specifies an HTTP proxy that the API client library will use to connect to the internet.
-    * 
+    *
     * @param host The proxy hostname.
     * @param port The proxy port.
     * @param user_name The username.
@@ -3585,7 +3606,7 @@ class ImageToPdfClient {
 
     /**
     * Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
-    * 
+    *
     * @param retry_count Number of retries wanted.
     * @return The converter object.
     */
@@ -3594,6 +3615,9 @@ class ImageToPdfClient {
         return $this;
     }
 
+    function setUseCurl($use_curl) {
+        $this->helper->setUseCurl($use_curl);
+    }
 }
 
 
