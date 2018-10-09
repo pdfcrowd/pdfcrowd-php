@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "4.3.6";
+    public static $client_version = "4.3.7";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -520,7 +520,7 @@ class Error extends \Exception {
 
 define('Pdfcrowd\HOST', getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com');
 
-const CLIENT_VERSION = '4.3.6';
+const CLIENT_VERSION = '4.3.7';
 const MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
 function create_invalid_value_message($value, $field, $converter, $hint, $id) {
@@ -533,6 +533,17 @@ function create_invalid_value_message($value, $field, $converter, $hint, $id) {
 
 class ConnectionHelper
 {
+    private static $REQ_NOT_AVAILABLE = 'pdfcrowd.php can not post HTTP request.
+Solution 1: Edit your php.ini file and enable:
+    allow_url_fopen = On
+
+Solution 2: Install cURL for PHP:
+    Windows: uncomment/add the "extension=php_curl.dll" line in your php.ini
+    Linux: should be a part of the distribution,
+           e.g. on Debian/Ubuntu run "sudo apt-get install php-curl"
+
+You need to restart your web server after installation.';
+
     function __construct($user_name, $api_key){
         $this->user_name = $user_name;
         $this->api_key = $api_key;
@@ -540,11 +551,21 @@ class ConnectionHelper
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/4.3.6 (http://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/4.3.7 (http://pdfcrowd.com)');
 
         $this->retry_count = 1;
 
-        $this->use_curl = false;
+        // find available method for POST request
+        if(!ini_get('allow_url_fopen')) {
+            if(!function_exists("curl_init")) {
+                throw new Error(self::$REQ_NOT_AVAILABLE);
+            }
+            $this->use_curl = true;
+        }
+        else
+        {
+            $this->use_curl = false;
+        }
     }
 
     private $user_name;
@@ -2155,6 +2176,7 @@ class HtmlToPdfClient {
 
     function setUseCurl($use_curl) {
         $this->helper->setUseCurl($use_curl);
+        return $this;
     }
 }
 
@@ -2753,6 +2775,7 @@ class HtmlToImageClient {
 
     function setUseCurl($use_curl) {
         $this->helper->setUseCurl($use_curl);
+        return $this;
     }
 }
 
@@ -3082,6 +3105,7 @@ class ImageToImageClient {
 
     function setUseCurl($use_curl) {
         $this->helper->setUseCurl($use_curl);
+        return $this;
     }
 }
 
@@ -3302,6 +3326,7 @@ class PdfToPdfClient {
 
     function setUseCurl($use_curl) {
         $this->helper->setUseCurl($use_curl);
+        return $this;
     }
 }
 
@@ -3617,6 +3642,7 @@ class ImageToPdfClient {
 
     function setUseCurl($use_curl) {
         $this->helper->setUseCurl($use_curl);
+        return $this;
     }
 }
 
