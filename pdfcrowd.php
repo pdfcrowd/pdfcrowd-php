@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "4.3.7";
+    public static $client_version = "4.4.1";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -520,7 +520,7 @@ class Error extends \Exception {
 
 define('Pdfcrowd\HOST', getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com');
 
-const CLIENT_VERSION = '4.3.7';
+const CLIENT_VERSION = '4.4.1';
 const MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
 function create_invalid_value_message($value, $field, $converter, $hint, $id) {
@@ -551,7 +551,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/4.3.7 (http://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/4.4.1 (http://pdfcrowd.com)');
 
         $this->retry_count = 1;
 
@@ -1348,6 +1348,20 @@ class HtmlToPdfClient {
     }
 
     /**
+    * The page background color in RGB or RGBA hexadecimal format. The color fills the entire page regardless of the margins.
+    *
+    * @param page_background_color The value must be in RRGGBB or RRGGBBAA hexadecimal format.
+    * @return The converter object.
+    */
+    function setPageBackgroundColor($page_background_color) {
+        if (!preg_match("/^[0-9a-fA-F]{6,8}$/", $page_background_color))
+            throw new Error(create_invalid_value_message($page_background_color, "page_background_color", "html-to-pdf", "The value must be in RRGGBB or RRGGBBAA hexadecimal format.", "set_page_background_color"), 470);
+        
+        $this->fields['page_background_color'] = $page_background_color;
+        return $this;
+    }
+
+    /**
     * Apply the first page of the watermark PDF to every page of the output PDF.
     *
     * @param page_watermark The file path to a local watermark PDF file. The file must exist and not be empty.
@@ -2128,6 +2142,59 @@ class HtmlToPdfClient {
     }
 
     /**
+    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    *
+    * @param http_proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+    * @return The converter object.
+    */
+    function setHttpProxy($http_proxy) {
+        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $http_proxy))
+            throw new Error(create_invalid_value_message($http_proxy, "http_proxy", "html-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
+        
+        $this->fields['http_proxy'] = $http_proxy;
+        return $this;
+    }
+
+    /**
+    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    *
+    * @param https_proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+    * @return The converter object.
+    */
+    function setHttpsProxy($https_proxy) {
+        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $https_proxy))
+            throw new Error(create_invalid_value_message($https_proxy, "https_proxy", "html-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
+        
+        $this->fields['https_proxy'] = $https_proxy;
+        return $this;
+    }
+
+    /**
+    * A client certificate to authenticate Pdfcrowd converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security.
+    *
+    * @param client_certificate The file must be in PKCS12 format. The file must exist and not be empty.
+    * @return The converter object.
+    */
+    function setClientCertificate($client_certificate) {
+        if (!(filesize($client_certificate) > 0))
+            throw new Error(create_invalid_value_message($client_certificate, "client_certificate", "html-to-pdf", "The file must exist and not be empty.", "set_client_certificate"), 470);
+        
+        $this->files['client_certificate'] = $client_certificate;
+        return $this;
+    }
+
+    /**
+    * A password for PKCS12 file with a client certificate if it's needed.
+    *
+    * @param client_certificate_password
+    * @return The converter object.
+    */
+    function setClientCertificatePassword($client_certificate_password) {
+        $this->fields['client_certificate_password'] = $client_certificate_password;
+        return $this;
+    }
+
+    /**
     * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
     *
     * @param use_http Set to <span class='field-value'>true</span> to use HTTP.
@@ -2727,6 +2794,59 @@ class HtmlToImageClient {
     }
 
     /**
+    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    *
+    * @param http_proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+    * @return The converter object.
+    */
+    function setHttpProxy($http_proxy) {
+        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $http_proxy))
+            throw new Error(create_invalid_value_message($http_proxy, "http_proxy", "html-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
+        
+        $this->fields['http_proxy'] = $http_proxy;
+        return $this;
+    }
+
+    /**
+    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    *
+    * @param https_proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+    * @return The converter object.
+    */
+    function setHttpsProxy($https_proxy) {
+        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $https_proxy))
+            throw new Error(create_invalid_value_message($https_proxy, "https_proxy", "html-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
+        
+        $this->fields['https_proxy'] = $https_proxy;
+        return $this;
+    }
+
+    /**
+    * A client certificate to authenticate Pdfcrowd converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security.
+    *
+    * @param client_certificate The file must be in PKCS12 format. The file must exist and not be empty.
+    * @return The converter object.
+    */
+    function setClientCertificate($client_certificate) {
+        if (!(filesize($client_certificate) > 0))
+            throw new Error(create_invalid_value_message($client_certificate, "client_certificate", "html-to-image", "The file must exist and not be empty.", "set_client_certificate"), 470);
+        
+        $this->files['client_certificate'] = $client_certificate;
+        return $this;
+    }
+
+    /**
+    * A password for PKCS12 file with a client certificate if it's needed.
+    *
+    * @param client_certificate_password
+    * @return The converter object.
+    */
+    function setClientCertificatePassword($client_certificate_password) {
+        $this->fields['client_certificate_password'] = $client_certificate_password;
+        return $this;
+    }
+
+    /**
     * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
     *
     * @param use_http Set to <span class='field-value'>true</span> to use HTTP.
@@ -3053,6 +3173,34 @@ class ImageToImageClient {
     */
     function setTag($tag) {
         $this->fields['tag'] = $tag;
+        return $this;
+    }
+
+    /**
+    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    *
+    * @param http_proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+    * @return The converter object.
+    */
+    function setHttpProxy($http_proxy) {
+        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $http_proxy))
+            throw new Error(create_invalid_value_message($http_proxy, "http_proxy", "image-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
+        
+        $this->fields['http_proxy'] = $http_proxy;
+        return $this;
+    }
+
+    /**
+    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    *
+    * @param https_proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+    * @return The converter object.
+    */
+    function setHttpsProxy($https_proxy) {
+        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $https_proxy))
+            throw new Error(create_invalid_value_message($https_proxy, "https_proxy", "image-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
+        
+        $this->fields['https_proxy'] = $https_proxy;
         return $this;
     }
 
@@ -3590,6 +3738,34 @@ class ImageToPdfClient {
     */
     function setTag($tag) {
         $this->fields['tag'] = $tag;
+        return $this;
+    }
+
+    /**
+    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    *
+    * @param http_proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+    * @return The converter object.
+    */
+    function setHttpProxy($http_proxy) {
+        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $http_proxy))
+            throw new Error(create_invalid_value_message($http_proxy, "http_proxy", "image-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
+        
+        $this->fields['http_proxy'] = $http_proxy;
+        return $this;
+    }
+
+    /**
+    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    *
+    * @param https_proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+    * @return The converter object.
+    */
+    function setHttpsProxy($https_proxy) {
+        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $https_proxy))
+            throw new Error(create_invalid_value_message($https_proxy, "https_proxy", "image-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
+        
+        $this->fields['https_proxy'] = $https_proxy;
         return $this;
     }
 
