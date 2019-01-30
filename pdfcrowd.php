@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "4.4.1";
+    public static $client_version = "4.4.2";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -520,7 +520,7 @@ class Error extends \Exception {
 
 define('Pdfcrowd\HOST', getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com');
 
-const CLIENT_VERSION = '4.4.1';
+const CLIENT_VERSION = '4.4.2';
 const MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
 function create_invalid_value_message($value, $field, $converter, $hint, $id) {
@@ -551,7 +551,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/4.4.1 (http://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/4.4.2 (http://pdfcrowd.com)');
 
         $this->retry_count = 1;
 
@@ -1710,12 +1710,12 @@ class HtmlToPdfClient {
     /**
     * Set the viewport width in pixels. The viewport is the user's visible area of the page.
     *
-    * @param viewport_width The value must be in a range 96-7680.
+    * @param viewport_width The value must be in the range 96-7680.
     * @return The converter object.
     */
     function setViewportWidth($viewport_width) {
         if (!(intval($viewport_width) >= 96 && intval($viewport_width) <= 7680))
-            throw new Error(create_invalid_value_message($viewport_width, "viewport_width", "html-to-pdf", "The value must be in a range 96-7680.", "set_viewport_width"), 470);
+            throw new Error(create_invalid_value_message($viewport_width, "viewport_width", "html-to-pdf", "The value must be in the range 96-7680.", "set_viewport_width"), 470);
         
         $this->fields['viewport_width'] = $viewport_width;
         return $this;
@@ -1738,7 +1738,7 @@ class HtmlToPdfClient {
     /**
     * Set the viewport size. The viewport is the user's visible area of the page.
     *
-    * @param width Set the viewport width in pixels. The viewport is the user's visible area of the page. The value must be in a range 96-7680.
+    * @param width Set the viewport width in pixels. The viewport is the user's visible area of the page. The value must be in the range 96-7680.
     * @param height Set the viewport height in pixels. The viewport is the user's visible area of the page. Must be a positive integer number.
     * @return The converter object.
     */
@@ -1749,7 +1749,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Sets the rendering mode.
+    * Set the rendering mode.
     *
     * @param rendering_mode The rendering mode. Allowed values are default, viewport.
     * @return The converter object.
@@ -1765,12 +1765,12 @@ class HtmlToPdfClient {
     /**
     * Set the scaling factor (zoom) for the main page area.
     *
-    * @param scale_factor The scale factor. The value must be in a range 10-500.
+    * @param scale_factor The percentage value. The value must be in the range 10-500.
     * @return The converter object.
     */
     function setScaleFactor($scale_factor) {
         if (!(intval($scale_factor) >= 10 && intval($scale_factor) <= 500))
-            throw new Error(create_invalid_value_message($scale_factor, "scale_factor", "html-to-pdf", "The value must be in a range 10-500.", "set_scale_factor"), 470);
+            throw new Error(create_invalid_value_message($scale_factor, "scale_factor", "html-to-pdf", "The value must be in the range 10-500.", "set_scale_factor"), 470);
         
         $this->fields['scale_factor'] = $scale_factor;
         return $this;
@@ -1779,12 +1779,12 @@ class HtmlToPdfClient {
     /**
     * Set the scaling factor (zoom) for the header and footer.
     *
-    * @param header_footer_scale_factor The scale factor. The value must be in a range 10-500.
+    * @param header_footer_scale_factor The percentage value. The value must be in the range 10-500.
     * @return The converter object.
     */
     function setHeaderFooterScaleFactor($header_footer_scale_factor) {
         if (!(intval($header_footer_scale_factor) >= 10 && intval($header_footer_scale_factor) <= 500))
-            throw new Error(create_invalid_value_message($header_footer_scale_factor, "header_footer_scale_factor", "html-to-pdf", "The value must be in a range 10-500.", "set_header_footer_scale_factor"), 470);
+            throw new Error(create_invalid_value_message($header_footer_scale_factor, "header_footer_scale_factor", "html-to-pdf", "The value must be in the range 10-500.", "set_header_footer_scale_factor"), 470);
         
         $this->fields['header_footer_scale_factor'] = $header_footer_scale_factor;
         return $this;
@@ -1798,6 +1798,48 @@ class HtmlToPdfClient {
     */
     function setDisableSmartShrinking($disable_smart_shrinking) {
         $this->fields['disable_smart_shrinking'] = $disable_smart_shrinking;
+        return $this;
+    }
+
+    /**
+    * Set the quality of embedded JPEG images. Lower quality results in smaller PDF file. Lower quality affects printing or zooming in a PDF viewer.
+    *
+    * @param jpeg_quality The percentage value. The value must be in the range 1-100.
+    * @return The converter object.
+    */
+    function setJpegQuality($jpeg_quality) {
+        if (!(intval($jpeg_quality) >= 1 && intval($jpeg_quality) <= 100))
+            throw new Error(create_invalid_value_message($jpeg_quality, "jpeg_quality", "html-to-pdf", "The value must be in the range 1-100.", "set_jpeg_quality"), 470);
+        
+        $this->fields['jpeg_quality'] = $jpeg_quality;
+        return $this;
+    }
+
+    /**
+    * Set image categories to be converted into embedded JPEG images. The conversion into JPEG may result in smaller PDF file.
+    *
+    * @param convert_images_to_jpeg The image category. Allowed values are none, opaque, all.
+    * @return The converter object.
+    */
+    function setConvertImagesToJpeg($convert_images_to_jpeg) {
+        if (!preg_match("/(?i)^(none|opaque|all)$/", $convert_images_to_jpeg))
+            throw new Error(create_invalid_value_message($convert_images_to_jpeg, "convert_images_to_jpeg", "html-to-pdf", "Allowed values are none, opaque, all.", "set_convert_images_to_jpeg"), 470);
+        
+        $this->fields['convert_images_to_jpeg'] = $convert_images_to_jpeg;
+        return $this;
+    }
+
+    /**
+    * Set the DPI when embedded image is scaled down. Lower DPI may result in smaller PDF file. Lower DPI affects printing or zooming in a PDF viewer. Use <span class='field-value'>0</span> for no scaling down.
+    *
+    * @param image_dpi The DPI value. Must be a positive integer number or 0.
+    * @return The converter object.
+    */
+    function setImageDpi($image_dpi) {
+        if (!(intval($image_dpi) >= 0))
+            throw new Error(create_invalid_value_message($image_dpi, "image_dpi", "html-to-pdf", "Must be a positive integer number or 0.", "set_image_dpi"), 470);
+        
+        $this->fields['image_dpi'] = $image_dpi;
         return $this;
     }
 
@@ -2090,6 +2132,7 @@ class HtmlToPdfClient {
 
     /**
     * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
+    * The number is available after calling the conversion. So use the method after convertXYZ method.
     * The returned value can differ from the actual count if you run parallel conversions.
     * The special value <span class='field-value'>999999</span> is returned if the information is not available.
     * @return The number of credits.
@@ -2704,12 +2747,12 @@ class HtmlToImageClient {
     /**
     * Set the output image width in pixels.
     *
-    * @param screenshot_width The value must be in a range 96-7680.
+    * @param screenshot_width The value must be in the range 96-7680.
     * @return The converter object.
     */
     function setScreenshotWidth($screenshot_width) {
         if (!(intval($screenshot_width) >= 96 && intval($screenshot_width) <= 7680))
-            throw new Error(create_invalid_value_message($screenshot_width, "screenshot_width", "html-to-image", "The value must be in a range 96-7680.", "set_screenshot_width"), 470);
+            throw new Error(create_invalid_value_message($screenshot_width, "screenshot_width", "html-to-image", "The value must be in the range 96-7680.", "set_screenshot_width"), 470);
         
         $this->fields['screenshot_width'] = $screenshot_width;
         return $this;
@@ -2750,6 +2793,7 @@ class HtmlToImageClient {
 
     /**
     * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
+    * The number is available after calling the conversion. So use the method after convertXYZ method.
     * The returned value can differ from the actual count if you run parallel conversions.
     * The special value <span class='field-value'>999999</span> is returned if the information is not available.
     * @return The number of credits.
@@ -3133,6 +3177,7 @@ class ImageToImageClient {
 
     /**
     * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
+    * The number is available after calling the conversion. So use the method after convertXYZ method.
     * The returned value can differ from the actual count if you run parallel conversions.
     * The special value <span class='field-value'>999999</span> is returned if the information is not available.
     * @return The number of credits.
@@ -3374,6 +3419,7 @@ class PdfToPdfClient {
 
     /**
     * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
+    * The number is available after calling the conversion. So use the method after convertXYZ method.
     * The returned value can differ from the actual count if you run parallel conversions.
     * The special value <span class='field-value'>999999</span> is returned if the information is not available.
     * @return The number of credits.
@@ -3698,6 +3744,7 @@ class ImageToPdfClient {
 
     /**
     * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
+    * The number is available after calling the conversion. So use the method after convertXYZ method.
     * The returned value can differ from the actual count if you run parallel conversions.
     * The special value <span class='field-value'>999999</span> is returned if the information is not available.
     * @return The number of credits.
