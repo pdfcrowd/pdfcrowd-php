@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "4.4.2";
+    public static $client_version = "4.5.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -520,7 +520,7 @@ class Error extends \Exception {
 
 define('Pdfcrowd\HOST', getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com');
 
-const CLIENT_VERSION = '4.4.2';
+const CLIENT_VERSION = '4.5.0';
 const MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
 function create_invalid_value_message($value, $field, $converter, $hint, $id) {
@@ -551,7 +551,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/4.4.2 (http://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/4.5.0 (http://pdfcrowd.com)');
 
         $this->retry_count = 1;
 
@@ -1624,9 +1624,9 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Run a custom JavaScript after the document is loaded. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...).
+    * Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). The custom JavaScript can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
     *
-    * @param custom_javascript String containing a JavaScript code. The string must not be empty.
+    * @param custom_javascript A string containing a JavaScript code. The string must not be empty.
     * @return The converter object.
     */
     function setCustomJavascript($custom_javascript) {
@@ -1634,6 +1634,20 @@ class HtmlToPdfClient {
             throw new Error(create_invalid_value_message($custom_javascript, "custom_javascript", "html-to-pdf", "The string must not be empty.", "set_custom_javascript"), 470);
         
         $this->fields['custom_javascript'] = $custom_javascript;
+        return $this;
+    }
+
+    /**
+    * Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation. The custom JavaScript can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
+    *
+    * @param on_load_javascript A string containing a JavaScript code. The string must not be empty.
+    * @return The converter object.
+    */
+    function setOnLoadJavascript($on_load_javascript) {
+        if (!($on_load_javascript != null && $on_load_javascript !== ''))
+            throw new Error(create_invalid_value_message($on_load_javascript, "on_load_javascript", "html-to-pdf", "The string must not be empty.", "set_on_load_javascript"), 470);
+        
+        $this->fields['on_load_javascript'] = $on_load_javascript;
         return $this;
     }
 
@@ -1802,7 +1816,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the quality of embedded JPEG images. Lower quality results in smaller PDF file. Lower quality affects printing or zooming in a PDF viewer.
+    * Set the quality of embedded JPEG images. A lower quality results in a smaller PDF file but can lead to compression artifacts.
     *
     * @param jpeg_quality The percentage value. The value must be in the range 1-100.
     * @return The converter object.
@@ -1816,7 +1830,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set image categories to be converted into embedded JPEG images. The conversion into JPEG may result in smaller PDF file.
+    * Specify which image types will be converted to JPEG. Converting lossless compression image formats (PNG, GIF, ...) to JPEG may result in a smaller PDF file.
     *
     * @param convert_images_to_jpeg The image category. Allowed values are none, opaque, all.
     * @return The converter object.
@@ -1830,7 +1844,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the DPI when embedded image is scaled down. Lower DPI may result in smaller PDF file. Lower DPI affects printing or zooming in a PDF viewer. Use <span class='field-value'>0</span> for no scaling down.
+    * Set the DPI of images in PDF. A lower DPI may result in a smaller PDF file.  If the specified DPI is higher than the actual image DPI, the original image DPI is retained (no upscaling is performed). Use <span class='field-value'>0</span> to leave the images unaltered.
     *
     * @param image_dpi The DPI value. Must be a positive integer number or 0.
     * @return The converter object.
@@ -2132,7 +2146,7 @@ class HtmlToPdfClient {
 
     /**
     * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
-    * The number is available after calling the conversion. So use the method after convertXYZ method.
+    * This method can only be called after a call to one of the convertXYZ methods.
     * The returned value can differ from the actual count if you run parallel conversions.
     * The special value <span class='field-value'>999999</span> is returned if the information is not available.
     * @return The number of credits.
@@ -2661,9 +2675,9 @@ class HtmlToImageClient {
     }
 
     /**
-    * Run a custom JavaScript after the document is loaded. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...).
+    * Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). The custom JavaScript can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
     *
-    * @param custom_javascript String containing a JavaScript code. The string must not be empty.
+    * @param custom_javascript A string containing a JavaScript code. The string must not be empty.
     * @return The converter object.
     */
     function setCustomJavascript($custom_javascript) {
@@ -2671,6 +2685,20 @@ class HtmlToImageClient {
             throw new Error(create_invalid_value_message($custom_javascript, "custom_javascript", "html-to-image", "The string must not be empty.", "set_custom_javascript"), 470);
         
         $this->fields['custom_javascript'] = $custom_javascript;
+        return $this;
+    }
+
+    /**
+    * Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation. The custom JavaScript can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
+    *
+    * @param on_load_javascript A string containing a JavaScript code. The string must not be empty.
+    * @return The converter object.
+    */
+    function setOnLoadJavascript($on_load_javascript) {
+        if (!($on_load_javascript != null && $on_load_javascript !== ''))
+            throw new Error(create_invalid_value_message($on_load_javascript, "on_load_javascript", "html-to-image", "The string must not be empty.", "set_on_load_javascript"), 470);
+        
+        $this->fields['on_load_javascript'] = $on_load_javascript;
         return $this;
     }
 
@@ -2793,7 +2821,7 @@ class HtmlToImageClient {
 
     /**
     * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
-    * The number is available after calling the conversion. So use the method after convertXYZ method.
+    * This method can only be called after a call to one of the convertXYZ methods.
     * The returned value can differ from the actual count if you run parallel conversions.
     * The special value <span class='field-value'>999999</span> is returned if the information is not available.
     * @return The number of credits.
@@ -3177,7 +3205,7 @@ class ImageToImageClient {
 
     /**
     * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
-    * The number is available after calling the conversion. So use the method after convertXYZ method.
+    * This method can only be called after a call to one of the convertXYZ methods.
     * The returned value can differ from the actual count if you run parallel conversions.
     * The special value <span class='field-value'>999999</span> is returned if the information is not available.
     * @return The number of credits.
@@ -3419,7 +3447,7 @@ class PdfToPdfClient {
 
     /**
     * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
-    * The number is available after calling the conversion. So use the method after convertXYZ method.
+    * This method can only be called after a call to one of the convertXYZ methods.
     * The returned value can differ from the actual count if you run parallel conversions.
     * The special value <span class='field-value'>999999</span> is returned if the information is not available.
     * @return The number of credits.
@@ -3744,7 +3772,7 @@ class ImageToPdfClient {
 
     /**
     * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
-    * The number is available after calling the conversion. So use the method after convertXYZ method.
+    * This method can only be called after a call to one of the convertXYZ methods.
     * The returned value can differ from the actual count if you run parallel conversions.
     * The special value <span class='field-value'>999999</span> is returned if the information is not available.
     * @return The number of credits.
