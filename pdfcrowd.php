@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "4.5.0";
+    public static $client_version = "4.6.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -520,7 +520,7 @@ class Error extends \Exception {
 
 define('Pdfcrowd\HOST', getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com');
 
-const CLIENT_VERSION = '4.5.0';
+const CLIENT_VERSION = '4.6.0';
 const MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
 function create_invalid_value_message($value, $field, $converter, $hint, $id) {
@@ -551,7 +551,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/4.5.0 (http://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/4.6.0 (http://pdfcrowd.com)');
 
         $this->retry_count = 1;
 
@@ -2797,6 +2797,20 @@ class HtmlToImageClient {
             throw new Error(create_invalid_value_message($screenshot_height, "screenshot_height", "html-to-image", "Must be a positive integer number.", "set_screenshot_height"), 470);
         
         $this->fields['screenshot_height'] = $screenshot_height;
+        return $this;
+    }
+
+    /**
+    * Set the scaling factor (zoom) for the output image.
+    *
+    * @param scale_factor The percentage value. Must be a positive integer number.
+    * @return The converter object.
+    */
+    function setScaleFactor($scale_factor) {
+        if (!(intval($scale_factor) > 0))
+            throw new Error(create_invalid_value_message($scale_factor, "scale_factor", "html-to-image", "Must be a positive integer number.", "set_scale_factor"), 470);
+        
+        $this->fields['scale_factor'] = $scale_factor;
         return $this;
     }
 
