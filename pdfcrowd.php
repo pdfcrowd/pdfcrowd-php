@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "4.6.0";
+    public static $client_version = "4.7.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -520,7 +520,7 @@ class Error extends \Exception {
 
 define('Pdfcrowd\HOST', getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com');
 
-const CLIENT_VERSION = '4.6.0';
+const CLIENT_VERSION = '4.7.0';
 const MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
 function create_invalid_value_message($value, $field, $converter, $hint, $id) {
@@ -551,7 +551,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/4.6.0 (http://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/4.7.0 (http://pdfcrowd.com)');
 
         $this->retry_count = 1;
 
@@ -1773,6 +1773,20 @@ class HtmlToPdfClient {
             throw new Error(create_invalid_value_message($rendering_mode, "rendering_mode", "html-to-pdf", "Allowed values are default, viewport.", "set_rendering_mode"), 470);
         
         $this->fields['rendering_mode'] = $rendering_mode;
+        return $this;
+    }
+
+    /**
+    * Specifies the scaling mode used for fitting the HTML contents to the print area.
+    *
+    * @param smart_scaling_mode The smart scaling mode. Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit.
+    * @return The converter object.
+    */
+    function setSmartScalingMode($smart_scaling_mode) {
+        if (!preg_match("/(?i)^(default|disabled|viewport-fit|content-fit|single-page-fit)$/", $smart_scaling_mode))
+            throw new Error(create_invalid_value_message($smart_scaling_mode, "smart_scaling_mode", "html-to-pdf", "Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit.", "set_smart_scaling_mode"), 470);
+        
+        $this->fields['smart_scaling_mode'] = $smart_scaling_mode;
         return $this;
     }
 
