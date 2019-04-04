@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "4.7.0";
+    public static $client_version = "4.8.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -520,7 +520,7 @@ class Error extends \Exception {
 
 define('Pdfcrowd\HOST', getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com');
 
-const CLIENT_VERSION = '4.7.0';
+const CLIENT_VERSION = '4.8.0';
 const MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
 function create_invalid_value_message($value, $field, $converter, $hint, $id) {
@@ -551,7 +551,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/4.7.0 (http://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/4.8.0 (http://pdfcrowd.com)');
 
         $this->retry_count = 1;
 
@@ -1457,6 +1457,79 @@ class HtmlToPdfClient {
     }
 
     /**
+    * Set the top left X coordinate of the content area.
+    *
+    * @param content_area_x Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
+    * @return The converter object.
+    */
+    function setContentAreaX($content_area_x) {
+        if (!preg_match("/(?i)^\-?[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$/", $content_area_x))
+            throw new Error(create_invalid_value_message($content_area_x, "content_area_x", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.", "set_content_area_x"), 470);
+        
+        $this->fields['content_area_x'] = $content_area_x;
+        return $this;
+    }
+
+    /**
+    * Set the top left Y coordinate of the content area.
+    *
+    * @param content_area_y Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
+    * @return The converter object.
+    */
+    function setContentAreaY($content_area_y) {
+        if (!preg_match("/(?i)^\-?[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$/", $content_area_y))
+            throw new Error(create_invalid_value_message($content_area_y, "content_area_y", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.", "set_content_area_y"), 470);
+        
+        $this->fields['content_area_y'] = $content_area_y;
+        return $this;
+    }
+
+    /**
+    * Set the width of the content area. It should be at least 1 inch.
+    *
+    * @param content_area_width Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+    * @return The converter object.
+    */
+    function setContentAreaWidth($content_area_width) {
+        if (!preg_match("/(?i)^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$/", $content_area_width))
+            throw new Error(create_invalid_value_message($content_area_width, "content_area_width", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_content_area_width"), 470);
+        
+        $this->fields['content_area_width'] = $content_area_width;
+        return $this;
+    }
+
+    /**
+    * Set the height of the content area. It should be at least 1 inch.
+    *
+    * @param content_area_height Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+    * @return The converter object.
+    */
+    function setContentAreaHeight($content_area_height) {
+        if (!preg_match("/(?i)^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$/", $content_area_height))
+            throw new Error(create_invalid_value_message($content_area_height, "content_area_height", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_content_area_height"), 470);
+        
+        $this->fields['content_area_height'] = $content_area_height;
+        return $this;
+    }
+
+    /**
+    * Set the content area position and size. The content area enables to specify a web page area to be converted.
+    *
+    * @param x Set the top left X coordinate of the content area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
+    * @param y Set the top left Y coordinate of the content area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
+    * @param width Set the width of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+    * @param height Set the height of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+    * @return The converter object.
+    */
+    function setContentArea($x, $y, $width, $height) {
+        $this->setContentAreaX($x);
+        $this->setContentAreaY($y);
+        $this->setContentAreaWidth($width);
+        $this->setContentAreaHeight($height);
+        return $this;
+    }
+
+    /**
     * Do not print the background graphics.
     *
     * @param no_background Set to <span class='field-value'>true</span> to disable the background graphics.
@@ -1624,7 +1697,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). The custom JavaScript can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
+    * Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
     *
     * @param custom_javascript A string containing a JavaScript code. The string must not be empty.
     * @return The converter object.
@@ -1638,7 +1711,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation. The custom JavaScript can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
+    * Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation. In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
     *
     * @param on_load_javascript A string containing a JavaScript code. The string must not be empty.
     * @return The converter object.
@@ -2689,7 +2762,7 @@ class HtmlToImageClient {
     }
 
     /**
-    * Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). The custom JavaScript can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
+    * Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
     *
     * @param custom_javascript A string containing a JavaScript code. The string must not be empty.
     * @return The converter object.
@@ -2703,7 +2776,7 @@ class HtmlToImageClient {
     }
 
     /**
-    * Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation. The custom JavaScript can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
+    * Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation. In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
     *
     * @param on_load_javascript A string containing a JavaScript code. The string must not be empty.
     * @return The converter object.
