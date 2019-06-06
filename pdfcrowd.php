@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "4.8.0";
+    public static $client_version = "4.9.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -520,7 +520,7 @@ class Error extends \Exception {
 
 define('Pdfcrowd\HOST', getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com');
 
-const CLIENT_VERSION = '4.8.0';
+const CLIENT_VERSION = '4.9.0';
 const MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
 function create_invalid_value_message($value, $field, $converter, $hint, $id) {
@@ -551,7 +551,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/4.8.0 (http://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/4.9.0 (http://pdfcrowd.com)');
 
         $this->retry_count = 1;
 
@@ -1348,76 +1348,6 @@ class HtmlToPdfClient {
     }
 
     /**
-    * The page background color in RGB or RGBA hexadecimal format. The color fills the entire page regardless of the margins.
-    *
-    * @param page_background_color The value must be in RRGGBB or RRGGBBAA hexadecimal format.
-    * @return The converter object.
-    */
-    function setPageBackgroundColor($page_background_color) {
-        if (!preg_match("/^[0-9a-fA-F]{6,8}$/", $page_background_color))
-            throw new Error(create_invalid_value_message($page_background_color, "page_background_color", "html-to-pdf", "The value must be in RRGGBB or RRGGBBAA hexadecimal format.", "set_page_background_color"), 470);
-        
-        $this->fields['page_background_color'] = $page_background_color;
-        return $this;
-    }
-
-    /**
-    * Apply the first page of the watermark PDF to every page of the output PDF.
-    *
-    * @param page_watermark The file path to a local watermark PDF file. The file must exist and not be empty.
-    * @return The converter object.
-    */
-    function setPageWatermark($page_watermark) {
-        if (!(filesize($page_watermark) > 0))
-            throw new Error(create_invalid_value_message($page_watermark, "page_watermark", "html-to-pdf", "The file must exist and not be empty.", "set_page_watermark"), 470);
-        
-        $this->files['page_watermark'] = $page_watermark;
-        return $this;
-    }
-
-    /**
-    * Apply each page of the specified watermark PDF to the corresponding page of the output PDF.
-    *
-    * @param multipage_watermark The file path to a local watermark PDF file. The file must exist and not be empty.
-    * @return The converter object.
-    */
-    function setMultipageWatermark($multipage_watermark) {
-        if (!(filesize($multipage_watermark) > 0))
-            throw new Error(create_invalid_value_message($multipage_watermark, "multipage_watermark", "html-to-pdf", "The file must exist and not be empty.", "set_multipage_watermark"), 470);
-        
-        $this->files['multipage_watermark'] = $multipage_watermark;
-        return $this;
-    }
-
-    /**
-    * Apply the first page of the specified PDF to the background of every page of the output PDF.
-    *
-    * @param page_background The file path to a local background PDF file. The file must exist and not be empty.
-    * @return The converter object.
-    */
-    function setPageBackground($page_background) {
-        if (!(filesize($page_background) > 0))
-            throw new Error(create_invalid_value_message($page_background, "page_background", "html-to-pdf", "The file must exist and not be empty.", "set_page_background"), 470);
-        
-        $this->files['page_background'] = $page_background;
-        return $this;
-    }
-
-    /**
-    * Apply each page of the specified PDF to the background of the corresponding page of the output PDF.
-    *
-    * @param multipage_background The file path to a local background PDF file. The file must exist and not be empty.
-    * @return The converter object.
-    */
-    function setMultipageBackground($multipage_background) {
-        if (!(filesize($multipage_background) > 0))
-            throw new Error(create_invalid_value_message($multipage_background, "multipage_background", "html-to-pdf", "The file must exist and not be empty.", "set_multipage_background"), 470);
-        
-        $this->files['multipage_background'] = $multipage_background;
-        return $this;
-    }
-
-    /**
     * The page header is not printed on the specified pages.
     *
     * @param pages List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma seperated list of page numbers.
@@ -1526,6 +1456,76 @@ class HtmlToPdfClient {
         $this->setContentAreaY($y);
         $this->setContentAreaWidth($width);
         $this->setContentAreaHeight($height);
+        return $this;
+    }
+
+    /**
+    * Apply the first page of the watermark PDF to every page of the output PDF.
+    *
+    * @param page_watermark The file path to a local watermark PDF file. The file must exist and not be empty.
+    * @return The converter object.
+    */
+    function setPageWatermark($page_watermark) {
+        if (!(filesize($page_watermark) > 0))
+            throw new Error(create_invalid_value_message($page_watermark, "page_watermark", "html-to-pdf", "The file must exist and not be empty.", "set_page_watermark"), 470);
+        
+        $this->files['page_watermark'] = $page_watermark;
+        return $this;
+    }
+
+    /**
+    * Apply each page of the specified watermark PDF to the corresponding page of the output PDF.
+    *
+    * @param multipage_watermark The file path to a local watermark PDF file. The file must exist and not be empty.
+    * @return The converter object.
+    */
+    function setMultipageWatermark($multipage_watermark) {
+        if (!(filesize($multipage_watermark) > 0))
+            throw new Error(create_invalid_value_message($multipage_watermark, "multipage_watermark", "html-to-pdf", "The file must exist and not be empty.", "set_multipage_watermark"), 470);
+        
+        $this->files['multipage_watermark'] = $multipage_watermark;
+        return $this;
+    }
+
+    /**
+    * Apply the first page of the specified PDF to the background of every page of the output PDF.
+    *
+    * @param page_background The file path to a local background PDF file. The file must exist and not be empty.
+    * @return The converter object.
+    */
+    function setPageBackground($page_background) {
+        if (!(filesize($page_background) > 0))
+            throw new Error(create_invalid_value_message($page_background, "page_background", "html-to-pdf", "The file must exist and not be empty.", "set_page_background"), 470);
+        
+        $this->files['page_background'] = $page_background;
+        return $this;
+    }
+
+    /**
+    * Apply each page of the specified PDF to the background of the corresponding page of the output PDF.
+    *
+    * @param multipage_background The file path to a local background PDF file. The file must exist and not be empty.
+    * @return The converter object.
+    */
+    function setMultipageBackground($multipage_background) {
+        if (!(filesize($multipage_background) > 0))
+            throw new Error(create_invalid_value_message($multipage_background, "multipage_background", "html-to-pdf", "The file must exist and not be empty.", "set_multipage_background"), 470);
+        
+        $this->files['multipage_background'] = $multipage_background;
+        return $this;
+    }
+
+    /**
+    * The page background color in RGB or RGBA hexadecimal format. The color fills the entire page regardless of the margins.
+    *
+    * @param page_background_color The value must be in RRGGBB or RRGGBBAA hexadecimal format.
+    * @return The converter object.
+    */
+    function setPageBackgroundColor($page_background_color) {
+        if (!preg_match("/^[0-9a-fA-F]{6,8}$/", $page_background_color))
+            throw new Error(create_invalid_value_message($page_background_color, "page_background_color", "html-to-pdf", "The value must be in RRGGBB or RRGGBBAA hexadecimal format.", "set_page_background_color"), 470);
+        
+        $this->fields['page_background_color'] = $page_background_color;
         return $this;
     }
 
@@ -1711,7 +1711,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation. In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
+    * Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
     *
     * @param on_load_javascript A string containing a JavaScript code. The string must not be empty.
     * @return The converter object.
@@ -2776,7 +2776,7 @@ class HtmlToImageClient {
     }
 
     /**
-    * Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation. In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
+    * Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
     *
     * @param on_load_javascript A string containing a JavaScript code. The string must not be empty.
     * @return The converter object.
@@ -3524,6 +3524,286 @@ class PdfToPdfClient {
         
         $this->raw_data['f_' . $this->file_id] = $pdf_raw_data;
         $this->file_id++;
+        return $this;
+    }
+
+    /**
+    * Apply the first page of the watermark PDF to every page of the output PDF.
+    *
+    * @param page_watermark The file path to a local watermark PDF file. The file must exist and not be empty.
+    * @return The converter object.
+    */
+    function setPageWatermark($page_watermark) {
+        if (!(filesize($page_watermark) > 0))
+            throw new Error(create_invalid_value_message($page_watermark, "page_watermark", "pdf-to-pdf", "The file must exist and not be empty.", "set_page_watermark"), 470);
+        
+        $this->files['page_watermark'] = $page_watermark;
+        return $this;
+    }
+
+    /**
+    * Apply each page of the specified watermark PDF to the corresponding page of the output PDF.
+    *
+    * @param multipage_watermark The file path to a local watermark PDF file. The file must exist and not be empty.
+    * @return The converter object.
+    */
+    function setMultipageWatermark($multipage_watermark) {
+        if (!(filesize($multipage_watermark) > 0))
+            throw new Error(create_invalid_value_message($multipage_watermark, "multipage_watermark", "pdf-to-pdf", "The file must exist and not be empty.", "set_multipage_watermark"), 470);
+        
+        $this->files['multipage_watermark'] = $multipage_watermark;
+        return $this;
+    }
+
+    /**
+    * Apply the first page of the specified PDF to the background of every page of the output PDF.
+    *
+    * @param page_background The file path to a local background PDF file. The file must exist and not be empty.
+    * @return The converter object.
+    */
+    function setPageBackground($page_background) {
+        if (!(filesize($page_background) > 0))
+            throw new Error(create_invalid_value_message($page_background, "page_background", "pdf-to-pdf", "The file must exist and not be empty.", "set_page_background"), 470);
+        
+        $this->files['page_background'] = $page_background;
+        return $this;
+    }
+
+    /**
+    * Apply each page of the specified PDF to the background of the corresponding page of the output PDF.
+    *
+    * @param multipage_background The file path to a local background PDF file. The file must exist and not be empty.
+    * @return The converter object.
+    */
+    function setMultipageBackground($multipage_background) {
+        if (!(filesize($multipage_background) > 0))
+            throw new Error(create_invalid_value_message($multipage_background, "multipage_background", "pdf-to-pdf", "The file must exist and not be empty.", "set_multipage_background"), 470);
+        
+        $this->files['multipage_background'] = $multipage_background;
+        return $this;
+    }
+
+    /**
+    * Create linearized PDF. This is also known as Fast Web View.
+    *
+    * @param linearize Set to <span class='field-value'>true</span> to create linearized PDF.
+    * @return The converter object.
+    */
+    function setLinearize($linearize) {
+        $this->fields['linearize'] = $linearize;
+        return $this;
+    }
+
+    /**
+    * Encrypt the PDF. This prevents search engines from indexing the contents.
+    *
+    * @param encrypt Set to <span class='field-value'>true</span> to enable PDF encryption.
+    * @return The converter object.
+    */
+    function setEncrypt($encrypt) {
+        $this->fields['encrypt'] = $encrypt;
+        return $this;
+    }
+
+    /**
+    * Protect the PDF with a user password. When a PDF has a user password, it must be supplied in order to view the document and to perform operations allowed by the access permissions.
+    *
+    * @param user_password The user password.
+    * @return The converter object.
+    */
+    function setUserPassword($user_password) {
+        $this->fields['user_password'] = $user_password;
+        return $this;
+    }
+
+    /**
+    * Protect the PDF with an owner password.  Supplying an owner password grants unlimited access to the PDF including changing the passwords and access permissions.
+    *
+    * @param owner_password The owner password.
+    * @return The converter object.
+    */
+    function setOwnerPassword($owner_password) {
+        $this->fields['owner_password'] = $owner_password;
+        return $this;
+    }
+
+    /**
+    * Disallow printing of the output PDF.
+    *
+    * @param no_print Set to <span class='field-value'>true</span> to set the no-print flag in the output PDF.
+    * @return The converter object.
+    */
+    function setNoPrint($no_print) {
+        $this->fields['no_print'] = $no_print;
+        return $this;
+    }
+
+    /**
+    * Disallow modification of the ouput PDF.
+    *
+    * @param no_modify Set to <span class='field-value'>true</span> to set the read-only only flag in the output PDF.
+    * @return The converter object.
+    */
+    function setNoModify($no_modify) {
+        $this->fields['no_modify'] = $no_modify;
+        return $this;
+    }
+
+    /**
+    * Disallow text and graphics extraction from the output PDF.
+    *
+    * @param no_copy Set to <span class='field-value'>true</span> to set the no-copy flag in the output PDF.
+    * @return The converter object.
+    */
+    function setNoCopy($no_copy) {
+        $this->fields['no_copy'] = $no_copy;
+        return $this;
+    }
+
+    /**
+    * Specify the page layout to be used when the document is opened.
+    *
+    * @param page_layout Allowed values are single-page, one-column, two-column-left, two-column-right.
+    * @return The converter object.
+    */
+    function setPageLayout($page_layout) {
+        if (!preg_match("/(?i)^(single-page|one-column|two-column-left|two-column-right)$/", $page_layout))
+            throw new Error(create_invalid_value_message($page_layout, "page_layout", "pdf-to-pdf", "Allowed values are single-page, one-column, two-column-left, two-column-right.", "set_page_layout"), 470);
+        
+        $this->fields['page_layout'] = $page_layout;
+        return $this;
+    }
+
+    /**
+    * Specify how the document should be displayed when opened.
+    *
+    * @param page_mode Allowed values are full-screen, thumbnails, outlines.
+    * @return The converter object.
+    */
+    function setPageMode($page_mode) {
+        if (!preg_match("/(?i)^(full-screen|thumbnails|outlines)$/", $page_mode))
+            throw new Error(create_invalid_value_message($page_mode, "page_mode", "pdf-to-pdf", "Allowed values are full-screen, thumbnails, outlines.", "set_page_mode"), 470);
+        
+        $this->fields['page_mode'] = $page_mode;
+        return $this;
+    }
+
+    /**
+    * Specify how the page should be displayed when opened.
+    *
+    * @param initial_zoom_type Allowed values are fit-width, fit-height, fit-page.
+    * @return The converter object.
+    */
+    function setInitialZoomType($initial_zoom_type) {
+        if (!preg_match("/(?i)^(fit-width|fit-height|fit-page)$/", $initial_zoom_type))
+            throw new Error(create_invalid_value_message($initial_zoom_type, "initial_zoom_type", "pdf-to-pdf", "Allowed values are fit-width, fit-height, fit-page.", "set_initial_zoom_type"), 470);
+        
+        $this->fields['initial_zoom_type'] = $initial_zoom_type;
+        return $this;
+    }
+
+    /**
+    * Display the specified page when the document is opened.
+    *
+    * @param initial_page Must be a positive integer number.
+    * @return The converter object.
+    */
+    function setInitialPage($initial_page) {
+        if (!(intval($initial_page) > 0))
+            throw new Error(create_invalid_value_message($initial_page, "initial_page", "pdf-to-pdf", "Must be a positive integer number.", "set_initial_page"), 470);
+        
+        $this->fields['initial_page'] = $initial_page;
+        return $this;
+    }
+
+    /**
+    * Specify the initial page zoom in percents when the document is opened.
+    *
+    * @param initial_zoom Must be a positive integer number.
+    * @return The converter object.
+    */
+    function setInitialZoom($initial_zoom) {
+        if (!(intval($initial_zoom) > 0))
+            throw new Error(create_invalid_value_message($initial_zoom, "initial_zoom", "pdf-to-pdf", "Must be a positive integer number.", "set_initial_zoom"), 470);
+        
+        $this->fields['initial_zoom'] = $initial_zoom;
+        return $this;
+    }
+
+    /**
+    * Specify whether to hide the viewer application's tool bars when the document is active.
+    *
+    * @param hide_toolbar Set to <span class='field-value'>true</span> to hide tool bars.
+    * @return The converter object.
+    */
+    function setHideToolbar($hide_toolbar) {
+        $this->fields['hide_toolbar'] = $hide_toolbar;
+        return $this;
+    }
+
+    /**
+    * Specify whether to hide the viewer application's menu bar when the document is active.
+    *
+    * @param hide_menubar Set to <span class='field-value'>true</span> to hide the menu bar.
+    * @return The converter object.
+    */
+    function setHideMenubar($hide_menubar) {
+        $this->fields['hide_menubar'] = $hide_menubar;
+        return $this;
+    }
+
+    /**
+    * Specify whether to hide user interface elements in the document's window (such as scroll bars and navigation controls), leaving only the document's contents displayed.
+    *
+    * @param hide_window_ui Set to <span class='field-value'>true</span> to hide ui elements.
+    * @return The converter object.
+    */
+    function setHideWindowUi($hide_window_ui) {
+        $this->fields['hide_window_ui'] = $hide_window_ui;
+        return $this;
+    }
+
+    /**
+    * Specify whether to resize the document's window to fit the size of the first displayed page.
+    *
+    * @param fit_window Set to <span class='field-value'>true</span> to resize the window.
+    * @return The converter object.
+    */
+    function setFitWindow($fit_window) {
+        $this->fields['fit_window'] = $fit_window;
+        return $this;
+    }
+
+    /**
+    * Specify whether to position the document's window in the center of the screen.
+    *
+    * @param center_window Set to <span class='field-value'>true</span> to center the window.
+    * @return The converter object.
+    */
+    function setCenterWindow($center_window) {
+        $this->fields['center_window'] = $center_window;
+        return $this;
+    }
+
+    /**
+    * Specify whether the window's title bar should display the document title. If false , the title bar should instead display the name of the PDF file containing the document.
+    *
+    * @param display_title Set to <span class='field-value'>true</span> to display the title.
+    * @return The converter object.
+    */
+    function setDisplayTitle($display_title) {
+        $this->fields['display_title'] = $display_title;
+        return $this;
+    }
+
+    /**
+    * Set the predominant reading order for text to right-to-left. This option has no direct effect on the document's contents or page numbering but can be used to determine the relative positioning of pages when displayed side by side or printed n-up
+    *
+    * @param right_to_left Set to <span class='field-value'>true</span> to set right-to-left reading order.
+    * @return The converter object.
+    */
+    function setRightToLeft($right_to_left) {
+        $this->fields['right_to_left'] = $right_to_left;
         return $this;
     }
 
