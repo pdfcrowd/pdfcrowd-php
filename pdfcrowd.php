@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "4.9.0";
+    public static $client_version = "4.10.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -520,7 +520,7 @@ class Error extends \Exception {
 
 define('Pdfcrowd\HOST', getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com');
 
-const CLIENT_VERSION = '4.9.0';
+const CLIENT_VERSION = '4.10.0';
 const MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
 function create_invalid_value_message($value, $field, $converter, $hint, $id) {
@@ -551,7 +551,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/4.9.0 (http://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/4.10.0 (http://pdfcrowd.com)');
 
         $this->retry_count = 1;
 
@@ -1788,12 +1788,12 @@ class HtmlToPdfClient {
     /**
     * Set the viewport width in pixels. The viewport is the user's visible area of the page.
     *
-    * @param viewport_width The value must be in the range 96-7680.
+    * @param viewport_width The value must be in the range 96-65000.
     * @return The converter object.
     */
     function setViewportWidth($viewport_width) {
-        if (!(intval($viewport_width) >= 96 && intval($viewport_width) <= 7680))
-            throw new Error(create_invalid_value_message($viewport_width, "viewport_width", "html-to-pdf", "The value must be in the range 96-7680.", "set_viewport_width"), 470);
+        if (!(intval($viewport_width) >= 96 && intval($viewport_width) <= 65000))
+            throw new Error(create_invalid_value_message($viewport_width, "viewport_width", "html-to-pdf", "The value must be in the range 96-65000.", "set_viewport_width"), 470);
         
         $this->fields['viewport_width'] = $viewport_width;
         return $this;
@@ -1816,7 +1816,7 @@ class HtmlToPdfClient {
     /**
     * Set the viewport size. The viewport is the user's visible area of the page.
     *
-    * @param width Set the viewport width in pixels. The viewport is the user's visible area of the page. The value must be in the range 96-7680.
+    * @param width Set the viewport width in pixels. The viewport is the user's visible area of the page. The value must be in the range 96-65000.
     * @param height Set the viewport height in pixels. The viewport is the user's visible area of the page. Must be a positive integer number.
     * @return The converter object.
     */
@@ -2854,19 +2854,19 @@ class HtmlToImageClient {
     /**
     * Set the output image width in pixels.
     *
-    * @param screenshot_width The value must be in the range 96-7680.
+    * @param screenshot_width The value must be in the range 96-65000.
     * @return The converter object.
     */
     function setScreenshotWidth($screenshot_width) {
-        if (!(intval($screenshot_width) >= 96 && intval($screenshot_width) <= 7680))
-            throw new Error(create_invalid_value_message($screenshot_width, "screenshot_width", "html-to-image", "The value must be in the range 96-7680.", "set_screenshot_width"), 470);
+        if (!(intval($screenshot_width) >= 96 && intval($screenshot_width) <= 65000))
+            throw new Error(create_invalid_value_message($screenshot_width, "screenshot_width", "html-to-image", "The value must be in the range 96-65000.", "set_screenshot_width"), 470);
         
         $this->fields['screenshot_width'] = $screenshot_width;
         return $this;
     }
 
     /**
-    * Set the output image height in pixels. If it's not specified, actual document height is used.
+    * Set the output image height in pixels. If it is not specified, actual document height is used.
     *
     * @param screenshot_height Must be a positive integer number.
     * @return The converter object.
@@ -3048,6 +3048,17 @@ class HtmlToImageClient {
     }
 
     /**
+    * Use cURL for the conversion request instead of file_get_contents PHP function.
+    *
+    * @param use_curl Set to <span class='field-value'>true</span> to use PHP's cURL.
+    * @return The converter object.
+    */
+    function setUseCurl($use_curl) {
+        $this->helper->setUseCurl($use_curl);
+        return $this;
+    }
+
+    /**
     * Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     *
     * @param retry_count Number of retries wanted.
@@ -3058,10 +3069,6 @@ class HtmlToImageClient {
         return $this;
     }
 
-    function setUseCurl($use_curl) {
-        $this->helper->setUseCurl($use_curl);
-        return $this;
-    }
 }
 
 /**
@@ -3407,6 +3414,17 @@ class ImageToImageClient {
     }
 
     /**
+    * Use cURL for the conversion request instead of file_get_contents PHP function.
+    *
+    * @param use_curl Set to <span class='field-value'>true</span> to use PHP's cURL.
+    * @return The converter object.
+    */
+    function setUseCurl($use_curl) {
+        $this->helper->setUseCurl($use_curl);
+        return $this;
+    }
+
+    /**
     * Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     *
     * @param retry_count Number of retries wanted.
@@ -3417,10 +3435,6 @@ class ImageToImageClient {
         return $this;
     }
 
-    function setUseCurl($use_curl) {
-        $this->helper->setUseCurl($use_curl);
-        return $this;
-    }
 }
 
 /**
@@ -3909,6 +3923,17 @@ class PdfToPdfClient {
     }
 
     /**
+    * Use cURL for the conversion request instead of file_get_contents PHP function.
+    *
+    * @param use_curl Set to <span class='field-value'>true</span> to use PHP's cURL.
+    * @return The converter object.
+    */
+    function setUseCurl($use_curl) {
+        $this->helper->setUseCurl($use_curl);
+        return $this;
+    }
+
+    /**
     * Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     *
     * @param retry_count Number of retries wanted.
@@ -3919,10 +3944,6 @@ class PdfToPdfClient {
         return $this;
     }
 
-    function setUseCurl($use_curl) {
-        $this->helper->setUseCurl($use_curl);
-        return $this;
-    }
 }
 
 /**
@@ -4254,6 +4275,17 @@ class ImageToPdfClient {
     }
 
     /**
+    * Use cURL for the conversion request instead of file_get_contents PHP function.
+    *
+    * @param use_curl Set to <span class='field-value'>true</span> to use PHP's cURL.
+    * @return The converter object.
+    */
+    function setUseCurl($use_curl) {
+        $this->helper->setUseCurl($use_curl);
+        return $this;
+    }
+
+    /**
     * Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     *
     * @param retry_count Number of retries wanted.
@@ -4264,10 +4296,6 @@ class ImageToPdfClient {
         return $this;
     }
 
-    function setUseCurl($use_curl) {
-        $this->helper->setUseCurl($use_curl);
-        return $this;
-    }
 }
 
 
