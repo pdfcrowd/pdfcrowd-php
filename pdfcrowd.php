@@ -2366,7 +2366,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Use cURL for the conversion request instead of file_get_contents PHP function.
+    * Use cURL for the conversion request instead of the file_get_contents() PHP function.
     *
     * @param use_curl Set to <span class='field-value'>true</span> to use PHP's cURL.
     * @return The converter object.
@@ -3048,7 +3048,7 @@ class HtmlToImageClient {
     }
 
     /**
-    * Use cURL for the conversion request instead of file_get_contents PHP function.
+    * Use cURL for the conversion request instead of the file_get_contents() PHP function.
     *
     * @param use_curl Set to <span class='field-value'>true</span> to use PHP's cURL.
     * @return The converter object.
@@ -3414,7 +3414,7 @@ class ImageToImageClient {
     }
 
     /**
-    * Use cURL for the conversion request instead of file_get_contents PHP function.
+    * Use cURL for the conversion request instead of the file_get_contents() PHP function.
     *
     * @param use_curl Set to <span class='field-value'>true</span> to use PHP's cURL.
     * @return The converter object.
@@ -3923,7 +3923,7 @@ class PdfToPdfClient {
     }
 
     /**
-    * Use cURL for the conversion request instead of file_get_contents PHP function.
+    * Use cURL for the conversion request instead of the file_get_contents() PHP function.
     *
     * @param use_curl Set to <span class='field-value'>true</span> to use PHP's cURL.
     * @return The converter object.
@@ -4275,7 +4275,7 @@ class ImageToPdfClient {
     }
 
     /**
-    * Use cURL for the conversion request instead of file_get_contents PHP function.
+    * Use cURL for the conversion request instead of the file_get_contents() PHP function.
     *
     * @param use_curl Set to <span class='field-value'>true</span> to use PHP's cURL.
     * @return The converter object.
