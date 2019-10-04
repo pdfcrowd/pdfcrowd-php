@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "4.10.0";
+    public static $client_version = "4.11.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -520,7 +520,7 @@ class Error extends \Exception {
 
 define('Pdfcrowd\HOST', getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com');
 
-const CLIENT_VERSION = '4.10.0';
+const CLIENT_VERSION = '4.11.0';
 const MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
 function create_invalid_value_message($value, $field, $converter, $hint, $id) {
@@ -551,7 +551,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/4.10.0 (http://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/4.11.0 (http://pdfcrowd.com)');
 
         $this->retry_count = 1;
 
@@ -1465,6 +1465,20 @@ class HtmlToPdfClient {
     }
 
     /**
+    * Load a watermark PDF from the specified URL and apply the first page of the watermark PDF to every page of the output PDF.
+    *
+    * @param page_watermark_url The supported protocols are http:// and https://.
+    * @return The converter object.
+    */
+    function setPageWatermarkUrl($page_watermark_url) {
+        if (!preg_match("/(?i)^https?:\/\/.*$/", $page_watermark_url))
+            throw new Error(create_invalid_value_message($page_watermark_url, "page_watermark_url", "html-to-pdf", "The supported protocols are http:// and https://.", "set_page_watermark_url"), 470);
+        
+        $this->fields['page_watermark_url'] = $page_watermark_url;
+        return $this;
+    }
+
+    /**
     * Apply each page of the specified watermark PDF to the corresponding page of the output PDF.
     *
     * @param multipage_watermark The file path to a local watermark PDF file. The file must exist and not be empty.
@@ -1475,6 +1489,20 @@ class HtmlToPdfClient {
             throw new Error(create_invalid_value_message($multipage_watermark, "multipage_watermark", "html-to-pdf", "The file must exist and not be empty.", "set_multipage_watermark"), 470);
         
         $this->files['multipage_watermark'] = $multipage_watermark;
+        return $this;
+    }
+
+    /**
+    * Load a watermark PDF from the specified URL and apply each page of the specified watermark PDF to the corresponding page of the output PDF.
+    *
+    * @param multipage_watermark_url The supported protocols are http:// and https://.
+    * @return The converter object.
+    */
+    function setMultipageWatermarkUrl($multipage_watermark_url) {
+        if (!preg_match("/(?i)^https?:\/\/.*$/", $multipage_watermark_url))
+            throw new Error(create_invalid_value_message($multipage_watermark_url, "multipage_watermark_url", "html-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_watermark_url"), 470);
+        
+        $this->fields['multipage_watermark_url'] = $multipage_watermark_url;
         return $this;
     }
 
@@ -1493,6 +1521,20 @@ class HtmlToPdfClient {
     }
 
     /**
+    * Load a background PDF from the specified URL and apply the first page of the background PDF to every page of the output PDF.
+    *
+    * @param page_background_url The supported protocols are http:// and https://.
+    * @return The converter object.
+    */
+    function setPageBackgroundUrl($page_background_url) {
+        if (!preg_match("/(?i)^https?:\/\/.*$/", $page_background_url))
+            throw new Error(create_invalid_value_message($page_background_url, "page_background_url", "html-to-pdf", "The supported protocols are http:// and https://.", "set_page_background_url"), 470);
+        
+        $this->fields['page_background_url'] = $page_background_url;
+        return $this;
+    }
+
+    /**
     * Apply each page of the specified PDF to the background of the corresponding page of the output PDF.
     *
     * @param multipage_background The file path to a local background PDF file. The file must exist and not be empty.
@@ -1503,6 +1545,20 @@ class HtmlToPdfClient {
             throw new Error(create_invalid_value_message($multipage_background, "multipage_background", "html-to-pdf", "The file must exist and not be empty.", "set_multipage_background"), 470);
         
         $this->files['multipage_background'] = $multipage_background;
+        return $this;
+    }
+
+    /**
+    * Load a background PDF from the specified URL and apply each page of the specified background PDF to the corresponding page of the output PDF.
+    *
+    * @param multipage_background_url The supported protocols are http:// and https://.
+    * @return The converter object.
+    */
+    function setMultipageBackgroundUrl($multipage_background_url) {
+        if (!preg_match("/(?i)^https?:\/\/.*$/", $multipage_background_url))
+            throw new Error(create_invalid_value_message($multipage_background_url, "multipage_background_url", "html-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_background_url"), 470);
+        
+        $this->fields['multipage_background_url'] = $multipage_background_url;
         return $this;
     }
 
@@ -3548,6 +3604,20 @@ class PdfToPdfClient {
     }
 
     /**
+    * Load a watermark PDF from the specified URL and apply the first page of the watermark PDF to every page of the output PDF.
+    *
+    * @param page_watermark_url The supported protocols are http:// and https://.
+    * @return The converter object.
+    */
+    function setPageWatermarkUrl($page_watermark_url) {
+        if (!preg_match("/(?i)^https?:\/\/.*$/", $page_watermark_url))
+            throw new Error(create_invalid_value_message($page_watermark_url, "page_watermark_url", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_page_watermark_url"), 470);
+        
+        $this->fields['page_watermark_url'] = $page_watermark_url;
+        return $this;
+    }
+
+    /**
     * Apply each page of the specified watermark PDF to the corresponding page of the output PDF.
     *
     * @param multipage_watermark The file path to a local watermark PDF file. The file must exist and not be empty.
@@ -3558,6 +3628,20 @@ class PdfToPdfClient {
             throw new Error(create_invalid_value_message($multipage_watermark, "multipage_watermark", "pdf-to-pdf", "The file must exist and not be empty.", "set_multipage_watermark"), 470);
         
         $this->files['multipage_watermark'] = $multipage_watermark;
+        return $this;
+    }
+
+    /**
+    * Load a watermark PDF from the specified URL and apply each page of the specified watermark PDF to the corresponding page of the output PDF.
+    *
+    * @param multipage_watermark_url The supported protocols are http:// and https://.
+    * @return The converter object.
+    */
+    function setMultipageWatermarkUrl($multipage_watermark_url) {
+        if (!preg_match("/(?i)^https?:\/\/.*$/", $multipage_watermark_url))
+            throw new Error(create_invalid_value_message($multipage_watermark_url, "multipage_watermark_url", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_watermark_url"), 470);
+        
+        $this->fields['multipage_watermark_url'] = $multipage_watermark_url;
         return $this;
     }
 
@@ -3576,6 +3660,20 @@ class PdfToPdfClient {
     }
 
     /**
+    * Load a background PDF from the specified URL and apply the first page of the background PDF to every page of the output PDF.
+    *
+    * @param page_background_url The supported protocols are http:// and https://.
+    * @return The converter object.
+    */
+    function setPageBackgroundUrl($page_background_url) {
+        if (!preg_match("/(?i)^https?:\/\/.*$/", $page_background_url))
+            throw new Error(create_invalid_value_message($page_background_url, "page_background_url", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_page_background_url"), 470);
+        
+        $this->fields['page_background_url'] = $page_background_url;
+        return $this;
+    }
+
+    /**
     * Apply each page of the specified PDF to the background of the corresponding page of the output PDF.
     *
     * @param multipage_background The file path to a local background PDF file. The file must exist and not be empty.
@@ -3586,6 +3684,20 @@ class PdfToPdfClient {
             throw new Error(create_invalid_value_message($multipage_background, "multipage_background", "pdf-to-pdf", "The file must exist and not be empty.", "set_multipage_background"), 470);
         
         $this->files['multipage_background'] = $multipage_background;
+        return $this;
+    }
+
+    /**
+    * Load a background PDF from the specified URL and apply each page of the specified background PDF to the corresponding page of the output PDF.
+    *
+    * @param multipage_background_url The supported protocols are http:// and https://.
+    * @return The converter object.
+    */
+    function setMultipageBackgroundUrl($multipage_background_url) {
+        if (!preg_match("/(?i)^https?:\/\/.*$/", $multipage_background_url))
+            throw new Error(create_invalid_value_message($multipage_background_url, "multipage_background_url", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_background_url"), 470);
+        
+        $this->fields['multipage_background_url'] = $multipage_background_url;
         return $this;
     }
 
