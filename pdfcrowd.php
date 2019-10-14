@@ -1327,12 +1327,12 @@ class HtmlToPdfClient {
     /**
     * Set the page range to print.
     *
-    * @param pages A comma seperated list of page numbers or ranges.
+    * @param pages A comma separated list of page numbers or ranges.
     * @return The converter object.
     */
     function setPrintPageRange($pages) {
         if (!preg_match("/^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$/", $pages))
-            throw new Error(create_invalid_value_message($pages, "pages", "html-to-pdf", "A comma seperated list of page numbers or ranges.", "set_print_page_range"), 470);
+            throw new Error(create_invalid_value_message($pages, "pages", "html-to-pdf", "A comma separated list of page numbers or ranges.", "set_print_page_range"), 470);
         
         $this->fields['print_page_range'] = $pages;
         return $this;
@@ -1341,12 +1341,12 @@ class HtmlToPdfClient {
     /**
     * The page header is not printed on the specified pages.
     *
-    * @param pages List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma seperated list of page numbers.
+    * @param pages List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma separated list of page numbers.
     * @return The converter object.
     */
     function setExcludeHeaderOnPages($pages) {
         if (!preg_match("/^(?:\s*\-?\d+\s*,)*\s*\-?\d+\s*$/", $pages))
-            throw new Error(create_invalid_value_message($pages, "pages", "html-to-pdf", "A comma seperated list of page numbers.", "set_exclude_header_on_pages"), 470);
+            throw new Error(create_invalid_value_message($pages, "pages", "html-to-pdf", "A comma separated list of page numbers.", "set_exclude_header_on_pages"), 470);
         
         $this->fields['exclude_header_on_pages'] = $pages;
         return $this;
@@ -1355,12 +1355,12 @@ class HtmlToPdfClient {
     /**
     * The page footer is not printed on the specified pages.
     *
-    * @param pages List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma seperated list of page numbers.
+    * @param pages List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma separated list of page numbers.
     * @return The converter object.
     */
     function setExcludeFooterOnPages($pages) {
         if (!preg_match("/^(?:\s*\-?\d+\s*,)*\s*\-?\d+\s*$/", $pages))
-            throw new Error(create_invalid_value_message($pages, "pages", "html-to-pdf", "A comma seperated list of page numbers.", "set_exclude_footer_on_pages"), 470);
+            throw new Error(create_invalid_value_message($pages, "pages", "html-to-pdf", "A comma separated list of page numbers.", "set_exclude_footer_on_pages"), 470);
         
         $this->fields['exclude_footer_on_pages'] = $pages;
         return $this;
@@ -2047,7 +2047,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Disallow modification of the ouput PDF.
+    * Disallow modification of the output PDF.
     *
     * @param no_modify Set to <span class='field-value'>true</span> to set the read-only only flag in the output PDF.
     * @return The converter object.
@@ -3757,7 +3757,7 @@ class PdfToPdfClient {
     }
 
     /**
-    * Disallow modification of the ouput PDF.
+    * Disallow modification of the output PDF.
     *
     * @param no_modify Set to <span class='field-value'>true</span> to set the read-only only flag in the output PDF.
     * @return The converter object.
