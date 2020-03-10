@@ -524,7 +524,7 @@ const CLIENT_VERSION = '4.11.0';
 const MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
 function create_invalid_value_message($value, $field, $converter, $hint, $id) {
-    $message = "Invalid value '$value' for a field '$field'.";
+    $message = "Invalid value '$value' for the field '$field'.";
     if($hint != null) {
         $message = $message . " " . $hint;
     }
