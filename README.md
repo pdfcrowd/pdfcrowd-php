@@ -13,10 +13,15 @@ To install via Packagist:
 
     $ composer require pdfcrowd/pdfcrowd
 
-## Documentation
+## Learn more
 
 * API Home:  <https://pdfcrowd.com/doc/api/>
 * API Reference:  <https://pdfcrowd.com/doc/api/html-to-pdf/php/>
+* Interactive API Playground:
+  * PHP: <https://pdfcrowd.com/playground/html-to-pdf/?lang=php>
+  * PHP web site: <https://pdfcrowd.com/playground/html-to-pdf/?lang=wf-php>
+  * Laravel: <https://pdfcrowd.com/playground/html-to-pdf/?lang=wf-laravel>
+  * Symfony: <https://pdfcrowd.com/playground/html-to-pdf/?lang=wf-symfony>
 
 ## License
 
