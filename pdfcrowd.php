@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "4.11.0";
+    public static $client_version = "4.12.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -520,7 +520,7 @@ class Error extends \Exception {
 
 define('Pdfcrowd\HOST', getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com');
 
-const CLIENT_VERSION = '4.11.0';
+const CLIENT_VERSION = '4.12.0';
 const MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
 function create_invalid_value_message($value, $field, $converter, $hint, $id) {
@@ -551,7 +551,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/4.11.0 (http://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/4.12.0 (http://pdfcrowd.com)');
 
         $this->retry_count = 1;
 
@@ -1447,6 +1447,97 @@ class HtmlToPdfClient {
         $this->setContentAreaY($y);
         $this->setContentAreaWidth($width);
         $this->setContentAreaHeight($height);
+        return $this;
+    }
+
+    /**
+    * Set the input data for template rendering. The data format can be JSON, XML, YAML or CSV.
+    *
+    * @param data_string The input data string.
+    * @return The converter object.
+    */
+    function setDataString($data_string) {
+        $this->fields['data_string'] = $data_string;
+        return $this;
+    }
+
+    /**
+    * Load the input data for template rendering from the specified file. The data format can be JSON, XML, YAML or CSV.
+    *
+    * @param data_file The file path to a local file containing the input data.
+    * @return The converter object.
+    */
+    function setDataFile($data_file) {
+        $this->files['data_file'] = $data_file;
+        return $this;
+    }
+
+    /**
+    * Specify the input data format.
+    *
+    * @param data_format The data format. Allowed values are auto, json, xml, yaml, csv.
+    * @return The converter object.
+    */
+    function setDataFormat($data_format) {
+        if (!preg_match("/(?i)^(auto|json|xml|yaml|csv)$/", $data_format))
+            throw new Error(create_invalid_value_message($data_format, "data_format", "html-to-pdf", "Allowed values are auto, json, xml, yaml, csv.", "set_data_format"), 470);
+        
+        $this->fields['data_format'] = $data_format;
+        return $this;
+    }
+
+    /**
+    * Set the encoding of the data file set by <a href='#set_data_file'>setDataFile</a>.
+    *
+    * @param data_encoding The data file encoding.
+    * @return The converter object.
+    */
+    function setDataEncoding($data_encoding) {
+        $this->fields['data_encoding'] = $data_encoding;
+        return $this;
+    }
+
+    /**
+    * Ignore undefined variables in the HTML template. The default mode is strict so any undefined variable causes the conversion to fail. You can use <span class='field-value text-nowrap'>&#x007b;&#x0025; if variable is defined &#x0025;&#x007d;</span> to check if the variable is defined.
+    *
+    * @param data_ignore_undefined Set to <span class='field-value'>true</span> to ignore undefined variables.
+    * @return The converter object.
+    */
+    function setDataIgnoreUndefined($data_ignore_undefined) {
+        $this->fields['data_ignore_undefined'] = $data_ignore_undefined;
+        return $this;
+    }
+
+    /**
+    * Auto escape HTML symbols in the input data before placing them into the output.
+    *
+    * @param data_auto_escape Set to <span class='field-value'>true</span> to turn auto escaping on.
+    * @return The converter object.
+    */
+    function setDataAutoEscape($data_auto_escape) {
+        $this->fields['data_auto_escape'] = $data_auto_escape;
+        return $this;
+    }
+
+    /**
+    * Auto trim whitespace around each template command block.
+    *
+    * @param data_trim_blocks Set to <span class='field-value'>true</span> to turn auto trimming on.
+    * @return The converter object.
+    */
+    function setDataTrimBlocks($data_trim_blocks) {
+        $this->fields['data_trim_blocks'] = $data_trim_blocks;
+        return $this;
+    }
+
+    /**
+    * Set the advanced data options:<ul><li><span class='field-value'>csv_delimiter</span> - The CSV data delimiter, the default is <span class='field-value'>,</span>.</li><li><span class='field-value'>xml_remove_root</span> - Remove the root XML element from the input data.</li><li><span class='field-value'>data_root</span> - The name of the root element inserted into the input data without a root node (e.g. CSV), the default is <span class='field-value'>data</span>.</li></ul>
+    *
+    * @param data_options Comma separated list of options.
+    * @return The converter object.
+    */
+    function setDataOptions($data_options) {
+        $this->fields['data_options'] = $data_options;
         return $this;
     }
 
@@ -2641,6 +2732,97 @@ class HtmlToImageClient {
             unlink($file_path);
             throw $why;
         }
+    }
+
+    /**
+    * Set the input data for template rendering. The data format can be JSON, XML, YAML or CSV.
+    *
+    * @param data_string The input data string.
+    * @return The converter object.
+    */
+    function setDataString($data_string) {
+        $this->fields['data_string'] = $data_string;
+        return $this;
+    }
+
+    /**
+    * Load the input data for template rendering from the specified file. The data format can be JSON, XML, YAML or CSV.
+    *
+    * @param data_file The file path to a local file containing the input data.
+    * @return The converter object.
+    */
+    function setDataFile($data_file) {
+        $this->files['data_file'] = $data_file;
+        return $this;
+    }
+
+    /**
+    * Specify the input data format.
+    *
+    * @param data_format The data format. Allowed values are auto, json, xml, yaml, csv.
+    * @return The converter object.
+    */
+    function setDataFormat($data_format) {
+        if (!preg_match("/(?i)^(auto|json|xml|yaml|csv)$/", $data_format))
+            throw new Error(create_invalid_value_message($data_format, "data_format", "html-to-image", "Allowed values are auto, json, xml, yaml, csv.", "set_data_format"), 470);
+        
+        $this->fields['data_format'] = $data_format;
+        return $this;
+    }
+
+    /**
+    * Set the encoding of the data file set by <a href='#set_data_file'>setDataFile</a>.
+    *
+    * @param data_encoding The data file encoding.
+    * @return The converter object.
+    */
+    function setDataEncoding($data_encoding) {
+        $this->fields['data_encoding'] = $data_encoding;
+        return $this;
+    }
+
+    /**
+    * Ignore undefined variables in the HTML template. The default mode is strict so any undefined variable causes the conversion to fail. You can use <span class='field-value text-nowrap'>&#x007b;&#x0025; if variable is defined &#x0025;&#x007d;</span> to check if the variable is defined.
+    *
+    * @param data_ignore_undefined Set to <span class='field-value'>true</span> to ignore undefined variables.
+    * @return The converter object.
+    */
+    function setDataIgnoreUndefined($data_ignore_undefined) {
+        $this->fields['data_ignore_undefined'] = $data_ignore_undefined;
+        return $this;
+    }
+
+    /**
+    * Auto escape HTML symbols in the input data before placing them into the output.
+    *
+    * @param data_auto_escape Set to <span class='field-value'>true</span> to turn auto escaping on.
+    * @return The converter object.
+    */
+    function setDataAutoEscape($data_auto_escape) {
+        $this->fields['data_auto_escape'] = $data_auto_escape;
+        return $this;
+    }
+
+    /**
+    * Auto trim whitespace around each template command block.
+    *
+    * @param data_trim_blocks Set to <span class='field-value'>true</span> to turn auto trimming on.
+    * @return The converter object.
+    */
+    function setDataTrimBlocks($data_trim_blocks) {
+        $this->fields['data_trim_blocks'] = $data_trim_blocks;
+        return $this;
+    }
+
+    /**
+    * Set the advanced data options:<ul><li><span class='field-value'>csv_delimiter</span> - The CSV data delimiter, the default is <span class='field-value'>,</span>.</li><li><span class='field-value'>xml_remove_root</span> - Remove the root XML element from the input data.</li><li><span class='field-value'>data_root</span> - The name of the root element inserted into the input data without a root node (e.g. CSV), the default is <span class='field-value'>data</span>.</li></ul>
+    *
+    * @param data_options Comma separated list of options.
+    * @return The converter object.
+    */
+    function setDataOptions($data_options) {
+        $this->fields['data_options'] = $data_options;
+        return $this;
     }
 
     /**
