@@ -2489,7 +2489,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall.
+    * Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
     *
     * @param user_agent The user agent string.
     * @return The converter object.
@@ -3263,7 +3263,7 @@ class HtmlToImageClient {
     }
 
     /**
-    * Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall.
+    * Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
     *
     * @param user_agent The user agent string.
     * @return The converter object.
@@ -3630,7 +3630,7 @@ class ImageToImageClient {
     }
 
     /**
-    * Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall.
+    * Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
     *
     * @param user_agent The user agent string.
     * @return The converter object.
@@ -4196,7 +4196,7 @@ class PdfToPdfClient {
     }
 
     /**
-    * Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall.
+    * Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
     *
     * @param user_agent The user agent string.
     * @return The converter object.
@@ -4549,7 +4549,7 @@ class ImageToPdfClient {
     }
 
     /**
-    * Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall.
+    * Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
     *
     * @param user_agent The user agent string.
     * @return The converter object.
