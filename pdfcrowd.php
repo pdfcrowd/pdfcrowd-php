@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "4.12.0";
+    public static $client_version = "5.0.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -518,13 +518,8 @@ class Error extends \Exception {
     }
 }
 
-define('Pdfcrowd\HOST', getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com');
-
-const CLIENT_VERSION = '4.12.0';
-const MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
-
 function create_invalid_value_message($value, $field, $converter, $hint, $id) {
-    $message = "Invalid value '$value' for the field '$field'.";
+    $message = "Invalid value '$value' for $field.";
     if($hint != null) {
         $message = $message . " " . $hint;
     }
@@ -545,15 +540,17 @@ Solution 2: Install cURL for PHP:
 You need to restart your web server after installation.';
 
     function __construct($user_name, $api_key){
+        $this->host = getenv('PDFCROWD_HOST') ?: 'api.pdfcrowd.com';
         $this->user_name = $user_name;
         $this->api_key = $api_key;
 
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/4.12.0 (http://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/5.0.0 (http://pdfcrowd.com)');
 
         $this->retry_count = 1;
+        $this->converter_version = '20.10';
 
         // find available method for POST request
         if(!ini_get('allow_url_fopen')) {
@@ -568,6 +565,7 @@ You need to restart your web server after installation.';
         }
     }
 
+    private $host;
     private $user_name;
     private $api_key;
     private $port;
@@ -587,14 +585,18 @@ You need to restart your web server after installation.';
 
     private $retry_count;
     private $retry;
+    private $converter_version;
     private $error_message;
 
     private $use_curl;
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
+    const CLIENT_VERSION = '5.0.0';
+    public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
+
     private function add_file_field($name, $file_name, $data, &$body) {
-        $body .= "--" . MULTIPART_BOUNDARY . "\r\n";
+        $body .= "--" . self::$MULTIPART_BOUNDARY . "\r\n";
         $body .= 'Content-Disposition: form-data; name="' . $name . '";' . ' filename="' . $file_name . '"' . "\r\n";
         $body .= 'Content-Type: application/octet-stream' . "\r\n";
         $body .= "\r\n";
@@ -615,7 +617,7 @@ You need to restart your web server after installation.';
         $body = '';
 
         foreach ($fields as $name => $content) {
-            $body .= "--" . MULTIPART_BOUNDARY . "\r\n";
+            $body .= "--" . self::$MULTIPART_BOUNDARY . "\r\n";
             $body .= 'Content-Disposition: form-data; name="' . $name . '"' . "\r\n\r\n";
             $body .= $content . "\r\n";
         }
@@ -628,7 +630,7 @@ You need to restart your web server after installation.';
             $this->add_file_field($name, $name, $data, $body);
         }
 
-        return $body . "--" . MULTIPART_BOUNDARY . "--\r\n";
+        return $body . "--" . self::$MULTIPART_BOUNDARY . "--\r\n";
     }
 
     private function output_body($http_code, $body, $out_stream) {
@@ -677,7 +679,7 @@ You need to restart your web server after installation.';
         }
 
         $c = curl_init();
-        curl_setopt($c, CURLOPT_URL, $this->url);
+        curl_setopt($c, CURLOPT_URL, $this->url . $this->converter_version . '/');
         curl_setopt($c, CURLOPT_PORT, $this->port);
         curl_setopt($c, CURLOPT_HEADER, true);
         curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
@@ -691,7 +693,7 @@ You need to restart your web server after installation.';
         curl_setopt($c, CURLOPT_USERAGENT, $this->user_agent);
         curl_setopt($c, CURLOPT_USERPWD, "{$this->user_name}:{$this->api_key}");
 
-        if ($this->scheme == 'https' && HOST == 'api.pdfcrowd.com') {
+        if ($this->scheme == 'https' && $this->host == 'api.pdfcrowd.com') {
             curl_setopt($c, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($c, CURLOPT_SSL_VERIFYHOST, 2);
         } else {
@@ -713,7 +715,7 @@ You need to restart your web server after installation.';
             $body = $this->build_body($fields, $files, $raw_data);
 
             curl_setopt($c, CURLOPT_HTTPHEADER , array(
-                'Content-Type: multipart/form-data; boundary=' . MULTIPART_BOUNDARY,
+                'Content-Type: multipart/form-data; boundary=' . self::$MULTIPART_BOUNDARY,
                 'Content-Length: ' . strlen($body)));
             curl_setopt($c, CURLOPT_POSTFIELDS, $body);
         }
@@ -754,7 +756,7 @@ You need to restart your web server after installation.';
         $body = $this->build_body($fields, $files, $raw_data);
         $auth = base64_encode("{$this->user_name}:{$this->api_key}");
         $headers = array(
-            'Content-Type: multipart/form-data; boundary=' . MULTIPART_BOUNDARY,
+            'Content-Type: multipart/form-data; boundary=' . self::$MULTIPART_BOUNDARY,
             'Content-Length: ' . strlen($body),
             'Authorization: Basic ' . $auth,
             'User-Agent: ' . $this->user_agent
@@ -769,7 +771,7 @@ You need to restart your web server after installation.';
             )
         );
 
-        if (HOST != 'api.pdfcrowd.com') {
+        if ($this->host != 'api.pdfcrowd.com') {
             $context_options['ssl'] = array(
                 'verify_peer_name' => false
             );
@@ -787,7 +789,8 @@ You need to restart your web server after installation.';
         $context_options['http']['header'] = $headers;
 
         $context = stream_context_create($context_options);
-        $response = $this->exec_request_no_curl($this->url, $context);
+        $response = $this->exec_request_no_curl(
+            $this->url . $this->converter_version . '/', $context);
 
         return $this->output_body($response['code'], $response['body'], $out_stream);
     }
@@ -826,6 +829,10 @@ You need to restart your web server after installation.';
 
         if($body === false) {
             if(strpos($this->error_message, "SSL") === false) {
+                if(strpos($this->error_message, "allow_url_fopen") !== false) {
+                    throw new Error($this->error_message .
+                                    self::$REQ_NOT_AVAILABLE);
+                }
                 throw new Error($this->error_message);
             }
             throw new Error("There was a problem connecting to Pdfcrowd servers over HTTPS:\n" .
@@ -855,7 +862,7 @@ You need to restart your web server after installation.';
         }
 
         $this->use_http = $use_http;
-        $this->url = "{$this->scheme}://".HOST.'/convert/';
+        $this->url = "{$this->scheme}://{$this->host}/convert/";
     }
 
     function setProxy($host, $port, $user_name, $password) {
@@ -871,6 +878,10 @@ You need to restart your web server after installation.';
 
     function setRetryCount($retry_count) {
         $this->retry_count = $retry_count;
+    }
+
+    function setConverterVersion($converter_version) {
+        $this->converter_version = $converter_version;
     }
 
     function getDebugLogUrl() {
@@ -895,6 +906,10 @@ You need to restart your web server after installation.';
 
     function getOutputSize() {
         return $this->output_size;
+    }
+
+    function getConverterVersion() {
+        return $this->converter_version;
     }
 
     function setUseCurl($use_curl) {
@@ -933,7 +948,7 @@ class HtmlToPdfClient {
     */
     function convertUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "url", "html-to-pdf", "The supported protocols are http:// and https://.", "convert_url"), 470);
+            throw new Error(create_invalid_value_message($url, "convertUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "convert_url"), 470);
         
         $this->fields['url'] = $url;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
@@ -947,7 +962,7 @@ class HtmlToPdfClient {
     */
     function convertUrlToStream($url, $out_stream) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "url", "html-to-pdf", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
+            throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "html-to-pdf", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
         
         $this->fields['url'] = $url;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
@@ -961,7 +976,7 @@ class HtmlToPdfClient {
     */
     function convertUrlToFile($url, $file_path) {
         if (!($file_path != null && $file_path !== ''))
-            throw new Error(create_invalid_value_message($file_path, "file_path", "html-to-pdf", "The string must not be empty.", "convert_url_to_file"), 470);
+            throw new Error(create_invalid_value_message($file_path, "convertUrlToFile::file_path", "html-to-pdf", "The string must not be empty.", "convert_url_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
         if (!$output_file) {
@@ -987,7 +1002,7 @@ class HtmlToPdfClient {
     */
     function convertFile($file) {
         if (!(filesize($file) > 0))
-            throw new Error(create_invalid_value_message($file, "file", "html-to-pdf", "The file must exist and not be empty.", "convert_file"), 470);
+            throw new Error(create_invalid_value_message($file, "convertFile", "html-to-pdf", "The file must exist and not be empty.", "convert_file"), 470);
         
         $this->files['file'] = $file;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
@@ -1001,7 +1016,7 @@ class HtmlToPdfClient {
     */
     function convertFileToStream($file, $out_stream) {
         if (!(filesize($file) > 0))
-            throw new Error(create_invalid_value_message($file, "file", "html-to-pdf", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
+            throw new Error(create_invalid_value_message($file, "convertFileToStream::file", "html-to-pdf", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
         
         $this->files['file'] = $file;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
@@ -1015,7 +1030,7 @@ class HtmlToPdfClient {
     */
     function convertFileToFile($file, $file_path) {
         if (!($file_path != null && $file_path !== ''))
-            throw new Error(create_invalid_value_message($file_path, "file_path", "html-to-pdf", "The string must not be empty.", "convert_file_to_file"), 470);
+            throw new Error(create_invalid_value_message($file_path, "convertFileToFile::file_path", "html-to-pdf", "The string must not be empty.", "convert_file_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
         if (!$output_file) {
@@ -1041,7 +1056,7 @@ class HtmlToPdfClient {
     */
     function convertString($text) {
         if (!($text != null && $text !== ''))
-            throw new Error(create_invalid_value_message($text, "text", "html-to-pdf", "The string must not be empty.", "convert_string"), 470);
+            throw new Error(create_invalid_value_message($text, "convertString", "html-to-pdf", "The string must not be empty.", "convert_string"), 470);
         
         $this->fields['text'] = $text;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
@@ -1055,7 +1070,7 @@ class HtmlToPdfClient {
     */
     function convertStringToStream($text, $out_stream) {
         if (!($text != null && $text !== ''))
-            throw new Error(create_invalid_value_message($text, "text", "html-to-pdf", "The string must not be empty.", "convert_string_to_stream"), 470);
+            throw new Error(create_invalid_value_message($text, "convertStringToStream::text", "html-to-pdf", "The string must not be empty.", "convert_string_to_stream"), 470);
         
         $this->fields['text'] = $text;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
@@ -1069,7 +1084,7 @@ class HtmlToPdfClient {
     */
     function convertStringToFile($text, $file_path) {
         if (!($file_path != null && $file_path !== ''))
-            throw new Error(create_invalid_value_message($file_path, "file_path", "html-to-pdf", "The string must not be empty.", "convert_string_to_file"), 470);
+            throw new Error(create_invalid_value_message($file_path, "convertStringToFile::file_path", "html-to-pdf", "The string must not be empty.", "convert_string_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
         if (!$output_file) {
@@ -1090,42 +1105,42 @@ class HtmlToPdfClient {
     /**
     * Set the output page size.
     *
-    * @param page_size Allowed values are A2, A3, A4, A5, A6, Letter.
+    * @param size Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.
     * @return The converter object.
     */
-    function setPageSize($page_size) {
-        if (!preg_match("/(?i)^(A2|A3|A4|A5|A6|Letter)$/", $page_size))
-            throw new Error(create_invalid_value_message($page_size, "page_size", "html-to-pdf", "Allowed values are A2, A3, A4, A5, A6, Letter.", "set_page_size"), 470);
+    function setPageSize($size) {
+        if (!preg_match("/(?i)^(A0|A1|A2|A3|A4|A5|A6|Letter)$/", $size))
+            throw new Error(create_invalid_value_message($size, "setPageSize", "html-to-pdf", "Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.", "set_page_size"), 470);
         
-        $this->fields['page_size'] = $page_size;
+        $this->fields['page_size'] = $size;
         return $this;
     }
 
     /**
     * Set the output page width. The safe maximum is <span class='field-value'>200in</span> otherwise some PDF viewers may be unable to open the PDF.
     *
-    * @param page_width Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+    * @param width Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @return The converter object.
     */
-    function setPageWidth($page_width) {
-        if (!preg_match("/(?i)^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$/", $page_width))
-            throw new Error(create_invalid_value_message($page_width, "page_width", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_page_width"), 470);
+    function setPageWidth($width) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $width))
+            throw new Error(create_invalid_value_message($width, "setPageWidth", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_page_width"), 470);
         
-        $this->fields['page_width'] = $page_width;
+        $this->fields['page_width'] = $width;
         return $this;
     }
 
     /**
     * Set the output page height. Use <span class='field-value'>-1</span> for a single page PDF. The safe maximum is <span class='field-value'>200in</span> otherwise some PDF viewers may be unable to open the PDF.
     *
-    * @param page_height Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+    * @param height Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @return The converter object.
     */
-    function setPageHeight($page_height) {
-        if (!preg_match("/(?i)^\-1$|^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$/", $page_height))
-            throw new Error(create_invalid_value_message($page_height, "page_height", "html-to-pdf", "Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_page_height"), 470);
+    function setPageHeight($height) {
+        if (!preg_match("/(?i)^0$|^\-1$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
+            throw new Error(create_invalid_value_message($height, "setPageHeight", "html-to-pdf", "Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_page_height"), 470);
         
-        $this->fields['page_height'] = $page_height;
+        $this->fields['page_height'] = $height;
         return $this;
     }
 
@@ -1150,7 +1165,7 @@ class HtmlToPdfClient {
     */
     function setOrientation($orientation) {
         if (!preg_match("/(?i)^(landscape|portrait)$/", $orientation))
-            throw new Error(create_invalid_value_message($orientation, "orientation", "html-to-pdf", "Allowed values are landscape, portrait.", "set_orientation"), 470);
+            throw new Error(create_invalid_value_message($orientation, "setOrientation", "html-to-pdf", "Allowed values are landscape, portrait.", "set_orientation"), 470);
         
         $this->fields['orientation'] = $orientation;
         return $this;
@@ -1159,67 +1174,67 @@ class HtmlToPdfClient {
     /**
     * Set the output page top margin.
     *
-    * @param margin_top Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+    * @param top Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @return The converter object.
     */
-    function setMarginTop($margin_top) {
-        if (!preg_match("/(?i)^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$/", $margin_top))
-            throw new Error(create_invalid_value_message($margin_top, "margin_top", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_margin_top"), 470);
+    function setMarginTop($top) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $top))
+            throw new Error(create_invalid_value_message($top, "setMarginTop", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_margin_top"), 470);
         
-        $this->fields['margin_top'] = $margin_top;
+        $this->fields['margin_top'] = $top;
         return $this;
     }
 
     /**
     * Set the output page right margin.
     *
-    * @param margin_right Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+    * @param right Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @return The converter object.
     */
-    function setMarginRight($margin_right) {
-        if (!preg_match("/(?i)^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$/", $margin_right))
-            throw new Error(create_invalid_value_message($margin_right, "margin_right", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_margin_right"), 470);
+    function setMarginRight($right) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $right))
+            throw new Error(create_invalid_value_message($right, "setMarginRight", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_margin_right"), 470);
         
-        $this->fields['margin_right'] = $margin_right;
+        $this->fields['margin_right'] = $right;
         return $this;
     }
 
     /**
     * Set the output page bottom margin.
     *
-    * @param margin_bottom Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+    * @param bottom Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @return The converter object.
     */
-    function setMarginBottom($margin_bottom) {
-        if (!preg_match("/(?i)^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$/", $margin_bottom))
-            throw new Error(create_invalid_value_message($margin_bottom, "margin_bottom", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_margin_bottom"), 470);
+    function setMarginBottom($bottom) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $bottom))
+            throw new Error(create_invalid_value_message($bottom, "setMarginBottom", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_margin_bottom"), 470);
         
-        $this->fields['margin_bottom'] = $margin_bottom;
+        $this->fields['margin_bottom'] = $bottom;
         return $this;
     }
 
     /**
     * Set the output page left margin.
     *
-    * @param margin_left Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+    * @param left Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @return The converter object.
     */
-    function setMarginLeft($margin_left) {
-        if (!preg_match("/(?i)^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$/", $margin_left))
-            throw new Error(create_invalid_value_message($margin_left, "margin_left", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_margin_left"), 470);
+    function setMarginLeft($left) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $left))
+            throw new Error(create_invalid_value_message($left, "setMarginLeft", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_margin_left"), 470);
         
-        $this->fields['margin_left'] = $margin_left;
+        $this->fields['margin_left'] = $left;
         return $this;
     }
 
     /**
     * Disable page margins.
     *
-    * @param no_margins Set to <span class='field-value'>true</span> to disable margins.
+    * @param value Set to <span class='field-value'>true</span> to disable margins.
     * @return The converter object.
     */
-    function setNoMargins($no_margins) {
-        $this->fields['no_margins'] = $no_margins;
+    function setNoMargins($value) {
+        $this->fields['no_margins'] = $value;
         return $this;
     }
 
@@ -1243,84 +1258,95 @@ class HtmlToPdfClient {
     /**
     * Load an HTML code from the specified URL and use it as the page header. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: <ul> <li><span class='field-value'>pdfcrowd-page-count</span> - the total page count of printed pages</li> <li><span class='field-value'>pdfcrowd-page-number</span> - the current page number</li> <li><span class='field-value'>pdfcrowd-source-url</span> - the source URL of a converted document</li> </ul> The following attributes can be used: <ul> <li><span class='field-value'>data-pdfcrowd-number-format</span> - specifies the type of the used numerals <ul> <li>Arabic numerals are used by default.</li> <li>Roman numerals can be generated by the <span class='field-value'>roman</span> and <span class='field-value'>roman-lowercase</span> values <ul> <li> Example: &lt;span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'&gt;&lt;/span&gt; </li> </ul> </li> </ul> </li> <li><span class='field-value'>data-pdfcrowd-placement</span> - specifies where to place the source URL, allowed values: <ul> <li>The URL is inserted to the content <ul> <li> Example: &lt;span class='pdfcrowd-source-url'&gt;&lt;/span&gt;<br> will produce &lt;span&gt;http://example.com&lt;/span&gt; </li> </ul> </li> <li><span class='field-value'>href</span> - the URL is set to the href attribute <ul> <li> Example: &lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'&gt;Link to source&lt;/a&gt;<br> will produce &lt;a href='http://example.com'&gt;Link to source&lt;/a&gt; </li> </ul> </li> <li><span class='field-value'>href-and-content</span> - the URL is set to the href attribute and to the content <ul> <li> Example: &lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'&gt;&lt;/a&gt;<br> will produce &lt;a href='http://example.com'&gt;http://example.com&lt;/a&gt; </li> </ul> </li> </ul> </li> </ul>
     *
-    * @param header_url The supported protocols are http:// and https://.
+    * @param url The supported protocols are http:// and https://.
     * @return The converter object.
     */
-    function setHeaderUrl($header_url) {
-        if (!preg_match("/(?i)^https?:\/\/.*$/", $header_url))
-            throw new Error(create_invalid_value_message($header_url, "header_url", "html-to-pdf", "The supported protocols are http:// and https://.", "set_header_url"), 470);
+    function setHeaderUrl($url) {
+        if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
+            throw new Error(create_invalid_value_message($url, "setHeaderUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "set_header_url"), 470);
         
-        $this->fields['header_url'] = $header_url;
+        $this->fields['header_url'] = $url;
         return $this;
     }
 
     /**
     * Use the specified HTML code as the page header. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: <ul> <li><span class='field-value'>pdfcrowd-page-count</span> - the total page count of printed pages</li> <li><span class='field-value'>pdfcrowd-page-number</span> - the current page number</li> <li><span class='field-value'>pdfcrowd-source-url</span> - the source URL of a converted document</li> </ul> The following attributes can be used: <ul> <li><span class='field-value'>data-pdfcrowd-number-format</span> - specifies the type of the used numerals <ul> <li>Arabic numerals are used by default.</li> <li>Roman numerals can be generated by the <span class='field-value'>roman</span> and <span class='field-value'>roman-lowercase</span> values <ul> <li> Example: &lt;span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'&gt;&lt;/span&gt; </li> </ul> </li> </ul> </li> <li><span class='field-value'>data-pdfcrowd-placement</span> - specifies where to place the source URL, allowed values: <ul> <li>The URL is inserted to the content <ul> <li> Example: &lt;span class='pdfcrowd-source-url'&gt;&lt;/span&gt;<br> will produce &lt;span&gt;http://example.com&lt;/span&gt; </li> </ul> </li> <li><span class='field-value'>href</span> - the URL is set to the href attribute <ul> <li> Example: &lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'&gt;Link to source&lt;/a&gt;<br> will produce &lt;a href='http://example.com'&gt;Link to source&lt;/a&gt; </li> </ul> </li> <li><span class='field-value'>href-and-content</span> - the URL is set to the href attribute and to the content <ul> <li> Example: &lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'&gt;&lt;/a&gt;<br> will produce &lt;a href='http://example.com'&gt;http://example.com&lt;/a&gt; </li> </ul> </li> </ul> </li> </ul>
     *
-    * @param header_html The string must not be empty.
+    * @param html The string must not be empty.
     * @return The converter object.
     */
-    function setHeaderHtml($header_html) {
-        if (!($header_html != null && $header_html !== ''))
-            throw new Error(create_invalid_value_message($header_html, "header_html", "html-to-pdf", "The string must not be empty.", "set_header_html"), 470);
+    function setHeaderHtml($html) {
+        if (!($html != null && $html !== ''))
+            throw new Error(create_invalid_value_message($html, "setHeaderHtml", "html-to-pdf", "The string must not be empty.", "set_header_html"), 470);
         
-        $this->fields['header_html'] = $header_html;
+        $this->fields['header_html'] = $html;
         return $this;
     }
 
     /**
     * Set the header height.
     *
-    * @param header_height Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+    * @param height Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @return The converter object.
     */
-    function setHeaderHeight($header_height) {
-        if (!preg_match("/(?i)^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$/", $header_height))
-            throw new Error(create_invalid_value_message($header_height, "header_height", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_header_height"), 470);
+    function setHeaderHeight($height) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
+            throw new Error(create_invalid_value_message($height, "setHeaderHeight", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_header_height"), 470);
         
-        $this->fields['header_height'] = $header_height;
+        $this->fields['header_height'] = $height;
         return $this;
     }
 
     /**
     * Load an HTML code from the specified URL and use it as the page footer. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: <ul> <li><span class='field-value'>pdfcrowd-page-count</span> - the total page count of printed pages</li> <li><span class='field-value'>pdfcrowd-page-number</span> - the current page number</li> <li><span class='field-value'>pdfcrowd-source-url</span> - the source URL of a converted document</li> </ul> The following attributes can be used: <ul> <li><span class='field-value'>data-pdfcrowd-number-format</span> - specifies the type of the used numerals <ul> <li>Arabic numerals are used by default.</li> <li>Roman numerals can be generated by the <span class='field-value'>roman</span> and <span class='field-value'>roman-lowercase</span> values <ul> <li> Example: &lt;span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'&gt;&lt;/span&gt; </li> </ul> </li> </ul> </li> <li><span class='field-value'>data-pdfcrowd-placement</span> - specifies where to place the source URL, allowed values: <ul> <li>The URL is inserted to the content <ul> <li> Example: &lt;span class='pdfcrowd-source-url'&gt;&lt;/span&gt;<br> will produce &lt;span&gt;http://example.com&lt;/span&gt; </li> </ul> </li> <li><span class='field-value'>href</span> - the URL is set to the href attribute <ul> <li> Example: &lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'&gt;Link to source&lt;/a&gt;<br> will produce &lt;a href='http://example.com'&gt;Link to source&lt;/a&gt; </li> </ul> </li> <li><span class='field-value'>href-and-content</span> - the URL is set to the href attribute and to the content <ul> <li> Example: &lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'&gt;&lt;/a&gt;<br> will produce &lt;a href='http://example.com'&gt;http://example.com&lt;/a&gt; </li> </ul> </li> </ul> </li> </ul>
     *
-    * @param footer_url The supported protocols are http:// and https://.
+    * @param url The supported protocols are http:// and https://.
     * @return The converter object.
     */
-    function setFooterUrl($footer_url) {
-        if (!preg_match("/(?i)^https?:\/\/.*$/", $footer_url))
-            throw new Error(create_invalid_value_message($footer_url, "footer_url", "html-to-pdf", "The supported protocols are http:// and https://.", "set_footer_url"), 470);
+    function setFooterUrl($url) {
+        if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
+            throw new Error(create_invalid_value_message($url, "setFooterUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "set_footer_url"), 470);
         
-        $this->fields['footer_url'] = $footer_url;
+        $this->fields['footer_url'] = $url;
         return $this;
     }
 
     /**
     * Use the specified HTML as the page footer. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: <ul> <li><span class='field-value'>pdfcrowd-page-count</span> - the total page count of printed pages</li> <li><span class='field-value'>pdfcrowd-page-number</span> - the current page number</li> <li><span class='field-value'>pdfcrowd-source-url</span> - the source URL of a converted document</li> </ul> The following attributes can be used: <ul> <li><span class='field-value'>data-pdfcrowd-number-format</span> - specifies the type of the used numerals <ul> <li>Arabic numerals are used by default.</li> <li>Roman numerals can be generated by the <span class='field-value'>roman</span> and <span class='field-value'>roman-lowercase</span> values <ul> <li> Example: &lt;span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'&gt;&lt;/span&gt; </li> </ul> </li> </ul> </li> <li><span class='field-value'>data-pdfcrowd-placement</span> - specifies where to place the source URL, allowed values: <ul> <li>The URL is inserted to the content <ul> <li> Example: &lt;span class='pdfcrowd-source-url'&gt;&lt;/span&gt;<br> will produce &lt;span&gt;http://example.com&lt;/span&gt; </li> </ul> </li> <li><span class='field-value'>href</span> - the URL is set to the href attribute <ul> <li> Example: &lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'&gt;Link to source&lt;/a&gt;<br> will produce &lt;a href='http://example.com'&gt;Link to source&lt;/a&gt; </li> </ul> </li> <li><span class='field-value'>href-and-content</span> - the URL is set to the href attribute and to the content <ul> <li> Example: &lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'&gt;&lt;/a&gt;<br> will produce &lt;a href='http://example.com'&gt;http://example.com&lt;/a&gt; </li> </ul> </li> </ul> </li> </ul>
     *
-    * @param footer_html The string must not be empty.
+    * @param html The string must not be empty.
     * @return The converter object.
     */
-    function setFooterHtml($footer_html) {
-        if (!($footer_html != null && $footer_html !== ''))
-            throw new Error(create_invalid_value_message($footer_html, "footer_html", "html-to-pdf", "The string must not be empty.", "set_footer_html"), 470);
+    function setFooterHtml($html) {
+        if (!($html != null && $html !== ''))
+            throw new Error(create_invalid_value_message($html, "setFooterHtml", "html-to-pdf", "The string must not be empty.", "set_footer_html"), 470);
         
-        $this->fields['footer_html'] = $footer_html;
+        $this->fields['footer_html'] = $html;
         return $this;
     }
 
     /**
     * Set the footer height.
     *
-    * @param footer_height Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+    * @param height Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @return The converter object.
     */
-    function setFooterHeight($footer_height) {
-        if (!preg_match("/(?i)^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$/", $footer_height))
-            throw new Error(create_invalid_value_message($footer_height, "footer_height", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_footer_height"), 470);
+    function setFooterHeight($height) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
+            throw new Error(create_invalid_value_message($height, "setFooterHeight", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_footer_height"), 470);
         
-        $this->fields['footer_height'] = $footer_height;
+        $this->fields['footer_height'] = $height;
+        return $this;
+    }
+
+    /**
+    * Disable horizontal page margins for header and footer. The header/footer contents width will be equal to the physical page width.
+    *
+    * @param value Set to <span class='field-value'>true</span> to disable horizontal margins for header and footer.
+    * @return The converter object.
+    */
+    function setNoHeaderFooterHorizontalMargins($value) {
+        $this->fields['no_header_footer_horizontal_margins'] = $value;
         return $this;
     }
 
@@ -1332,7 +1358,7 @@ class HtmlToPdfClient {
     */
     function setPrintPageRange($pages) {
         if (!preg_match("/^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$/", $pages))
-            throw new Error(create_invalid_value_message($pages, "pages", "html-to-pdf", "A comma separated list of page numbers or ranges.", "set_print_page_range"), 470);
+            throw new Error(create_invalid_value_message($pages, "setPrintPageRange", "html-to-pdf", "A comma separated list of page numbers or ranges.", "set_print_page_range"), 470);
         
         $this->fields['print_page_range'] = $pages;
         return $this;
@@ -1346,7 +1372,7 @@ class HtmlToPdfClient {
     */
     function setExcludeHeaderOnPages($pages) {
         if (!preg_match("/^(?:\s*\-?\d+\s*,)*\s*\-?\d+\s*$/", $pages))
-            throw new Error(create_invalid_value_message($pages, "pages", "html-to-pdf", "A comma separated list of page numbers.", "set_exclude_header_on_pages"), 470);
+            throw new Error(create_invalid_value_message($pages, "setExcludeHeaderOnPages", "html-to-pdf", "A comma separated list of page numbers.", "set_exclude_header_on_pages"), 470);
         
         $this->fields['exclude_header_on_pages'] = $pages;
         return $this;
@@ -1360,7 +1386,7 @@ class HtmlToPdfClient {
     */
     function setExcludeFooterOnPages($pages) {
         if (!preg_match("/^(?:\s*\-?\d+\s*,)*\s*\-?\d+\s*$/", $pages))
-            throw new Error(create_invalid_value_message($pages, "pages", "html-to-pdf", "A comma separated list of page numbers.", "set_exclude_footer_on_pages"), 470);
+            throw new Error(create_invalid_value_message($pages, "setExcludeFooterOnPages", "html-to-pdf", "A comma separated list of page numbers.", "set_exclude_footer_on_pages"), 470);
         
         $this->fields['exclude_footer_on_pages'] = $pages;
         return $this;
@@ -1380,56 +1406,56 @@ class HtmlToPdfClient {
     /**
     * Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
     *
-    * @param content_area_x Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
+    * @param x Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
     * @return The converter object.
     */
-    function setContentAreaX($content_area_x) {
-        if (!preg_match("/(?i)^\-?[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$/", $content_area_x))
-            throw new Error(create_invalid_value_message($content_area_x, "content_area_x", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.", "set_content_area_x"), 470);
+    function setContentAreaX($x) {
+        if (!preg_match("/(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $x))
+            throw new Error(create_invalid_value_message($x, "setContentAreaX", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.", "set_content_area_x"), 470);
         
-        $this->fields['content_area_x'] = $content_area_x;
+        $this->fields['content_area_x'] = $x;
         return $this;
     }
 
     /**
     * Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area.
     *
-    * @param content_area_y Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
+    * @param y Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
     * @return The converter object.
     */
-    function setContentAreaY($content_area_y) {
-        if (!preg_match("/(?i)^\-?[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$/", $content_area_y))
-            throw new Error(create_invalid_value_message($content_area_y, "content_area_y", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.", "set_content_area_y"), 470);
+    function setContentAreaY($y) {
+        if (!preg_match("/(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $y))
+            throw new Error(create_invalid_value_message($y, "setContentAreaY", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.", "set_content_area_y"), 470);
         
-        $this->fields['content_area_y'] = $content_area_y;
+        $this->fields['content_area_y'] = $y;
         return $this;
     }
 
     /**
     * Set the width of the content area. It should be at least 1 inch.
     *
-    * @param content_area_width Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+    * @param width Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @return The converter object.
     */
-    function setContentAreaWidth($content_area_width) {
-        if (!preg_match("/(?i)^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$/", $content_area_width))
-            throw new Error(create_invalid_value_message($content_area_width, "content_area_width", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_content_area_width"), 470);
+    function setContentAreaWidth($width) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $width))
+            throw new Error(create_invalid_value_message($width, "setContentAreaWidth", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_content_area_width"), 470);
         
-        $this->fields['content_area_width'] = $content_area_width;
+        $this->fields['content_area_width'] = $width;
         return $this;
     }
 
     /**
     * Set the height of the content area. It should be at least 1 inch.
     *
-    * @param content_area_height Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+    * @param height Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
     * @return The converter object.
     */
-    function setContentAreaHeight($content_area_height) {
-        if (!preg_match("/(?i)^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$/", $content_area_height))
-            throw new Error(create_invalid_value_message($content_area_height, "content_area_height", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_content_area_height"), 470);
+    function setContentAreaHeight($height) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
+            throw new Error(create_invalid_value_message($height, "setContentAreaHeight", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_content_area_height"), 470);
         
-        $this->fields['content_area_height'] = $content_area_height;
+        $this->fields['content_area_height'] = $height;
         return $this;
     }
 
@@ -1447,6 +1473,20 @@ class HtmlToPdfClient {
         $this->setContentAreaY($y);
         $this->setContentAreaWidth($width);
         $this->setContentAreaHeight($height);
+        return $this;
+    }
+
+    /**
+    * Specifies behavior in presence of CSS @page rules. It may affect the page size, margins and orientation.
+    *
+    * @param mode The page rule mode. Allowed values are default, mode1, mode2.
+    * @return The converter object.
+    */
+    function setCssPageRuleMode($mode) {
+        if (!preg_match("/(?i)^(default|mode1|mode2)$/", $mode))
+            throw new Error(create_invalid_value_message($mode, "setCssPageRuleMode", "html-to-pdf", "Allowed values are default, mode1, mode2.", "set_css_page_rule_mode"), 470);
+        
+        $this->fields['css_page_rule_mode'] = $mode;
         return $this;
     }
 
@@ -1480,7 +1520,7 @@ class HtmlToPdfClient {
     */
     function setDataFormat($data_format) {
         if (!preg_match("/(?i)^(auto|json|xml|yaml|csv)$/", $data_format))
-            throw new Error(create_invalid_value_message($data_format, "data_format", "html-to-pdf", "Allowed values are auto, json, xml, yaml, csv.", "set_data_format"), 470);
+            throw new Error(create_invalid_value_message($data_format, "setDataFormat", "html-to-pdf", "Allowed values are auto, json, xml, yaml, csv.", "set_data_format"), 470);
         
         $this->fields['data_format'] = $data_format;
         return $this;
@@ -1489,247 +1529,283 @@ class HtmlToPdfClient {
     /**
     * Set the encoding of the data file set by <a href='#set_data_file'>setDataFile</a>.
     *
-    * @param data_encoding The data file encoding.
+    * @param encoding The data file encoding.
     * @return The converter object.
     */
-    function setDataEncoding($data_encoding) {
-        $this->fields['data_encoding'] = $data_encoding;
+    function setDataEncoding($encoding) {
+        $this->fields['data_encoding'] = $encoding;
         return $this;
     }
 
     /**
     * Ignore undefined variables in the HTML template. The default mode is strict so any undefined variable causes the conversion to fail. You can use <span class='field-value text-nowrap'>&#x007b;&#x0025; if variable is defined &#x0025;&#x007d;</span> to check if the variable is defined.
     *
-    * @param data_ignore_undefined Set to <span class='field-value'>true</span> to ignore undefined variables.
+    * @param value Set to <span class='field-value'>true</span> to ignore undefined variables.
     * @return The converter object.
     */
-    function setDataIgnoreUndefined($data_ignore_undefined) {
-        $this->fields['data_ignore_undefined'] = $data_ignore_undefined;
+    function setDataIgnoreUndefined($value) {
+        $this->fields['data_ignore_undefined'] = $value;
         return $this;
     }
 
     /**
     * Auto escape HTML symbols in the input data before placing them into the output.
     *
-    * @param data_auto_escape Set to <span class='field-value'>true</span> to turn auto escaping on.
+    * @param value Set to <span class='field-value'>true</span> to turn auto escaping on.
     * @return The converter object.
     */
-    function setDataAutoEscape($data_auto_escape) {
-        $this->fields['data_auto_escape'] = $data_auto_escape;
+    function setDataAutoEscape($value) {
+        $this->fields['data_auto_escape'] = $value;
         return $this;
     }
 
     /**
     * Auto trim whitespace around each template command block.
     *
-    * @param data_trim_blocks Set to <span class='field-value'>true</span> to turn auto trimming on.
+    * @param value Set to <span class='field-value'>true</span> to turn auto trimming on.
     * @return The converter object.
     */
-    function setDataTrimBlocks($data_trim_blocks) {
-        $this->fields['data_trim_blocks'] = $data_trim_blocks;
+    function setDataTrimBlocks($value) {
+        $this->fields['data_trim_blocks'] = $value;
         return $this;
     }
 
     /**
     * Set the advanced data options:<ul><li><span class='field-value'>csv_delimiter</span> - The CSV data delimiter, the default is <span class='field-value'>,</span>.</li><li><span class='field-value'>xml_remove_root</span> - Remove the root XML element from the input data.</li><li><span class='field-value'>data_root</span> - The name of the root element inserted into the input data without a root node (e.g. CSV), the default is <span class='field-value'>data</span>.</li></ul>
     *
-    * @param data_options Comma separated list of options.
+    * @param options Comma separated list of options.
     * @return The converter object.
     */
-    function setDataOptions($data_options) {
-        $this->fields['data_options'] = $data_options;
+    function setDataOptions($options) {
+        $this->fields['data_options'] = $options;
         return $this;
     }
 
     /**
     * Apply the first page of the watermark PDF to every page of the output PDF.
     *
-    * @param page_watermark The file path to a local watermark PDF file. The file must exist and not be empty.
+    * @param watermark The file path to a local watermark PDF file. The file must exist and not be empty.
     * @return The converter object.
     */
-    function setPageWatermark($page_watermark) {
-        if (!(filesize($page_watermark) > 0))
-            throw new Error(create_invalid_value_message($page_watermark, "page_watermark", "html-to-pdf", "The file must exist and not be empty.", "set_page_watermark"), 470);
+    function setPageWatermark($watermark) {
+        if (!(filesize($watermark) > 0))
+            throw new Error(create_invalid_value_message($watermark, "setPageWatermark", "html-to-pdf", "The file must exist and not be empty.", "set_page_watermark"), 470);
         
-        $this->files['page_watermark'] = $page_watermark;
+        $this->files['page_watermark'] = $watermark;
         return $this;
     }
 
     /**
     * Load a watermark PDF from the specified URL and apply the first page of the watermark PDF to every page of the output PDF.
     *
-    * @param page_watermark_url The supported protocols are http:// and https://.
+    * @param url The supported protocols are http:// and https://.
     * @return The converter object.
     */
-    function setPageWatermarkUrl($page_watermark_url) {
-        if (!preg_match("/(?i)^https?:\/\/.*$/", $page_watermark_url))
-            throw new Error(create_invalid_value_message($page_watermark_url, "page_watermark_url", "html-to-pdf", "The supported protocols are http:// and https://.", "set_page_watermark_url"), 470);
+    function setPageWatermarkUrl($url) {
+        if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
+            throw new Error(create_invalid_value_message($url, "setPageWatermarkUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "set_page_watermark_url"), 470);
         
-        $this->fields['page_watermark_url'] = $page_watermark_url;
+        $this->fields['page_watermark_url'] = $url;
         return $this;
     }
 
     /**
     * Apply each page of the specified watermark PDF to the corresponding page of the output PDF.
     *
-    * @param multipage_watermark The file path to a local watermark PDF file. The file must exist and not be empty.
+    * @param watermark The file path to a local watermark PDF file. The file must exist and not be empty.
     * @return The converter object.
     */
-    function setMultipageWatermark($multipage_watermark) {
-        if (!(filesize($multipage_watermark) > 0))
-            throw new Error(create_invalid_value_message($multipage_watermark, "multipage_watermark", "html-to-pdf", "The file must exist and not be empty.", "set_multipage_watermark"), 470);
+    function setMultipageWatermark($watermark) {
+        if (!(filesize($watermark) > 0))
+            throw new Error(create_invalid_value_message($watermark, "setMultipageWatermark", "html-to-pdf", "The file must exist and not be empty.", "set_multipage_watermark"), 470);
         
-        $this->files['multipage_watermark'] = $multipage_watermark;
+        $this->files['multipage_watermark'] = $watermark;
         return $this;
     }
 
     /**
     * Load a watermark PDF from the specified URL and apply each page of the specified watermark PDF to the corresponding page of the output PDF.
     *
-    * @param multipage_watermark_url The supported protocols are http:// and https://.
+    * @param url The supported protocols are http:// and https://.
     * @return The converter object.
     */
-    function setMultipageWatermarkUrl($multipage_watermark_url) {
-        if (!preg_match("/(?i)^https?:\/\/.*$/", $multipage_watermark_url))
-            throw new Error(create_invalid_value_message($multipage_watermark_url, "multipage_watermark_url", "html-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_watermark_url"), 470);
+    function setMultipageWatermarkUrl($url) {
+        if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
+            throw new Error(create_invalid_value_message($url, "setMultipageWatermarkUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_watermark_url"), 470);
         
-        $this->fields['multipage_watermark_url'] = $multipage_watermark_url;
+        $this->fields['multipage_watermark_url'] = $url;
         return $this;
     }
 
     /**
     * Apply the first page of the specified PDF to the background of every page of the output PDF.
     *
-    * @param page_background The file path to a local background PDF file. The file must exist and not be empty.
+    * @param background The file path to a local background PDF file. The file must exist and not be empty.
     * @return The converter object.
     */
-    function setPageBackground($page_background) {
-        if (!(filesize($page_background) > 0))
-            throw new Error(create_invalid_value_message($page_background, "page_background", "html-to-pdf", "The file must exist and not be empty.", "set_page_background"), 470);
+    function setPageBackground($background) {
+        if (!(filesize($background) > 0))
+            throw new Error(create_invalid_value_message($background, "setPageBackground", "html-to-pdf", "The file must exist and not be empty.", "set_page_background"), 470);
         
-        $this->files['page_background'] = $page_background;
+        $this->files['page_background'] = $background;
         return $this;
     }
 
     /**
     * Load a background PDF from the specified URL and apply the first page of the background PDF to every page of the output PDF.
     *
-    * @param page_background_url The supported protocols are http:// and https://.
+    * @param url The supported protocols are http:// and https://.
     * @return The converter object.
     */
-    function setPageBackgroundUrl($page_background_url) {
-        if (!preg_match("/(?i)^https?:\/\/.*$/", $page_background_url))
-            throw new Error(create_invalid_value_message($page_background_url, "page_background_url", "html-to-pdf", "The supported protocols are http:// and https://.", "set_page_background_url"), 470);
+    function setPageBackgroundUrl($url) {
+        if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
+            throw new Error(create_invalid_value_message($url, "setPageBackgroundUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "set_page_background_url"), 470);
         
-        $this->fields['page_background_url'] = $page_background_url;
+        $this->fields['page_background_url'] = $url;
         return $this;
     }
 
     /**
     * Apply each page of the specified PDF to the background of the corresponding page of the output PDF.
     *
-    * @param multipage_background The file path to a local background PDF file. The file must exist and not be empty.
+    * @param background The file path to a local background PDF file. The file must exist and not be empty.
     * @return The converter object.
     */
-    function setMultipageBackground($multipage_background) {
-        if (!(filesize($multipage_background) > 0))
-            throw new Error(create_invalid_value_message($multipage_background, "multipage_background", "html-to-pdf", "The file must exist and not be empty.", "set_multipage_background"), 470);
+    function setMultipageBackground($background) {
+        if (!(filesize($background) > 0))
+            throw new Error(create_invalid_value_message($background, "setMultipageBackground", "html-to-pdf", "The file must exist and not be empty.", "set_multipage_background"), 470);
         
-        $this->files['multipage_background'] = $multipage_background;
+        $this->files['multipage_background'] = $background;
         return $this;
     }
 
     /**
     * Load a background PDF from the specified URL and apply each page of the specified background PDF to the corresponding page of the output PDF.
     *
-    * @param multipage_background_url The supported protocols are http:// and https://.
+    * @param url The supported protocols are http:// and https://.
     * @return The converter object.
     */
-    function setMultipageBackgroundUrl($multipage_background_url) {
-        if (!preg_match("/(?i)^https?:\/\/.*$/", $multipage_background_url))
-            throw new Error(create_invalid_value_message($multipage_background_url, "multipage_background_url", "html-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_background_url"), 470);
+    function setMultipageBackgroundUrl($url) {
+        if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
+            throw new Error(create_invalid_value_message($url, "setMultipageBackgroundUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_background_url"), 470);
         
-        $this->fields['multipage_background_url'] = $multipage_background_url;
+        $this->fields['multipage_background_url'] = $url;
         return $this;
     }
 
     /**
     * The page background color in RGB or RGBA hexadecimal format. The color fills the entire page regardless of the margins.
     *
-    * @param page_background_color The value must be in RRGGBB or RRGGBBAA hexadecimal format.
+    * @param color The value must be in RRGGBB or RRGGBBAA hexadecimal format.
     * @return The converter object.
     */
-    function setPageBackgroundColor($page_background_color) {
-        if (!preg_match("/^[0-9a-fA-F]{6,8}$/", $page_background_color))
-            throw new Error(create_invalid_value_message($page_background_color, "page_background_color", "html-to-pdf", "The value must be in RRGGBB or RRGGBBAA hexadecimal format.", "set_page_background_color"), 470);
+    function setPageBackgroundColor($color) {
+        if (!preg_match("/^[0-9a-fA-F]{6,8}$/", $color))
+            throw new Error(create_invalid_value_message($color, "setPageBackgroundColor", "html-to-pdf", "The value must be in RRGGBB or RRGGBBAA hexadecimal format.", "set_page_background_color"), 470);
         
-        $this->fields['page_background_color'] = $page_background_color;
+        $this->fields['page_background_color'] = $color;
+        return $this;
+    }
+
+    /**
+    * Use the print version of the page if available (@media print).
+    *
+    * @param value Set to <span class='field-value'>true</span> to use the print version of the page.
+    * @return The converter object.
+    */
+    function setUsePrintMedia($value) {
+        $this->fields['use_print_media'] = $value;
         return $this;
     }
 
     /**
     * Do not print the background graphics.
     *
-    * @param no_background Set to <span class='field-value'>true</span> to disable the background graphics.
+    * @param value Set to <span class='field-value'>true</span> to disable the background graphics.
     * @return The converter object.
     */
-    function setNoBackground($no_background) {
-        $this->fields['no_background'] = $no_background;
+    function setNoBackground($value) {
+        $this->fields['no_background'] = $value;
         return $this;
     }
 
     /**
     * Do not execute JavaScript.
     *
-    * @param disable_javascript Set to <span class='field-value'>true</span> to disable JavaScript in web pages.
+    * @param value Set to <span class='field-value'>true</span> to disable JavaScript in web pages.
     * @return The converter object.
     */
-    function setDisableJavascript($disable_javascript) {
-        $this->fields['disable_javascript'] = $disable_javascript;
+    function setDisableJavascript($value) {
+        $this->fields['disable_javascript'] = $value;
         return $this;
     }
 
     /**
     * Do not load images.
     *
-    * @param disable_image_loading Set to <span class='field-value'>true</span> to disable loading of images.
+    * @param value Set to <span class='field-value'>true</span> to disable loading of images.
     * @return The converter object.
     */
-    function setDisableImageLoading($disable_image_loading) {
-        $this->fields['disable_image_loading'] = $disable_image_loading;
+    function setDisableImageLoading($value) {
+        $this->fields['disable_image_loading'] = $value;
         return $this;
     }
 
     /**
     * Disable loading fonts from remote sources.
     *
-    * @param disable_remote_fonts Set to <span class='field-value'>true</span> disable loading remote fonts.
+    * @param value Set to <span class='field-value'>true</span> disable loading remote fonts.
     * @return The converter object.
     */
-    function setDisableRemoteFonts($disable_remote_fonts) {
-        $this->fields['disable_remote_fonts'] = $disable_remote_fonts;
+    function setDisableRemoteFonts($value) {
+        $this->fields['disable_remote_fonts'] = $value;
+        return $this;
+    }
+
+    /**
+    * Specifies how iframes are handled.
+    *
+    * @param iframes Allowed values are all, same-origin, none.
+    * @return The converter object.
+    */
+    function setLoadIframes($iframes) {
+        if (!preg_match("/(?i)^(all|same-origin|none)$/", $iframes))
+            throw new Error(create_invalid_value_message($iframes, "setLoadIframes", "html-to-pdf", "Allowed values are all, same-origin, none.", "set_load_iframes"), 470);
+        
+        $this->fields['load_iframes'] = $iframes;
         return $this;
     }
 
     /**
     * Try to block ads. Enabling this option can produce smaller output and speed up the conversion.
     *
-    * @param block_ads Set to <span class='field-value'>true</span> to block ads in web pages.
+    * @param value Set to <span class='field-value'>true</span> to block ads in web pages.
     * @return The converter object.
     */
-    function setBlockAds($block_ads) {
-        $this->fields['block_ads'] = $block_ads;
+    function setBlockAds($value) {
+        $this->fields['block_ads'] = $value;
         return $this;
     }
 
     /**
     * Set the default HTML content text encoding.
     *
-    * @param default_encoding The text encoding of the HTML content.
+    * @param encoding The text encoding of the HTML content.
     * @return The converter object.
     */
-    function setDefaultEncoding($default_encoding) {
-        $this->fields['default_encoding'] = $default_encoding;
+    function setDefaultEncoding($encoding) {
+        $this->fields['default_encoding'] = $encoding;
+        return $this;
+    }
+
+    /**
+    * Set the locale for the conversion. This may affect the output format of dates, times and numbers.
+    *
+    * @param locale The locale code according to ISO 639.
+    * @return The converter object.
+    */
+    function setLocale($locale) {
+        $this->fields['locale'] = $locale;
         return $this;
     }
 
@@ -1769,28 +1845,6 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Use the print version of the page if available (@media print).
-    *
-    * @param use_print_media Set to <span class='field-value'>true</span> to use the print version of the page.
-    * @return The converter object.
-    */
-    function setUsePrintMedia($use_print_media) {
-        $this->fields['use_print_media'] = $use_print_media;
-        return $this;
-    }
-
-    /**
-    * Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.
-    *
-    * @param no_xpdfcrowd_header Set to <span class='field-value'>true</span> to disable sending X-Pdfcrowd HTTP header.
-    * @return The converter object.
-    */
-    function setNoXpdfcrowdHeader($no_xpdfcrowd_header) {
-        $this->fields['no_xpdfcrowd_header'] = $no_xpdfcrowd_header;
-        return $this;
-    }
-
-    /**
     * Set cookies that are sent in Pdfcrowd HTTP requests.
     *
     * @param cookies The cookie string.
@@ -1804,11 +1858,11 @@ class HtmlToPdfClient {
     /**
     * Do not allow insecure HTTPS connections.
     *
-    * @param verify_ssl_certificates Set to <span class='field-value'>true</span> to enable SSL certificate verification.
+    * @param value Set to <span class='field-value'>true</span> to enable SSL certificate verification.
     * @return The converter object.
     */
-    function setVerifySslCertificates($verify_ssl_certificates) {
-        $this->fields['verify_ssl_certificates'] = $verify_ssl_certificates;
+    function setVerifySslCertificates($value) {
+        $this->fields['verify_ssl_certificates'] = $value;
         return $this;
     }
 
@@ -1835,58 +1889,69 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
+    * Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.
     *
-    * @param custom_javascript A string containing a JavaScript code. The string must not be empty.
+    * @param value Set to <span class='field-value'>true</span> to disable sending X-Pdfcrowd HTTP header.
     * @return The converter object.
     */
-    function setCustomJavascript($custom_javascript) {
-        if (!($custom_javascript != null && $custom_javascript !== ''))
-            throw new Error(create_invalid_value_message($custom_javascript, "custom_javascript", "html-to-pdf", "The string must not be empty.", "set_custom_javascript"), 470);
+    function setNoXpdfcrowdHeader($value) {
+        $this->fields['no_xpdfcrowd_header'] = $value;
+        return $this;
+    }
+
+    /**
+    * Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
+    *
+    * @param javascript A string containing a JavaScript code. The string must not be empty.
+    * @return The converter object.
+    */
+    function setCustomJavascript($javascript) {
+        if (!($javascript != null && $javascript !== ''))
+            throw new Error(create_invalid_value_message($javascript, "setCustomJavascript", "html-to-pdf", "The string must not be empty.", "set_custom_javascript"), 470);
         
-        $this->fields['custom_javascript'] = $custom_javascript;
+        $this->fields['custom_javascript'] = $javascript;
         return $this;
     }
 
     /**
     * Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
     *
-    * @param on_load_javascript A string containing a JavaScript code. The string must not be empty.
+    * @param javascript A string containing a JavaScript code. The string must not be empty.
     * @return The converter object.
     */
-    function setOnLoadJavascript($on_load_javascript) {
-        if (!($on_load_javascript != null && $on_load_javascript !== ''))
-            throw new Error(create_invalid_value_message($on_load_javascript, "on_load_javascript", "html-to-pdf", "The string must not be empty.", "set_on_load_javascript"), 470);
+    function setOnLoadJavascript($javascript) {
+        if (!($javascript != null && $javascript !== ''))
+            throw new Error(create_invalid_value_message($javascript, "setOnLoadJavascript", "html-to-pdf", "The string must not be empty.", "set_on_load_javascript"), 470);
         
-        $this->fields['on_load_javascript'] = $on_load_javascript;
+        $this->fields['on_load_javascript'] = $javascript;
         return $this;
     }
 
     /**
     * Set a custom HTTP header that is sent in Pdfcrowd HTTP requests.
     *
-    * @param custom_http_header A string containing the header name and value separated by a colon.
+    * @param header A string containing the header name and value separated by a colon.
     * @return The converter object.
     */
-    function setCustomHttpHeader($custom_http_header) {
-        if (!preg_match("/^.+:.+$/", $custom_http_header))
-            throw new Error(create_invalid_value_message($custom_http_header, "custom_http_header", "html-to-pdf", "A string containing the header name and value separated by a colon.", "set_custom_http_header"), 470);
+    function setCustomHttpHeader($header) {
+        if (!preg_match("/^.+:.+$/", $header))
+            throw new Error(create_invalid_value_message($header, "setCustomHttpHeader", "html-to-pdf", "A string containing the header name and value separated by a colon.", "set_custom_http_header"), 470);
         
-        $this->fields['custom_http_header'] = $custom_http_header;
+        $this->fields['custom_http_header'] = $header;
         return $this;
     }
 
     /**
     * Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter.
     *
-    * @param javascript_delay The number of milliseconds to wait. Must be a positive integer number or 0.
+    * @param delay The number of milliseconds to wait. Must be a positive integer number or 0.
     * @return The converter object.
     */
-    function setJavascriptDelay($javascript_delay) {
-        if (!(intval($javascript_delay) >= 0))
-            throw new Error(create_invalid_value_message($javascript_delay, "javascript_delay", "html-to-pdf", "Must be a positive integer number or 0.", "set_javascript_delay"), 470);
+    function setJavascriptDelay($delay) {
+        if (!(intval($delay) >= 0))
+            throw new Error(create_invalid_value_message($delay, "setJavascriptDelay", "html-to-pdf", "Must be a positive integer number or 0.", "set_javascript_delay"), 470);
         
-        $this->fields['javascript_delay'] = $javascript_delay;
+        $this->fields['javascript_delay'] = $delay;
         return $this;
     }
 
@@ -1898,7 +1963,7 @@ class HtmlToPdfClient {
     */
     function setElementToConvert($selectors) {
         if (!($selectors != null && $selectors !== ''))
-            throw new Error(create_invalid_value_message($selectors, "selectors", "html-to-pdf", "The string must not be empty.", "set_element_to_convert"), 470);
+            throw new Error(create_invalid_value_message($selectors, "setElementToConvert", "html-to-pdf", "The string must not be empty.", "set_element_to_convert"), 470);
         
         $this->fields['element_to_convert'] = $selectors;
         return $this;
@@ -1912,7 +1977,7 @@ class HtmlToPdfClient {
     */
     function setElementToConvertMode($mode) {
         if (!preg_match("/(?i)^(cut-out|remove-siblings|hide-siblings)$/", $mode))
-            throw new Error(create_invalid_value_message($mode, "mode", "html-to-pdf", "Allowed values are cut-out, remove-siblings, hide-siblings.", "set_element_to_convert_mode"), 470);
+            throw new Error(create_invalid_value_message($mode, "setElementToConvertMode", "html-to-pdf", "Allowed values are cut-out, remove-siblings, hide-siblings.", "set_element_to_convert_mode"), 470);
         
         $this->fields['element_to_convert_mode'] = $mode;
         return $this;
@@ -1926,7 +1991,7 @@ class HtmlToPdfClient {
     */
     function setWaitForElement($selectors) {
         if (!($selectors != null && $selectors !== ''))
-            throw new Error(create_invalid_value_message($selectors, "selectors", "html-to-pdf", "The string must not be empty.", "set_wait_for_element"), 470);
+            throw new Error(create_invalid_value_message($selectors, "setWaitForElement", "html-to-pdf", "The string must not be empty.", "set_wait_for_element"), 470);
         
         $this->fields['wait_for_element'] = $selectors;
         return $this;
@@ -1935,28 +2000,28 @@ class HtmlToPdfClient {
     /**
     * Set the viewport width in pixels. The viewport is the user's visible area of the page.
     *
-    * @param viewport_width The value must be in the range 96-65000.
+    * @param width The value must be in the range 96-65000.
     * @return The converter object.
     */
-    function setViewportWidth($viewport_width) {
-        if (!(intval($viewport_width) >= 96 && intval($viewport_width) <= 65000))
-            throw new Error(create_invalid_value_message($viewport_width, "viewport_width", "html-to-pdf", "The value must be in the range 96-65000.", "set_viewport_width"), 470);
+    function setViewportWidth($width) {
+        if (!(intval($width) >= 96 && intval($width) <= 65000))
+            throw new Error(create_invalid_value_message($width, "setViewportWidth", "html-to-pdf", "The value must be in the range 96-65000.", "set_viewport_width"), 470);
         
-        $this->fields['viewport_width'] = $viewport_width;
+        $this->fields['viewport_width'] = $width;
         return $this;
     }
 
     /**
     * Set the viewport height in pixels. The viewport is the user's visible area of the page.
     *
-    * @param viewport_height Must be a positive integer number.
+    * @param height Must be a positive integer number.
     * @return The converter object.
     */
-    function setViewportHeight($viewport_height) {
-        if (!(intval($viewport_height) > 0))
-            throw new Error(create_invalid_value_message($viewport_height, "viewport_height", "html-to-pdf", "Must be a positive integer number.", "set_viewport_height"), 470);
+    function setViewportHeight($height) {
+        if (!(intval($height) > 0))
+            throw new Error(create_invalid_value_message($height, "setViewportHeight", "html-to-pdf", "Must be a positive integer number.", "set_viewport_height"), 470);
         
-        $this->fields['viewport_height'] = $viewport_height;
+        $this->fields['viewport_height'] = $height;
         return $this;
     }
 
@@ -1976,186 +2041,175 @@ class HtmlToPdfClient {
     /**
     * Set the rendering mode.
     *
-    * @param rendering_mode The rendering mode. Allowed values are default, viewport.
+    * @param mode The rendering mode. Allowed values are default, viewport.
     * @return The converter object.
     */
-    function setRenderingMode($rendering_mode) {
-        if (!preg_match("/(?i)^(default|viewport)$/", $rendering_mode))
-            throw new Error(create_invalid_value_message($rendering_mode, "rendering_mode", "html-to-pdf", "Allowed values are default, viewport.", "set_rendering_mode"), 470);
+    function setRenderingMode($mode) {
+        if (!preg_match("/(?i)^(default|viewport)$/", $mode))
+            throw new Error(create_invalid_value_message($mode, "setRenderingMode", "html-to-pdf", "Allowed values are default, viewport.", "set_rendering_mode"), 470);
         
-        $this->fields['rendering_mode'] = $rendering_mode;
+        $this->fields['rendering_mode'] = $mode;
         return $this;
     }
 
     /**
     * Specifies the scaling mode used for fitting the HTML contents to the print area.
     *
-    * @param smart_scaling_mode The smart scaling mode. Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit.
+    * @param mode The smart scaling mode. Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit, mode1.
     * @return The converter object.
     */
-    function setSmartScalingMode($smart_scaling_mode) {
-        if (!preg_match("/(?i)^(default|disabled|viewport-fit|content-fit|single-page-fit)$/", $smart_scaling_mode))
-            throw new Error(create_invalid_value_message($smart_scaling_mode, "smart_scaling_mode", "html-to-pdf", "Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit.", "set_smart_scaling_mode"), 470);
+    function setSmartScalingMode($mode) {
+        if (!preg_match("/(?i)^(default|disabled|viewport-fit|content-fit|single-page-fit|mode1)$/", $mode))
+            throw new Error(create_invalid_value_message($mode, "setSmartScalingMode", "html-to-pdf", "Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit, mode1.", "set_smart_scaling_mode"), 470);
         
-        $this->fields['smart_scaling_mode'] = $smart_scaling_mode;
+        $this->fields['smart_scaling_mode'] = $mode;
         return $this;
     }
 
     /**
     * Set the scaling factor (zoom) for the main page area.
     *
-    * @param scale_factor The percentage value. The value must be in the range 10-500.
+    * @param factor The percentage value. The value must be in the range 10-500.
     * @return The converter object.
     */
-    function setScaleFactor($scale_factor) {
-        if (!(intval($scale_factor) >= 10 && intval($scale_factor) <= 500))
-            throw new Error(create_invalid_value_message($scale_factor, "scale_factor", "html-to-pdf", "The value must be in the range 10-500.", "set_scale_factor"), 470);
+    function setScaleFactor($factor) {
+        if (!(intval($factor) >= 10 && intval($factor) <= 500))
+            throw new Error(create_invalid_value_message($factor, "setScaleFactor", "html-to-pdf", "The value must be in the range 10-500.", "set_scale_factor"), 470);
         
-        $this->fields['scale_factor'] = $scale_factor;
+        $this->fields['scale_factor'] = $factor;
         return $this;
     }
 
     /**
     * Set the scaling factor (zoom) for the header and footer.
     *
-    * @param header_footer_scale_factor The percentage value. The value must be in the range 10-500.
+    * @param factor The percentage value. The value must be in the range 10-500.
     * @return The converter object.
     */
-    function setHeaderFooterScaleFactor($header_footer_scale_factor) {
-        if (!(intval($header_footer_scale_factor) >= 10 && intval($header_footer_scale_factor) <= 500))
-            throw new Error(create_invalid_value_message($header_footer_scale_factor, "header_footer_scale_factor", "html-to-pdf", "The value must be in the range 10-500.", "set_header_footer_scale_factor"), 470);
+    function setHeaderFooterScaleFactor($factor) {
+        if (!(intval($factor) >= 10 && intval($factor) <= 500))
+            throw new Error(create_invalid_value_message($factor, "setHeaderFooterScaleFactor", "html-to-pdf", "The value must be in the range 10-500.", "set_header_footer_scale_factor"), 470);
         
-        $this->fields['header_footer_scale_factor'] = $header_footer_scale_factor;
-        return $this;
-    }
-
-    /**
-    * Disable the intelligent shrinking strategy that tries to optimally fit the HTML contents to a PDF page.
-    *
-    * @param disable_smart_shrinking Set to <span class='field-value'>true</span> to disable the intelligent shrinking strategy.
-    * @return The converter object.
-    */
-    function setDisableSmartShrinking($disable_smart_shrinking) {
-        $this->fields['disable_smart_shrinking'] = $disable_smart_shrinking;
+        $this->fields['header_footer_scale_factor'] = $factor;
         return $this;
     }
 
     /**
     * Set the quality of embedded JPEG images. A lower quality results in a smaller PDF file but can lead to compression artifacts.
     *
-    * @param jpeg_quality The percentage value. The value must be in the range 1-100.
+    * @param quality The percentage value. The value must be in the range 1-100.
     * @return The converter object.
     */
-    function setJpegQuality($jpeg_quality) {
-        if (!(intval($jpeg_quality) >= 1 && intval($jpeg_quality) <= 100))
-            throw new Error(create_invalid_value_message($jpeg_quality, "jpeg_quality", "html-to-pdf", "The value must be in the range 1-100.", "set_jpeg_quality"), 470);
+    function setJpegQuality($quality) {
+        if (!(intval($quality) >= 1 && intval($quality) <= 100))
+            throw new Error(create_invalid_value_message($quality, "setJpegQuality", "html-to-pdf", "The value must be in the range 1-100.", "set_jpeg_quality"), 470);
         
-        $this->fields['jpeg_quality'] = $jpeg_quality;
+        $this->fields['jpeg_quality'] = $quality;
         return $this;
     }
 
     /**
     * Specify which image types will be converted to JPEG. Converting lossless compression image formats (PNG, GIF, ...) to JPEG may result in a smaller PDF file.
     *
-    * @param convert_images_to_jpeg The image category. Allowed values are none, opaque, all.
+    * @param images The image category. Allowed values are none, opaque, all.
     * @return The converter object.
     */
-    function setConvertImagesToJpeg($convert_images_to_jpeg) {
-        if (!preg_match("/(?i)^(none|opaque|all)$/", $convert_images_to_jpeg))
-            throw new Error(create_invalid_value_message($convert_images_to_jpeg, "convert_images_to_jpeg", "html-to-pdf", "Allowed values are none, opaque, all.", "set_convert_images_to_jpeg"), 470);
+    function setConvertImagesToJpeg($images) {
+        if (!preg_match("/(?i)^(none|opaque|all)$/", $images))
+            throw new Error(create_invalid_value_message($images, "setConvertImagesToJpeg", "html-to-pdf", "Allowed values are none, opaque, all.", "set_convert_images_to_jpeg"), 470);
         
-        $this->fields['convert_images_to_jpeg'] = $convert_images_to_jpeg;
+        $this->fields['convert_images_to_jpeg'] = $images;
         return $this;
     }
 
     /**
     * Set the DPI of images in PDF. A lower DPI may result in a smaller PDF file.  If the specified DPI is higher than the actual image DPI, the original image DPI is retained (no upscaling is performed). Use <span class='field-value'>0</span> to leave the images unaltered.
     *
-    * @param image_dpi The DPI value. Must be a positive integer number or 0.
+    * @param dpi The DPI value. Must be a positive integer number or 0.
     * @return The converter object.
     */
-    function setImageDpi($image_dpi) {
-        if (!(intval($image_dpi) >= 0))
-            throw new Error(create_invalid_value_message($image_dpi, "image_dpi", "html-to-pdf", "Must be a positive integer number or 0.", "set_image_dpi"), 470);
+    function setImageDpi($dpi) {
+        if (!(intval($dpi) >= 0))
+            throw new Error(create_invalid_value_message($dpi, "setImageDpi", "html-to-pdf", "Must be a positive integer number or 0.", "set_image_dpi"), 470);
         
-        $this->fields['image_dpi'] = $image_dpi;
+        $this->fields['image_dpi'] = $dpi;
         return $this;
     }
 
     /**
     * Create linearized PDF. This is also known as Fast Web View.
     *
-    * @param linearize Set to <span class='field-value'>true</span> to create linearized PDF.
+    * @param value Set to <span class='field-value'>true</span> to create linearized PDF.
     * @return The converter object.
     */
-    function setLinearize($linearize) {
-        $this->fields['linearize'] = $linearize;
+    function setLinearize($value) {
+        $this->fields['linearize'] = $value;
         return $this;
     }
 
     /**
     * Encrypt the PDF. This prevents search engines from indexing the contents.
     *
-    * @param encrypt Set to <span class='field-value'>true</span> to enable PDF encryption.
+    * @param value Set to <span class='field-value'>true</span> to enable PDF encryption.
     * @return The converter object.
     */
-    function setEncrypt($encrypt) {
-        $this->fields['encrypt'] = $encrypt;
+    function setEncrypt($value) {
+        $this->fields['encrypt'] = $value;
         return $this;
     }
 
     /**
     * Protect the PDF with a user password. When a PDF has a user password, it must be supplied in order to view the document and to perform operations allowed by the access permissions.
     *
-    * @param user_password The user password.
+    * @param password The user password.
     * @return The converter object.
     */
-    function setUserPassword($user_password) {
-        $this->fields['user_password'] = $user_password;
+    function setUserPassword($password) {
+        $this->fields['user_password'] = $password;
         return $this;
     }
 
     /**
     * Protect the PDF with an owner password.  Supplying an owner password grants unlimited access to the PDF including changing the passwords and access permissions.
     *
-    * @param owner_password The owner password.
+    * @param password The owner password.
     * @return The converter object.
     */
-    function setOwnerPassword($owner_password) {
-        $this->fields['owner_password'] = $owner_password;
+    function setOwnerPassword($password) {
+        $this->fields['owner_password'] = $password;
         return $this;
     }
 
     /**
     * Disallow printing of the output PDF.
     *
-    * @param no_print Set to <span class='field-value'>true</span> to set the no-print flag in the output PDF.
+    * @param value Set to <span class='field-value'>true</span> to set the no-print flag in the output PDF.
     * @return The converter object.
     */
-    function setNoPrint($no_print) {
-        $this->fields['no_print'] = $no_print;
+    function setNoPrint($value) {
+        $this->fields['no_print'] = $value;
         return $this;
     }
 
     /**
     * Disallow modification of the output PDF.
     *
-    * @param no_modify Set to <span class='field-value'>true</span> to set the read-only only flag in the output PDF.
+    * @param value Set to <span class='field-value'>true</span> to set the read-only only flag in the output PDF.
     * @return The converter object.
     */
-    function setNoModify($no_modify) {
-        $this->fields['no_modify'] = $no_modify;
+    function setNoModify($value) {
+        $this->fields['no_modify'] = $value;
         return $this;
     }
 
     /**
     * Disallow text and graphics extraction from the output PDF.
     *
-    * @param no_copy Set to <span class='field-value'>true</span> to set the no-copy flag in the output PDF.
+    * @param value Set to <span class='field-value'>true</span> to set the no-copy flag in the output PDF.
     * @return The converter object.
     */
-    function setNoCopy($no_copy) {
-        $this->fields['no_copy'] = $no_copy;
+    function setNoCopy($value) {
+        $this->fields['no_copy'] = $value;
         return $this;
     }
 
@@ -2206,158 +2260,158 @@ class HtmlToPdfClient {
     /**
     * Specify the page layout to be used when the document is opened.
     *
-    * @param page_layout Allowed values are single-page, one-column, two-column-left, two-column-right.
+    * @param layout Allowed values are single-page, one-column, two-column-left, two-column-right.
     * @return The converter object.
     */
-    function setPageLayout($page_layout) {
-        if (!preg_match("/(?i)^(single-page|one-column|two-column-left|two-column-right)$/", $page_layout))
-            throw new Error(create_invalid_value_message($page_layout, "page_layout", "html-to-pdf", "Allowed values are single-page, one-column, two-column-left, two-column-right.", "set_page_layout"), 470);
+    function setPageLayout($layout) {
+        if (!preg_match("/(?i)^(single-page|one-column|two-column-left|two-column-right)$/", $layout))
+            throw new Error(create_invalid_value_message($layout, "setPageLayout", "html-to-pdf", "Allowed values are single-page, one-column, two-column-left, two-column-right.", "set_page_layout"), 470);
         
-        $this->fields['page_layout'] = $page_layout;
+        $this->fields['page_layout'] = $layout;
         return $this;
     }
 
     /**
     * Specify how the document should be displayed when opened.
     *
-    * @param page_mode Allowed values are full-screen, thumbnails, outlines.
+    * @param mode Allowed values are full-screen, thumbnails, outlines.
     * @return The converter object.
     */
-    function setPageMode($page_mode) {
-        if (!preg_match("/(?i)^(full-screen|thumbnails|outlines)$/", $page_mode))
-            throw new Error(create_invalid_value_message($page_mode, "page_mode", "html-to-pdf", "Allowed values are full-screen, thumbnails, outlines.", "set_page_mode"), 470);
+    function setPageMode($mode) {
+        if (!preg_match("/(?i)^(full-screen|thumbnails|outlines)$/", $mode))
+            throw new Error(create_invalid_value_message($mode, "setPageMode", "html-to-pdf", "Allowed values are full-screen, thumbnails, outlines.", "set_page_mode"), 470);
         
-        $this->fields['page_mode'] = $page_mode;
+        $this->fields['page_mode'] = $mode;
         return $this;
     }
 
     /**
     * Specify how the page should be displayed when opened.
     *
-    * @param initial_zoom_type Allowed values are fit-width, fit-height, fit-page.
+    * @param zoom_type Allowed values are fit-width, fit-height, fit-page.
     * @return The converter object.
     */
-    function setInitialZoomType($initial_zoom_type) {
-        if (!preg_match("/(?i)^(fit-width|fit-height|fit-page)$/", $initial_zoom_type))
-            throw new Error(create_invalid_value_message($initial_zoom_type, "initial_zoom_type", "html-to-pdf", "Allowed values are fit-width, fit-height, fit-page.", "set_initial_zoom_type"), 470);
+    function setInitialZoomType($zoom_type) {
+        if (!preg_match("/(?i)^(fit-width|fit-height|fit-page)$/", $zoom_type))
+            throw new Error(create_invalid_value_message($zoom_type, "setInitialZoomType", "html-to-pdf", "Allowed values are fit-width, fit-height, fit-page.", "set_initial_zoom_type"), 470);
         
-        $this->fields['initial_zoom_type'] = $initial_zoom_type;
+        $this->fields['initial_zoom_type'] = $zoom_type;
         return $this;
     }
 
     /**
     * Display the specified page when the document is opened.
     *
-    * @param initial_page Must be a positive integer number.
+    * @param page Must be a positive integer number.
     * @return The converter object.
     */
-    function setInitialPage($initial_page) {
-        if (!(intval($initial_page) > 0))
-            throw new Error(create_invalid_value_message($initial_page, "initial_page", "html-to-pdf", "Must be a positive integer number.", "set_initial_page"), 470);
+    function setInitialPage($page) {
+        if (!(intval($page) > 0))
+            throw new Error(create_invalid_value_message($page, "setInitialPage", "html-to-pdf", "Must be a positive integer number.", "set_initial_page"), 470);
         
-        $this->fields['initial_page'] = $initial_page;
+        $this->fields['initial_page'] = $page;
         return $this;
     }
 
     /**
     * Specify the initial page zoom in percents when the document is opened.
     *
-    * @param initial_zoom Must be a positive integer number.
+    * @param zoom Must be a positive integer number.
     * @return The converter object.
     */
-    function setInitialZoom($initial_zoom) {
-        if (!(intval($initial_zoom) > 0))
-            throw new Error(create_invalid_value_message($initial_zoom, "initial_zoom", "html-to-pdf", "Must be a positive integer number.", "set_initial_zoom"), 470);
+    function setInitialZoom($zoom) {
+        if (!(intval($zoom) > 0))
+            throw new Error(create_invalid_value_message($zoom, "setInitialZoom", "html-to-pdf", "Must be a positive integer number.", "set_initial_zoom"), 470);
         
-        $this->fields['initial_zoom'] = $initial_zoom;
+        $this->fields['initial_zoom'] = $zoom;
         return $this;
     }
 
     /**
     * Specify whether to hide the viewer application's tool bars when the document is active.
     *
-    * @param hide_toolbar Set to <span class='field-value'>true</span> to hide tool bars.
+    * @param value Set to <span class='field-value'>true</span> to hide tool bars.
     * @return The converter object.
     */
-    function setHideToolbar($hide_toolbar) {
-        $this->fields['hide_toolbar'] = $hide_toolbar;
+    function setHideToolbar($value) {
+        $this->fields['hide_toolbar'] = $value;
         return $this;
     }
 
     /**
     * Specify whether to hide the viewer application's menu bar when the document is active.
     *
-    * @param hide_menubar Set to <span class='field-value'>true</span> to hide the menu bar.
+    * @param value Set to <span class='field-value'>true</span> to hide the menu bar.
     * @return The converter object.
     */
-    function setHideMenubar($hide_menubar) {
-        $this->fields['hide_menubar'] = $hide_menubar;
+    function setHideMenubar($value) {
+        $this->fields['hide_menubar'] = $value;
         return $this;
     }
 
     /**
     * Specify whether to hide user interface elements in the document's window (such as scroll bars and navigation controls), leaving only the document's contents displayed.
     *
-    * @param hide_window_ui Set to <span class='field-value'>true</span> to hide ui elements.
+    * @param value Set to <span class='field-value'>true</span> to hide ui elements.
     * @return The converter object.
     */
-    function setHideWindowUi($hide_window_ui) {
-        $this->fields['hide_window_ui'] = $hide_window_ui;
+    function setHideWindowUi($value) {
+        $this->fields['hide_window_ui'] = $value;
         return $this;
     }
 
     /**
     * Specify whether to resize the document's window to fit the size of the first displayed page.
     *
-    * @param fit_window Set to <span class='field-value'>true</span> to resize the window.
+    * @param value Set to <span class='field-value'>true</span> to resize the window.
     * @return The converter object.
     */
-    function setFitWindow($fit_window) {
-        $this->fields['fit_window'] = $fit_window;
+    function setFitWindow($value) {
+        $this->fields['fit_window'] = $value;
         return $this;
     }
 
     /**
     * Specify whether to position the document's window in the center of the screen.
     *
-    * @param center_window Set to <span class='field-value'>true</span> to center the window.
+    * @param value Set to <span class='field-value'>true</span> to center the window.
     * @return The converter object.
     */
-    function setCenterWindow($center_window) {
-        $this->fields['center_window'] = $center_window;
+    function setCenterWindow($value) {
+        $this->fields['center_window'] = $value;
         return $this;
     }
 
     /**
     * Specify whether the window's title bar should display the document title. If false , the title bar should instead display the name of the PDF file containing the document.
     *
-    * @param display_title Set to <span class='field-value'>true</span> to display the title.
+    * @param value Set to <span class='field-value'>true</span> to display the title.
     * @return The converter object.
     */
-    function setDisplayTitle($display_title) {
-        $this->fields['display_title'] = $display_title;
+    function setDisplayTitle($value) {
+        $this->fields['display_title'] = $value;
         return $this;
     }
 
     /**
     * Set the predominant reading order for text to right-to-left. This option has no direct effect on the document's contents or page numbering but can be used to determine the relative positioning of pages when displayed side by side or printed n-up
     *
-    * @param right_to_left Set to <span class='field-value'>true</span> to set right-to-left reading order.
+    * @param value Set to <span class='field-value'>true</span> to set right-to-left reading order.
     * @return The converter object.
     */
-    function setRightToLeft($right_to_left) {
-        $this->fields['right_to_left'] = $right_to_left;
+    function setRightToLeft($value) {
+        $this->fields['right_to_left'] = $value;
         return $this;
     }
 
     /**
     * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method or available in <a href='/user/account/log/conversion/'>conversion statistics</a>.
     *
-    * @param debug_log Set to <span class='field-value'>true</span> to enable the debug logging.
+    * @param value Set to <span class='field-value'>true</span> to enable the debug logging.
     * @return The converter object.
     */
-    function setDebugLog($debug_log) {
-        $this->fields['debug_log'] = $debug_log;
+    function setDebugLog($value) {
+        $this->fields['debug_log'] = $value;
         return $this;
     }
 
@@ -2413,6 +2467,14 @@ class HtmlToPdfClient {
     }
 
     /**
+    * Get the version details.
+    * @return API version, converter version, and client version.
+    */
+    function getVersion() {
+        return 'client '.ConnectionHelper::CLIENT_VERSION.', API v2, converter '.$this->helper->getConverterVersion();
+    }
+
+    /**
     * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
     *
     * @param tag A string with the custom tag.
@@ -2426,53 +2488,161 @@ class HtmlToPdfClient {
     /**
     * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
     *
-    * @param http_proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
     * @return The converter object.
     */
-    function setHttpProxy($http_proxy) {
-        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $http_proxy))
-            throw new Error(create_invalid_value_message($http_proxy, "http_proxy", "html-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
+    function setHttpProxy($proxy) {
+        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
+            throw new Error(create_invalid_value_message($proxy, "setHttpProxy", "html-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
         
-        $this->fields['http_proxy'] = $http_proxy;
+        $this->fields['http_proxy'] = $proxy;
         return $this;
     }
 
     /**
     * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
     *
-    * @param https_proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
     * @return The converter object.
     */
-    function setHttpsProxy($https_proxy) {
-        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $https_proxy))
-            throw new Error(create_invalid_value_message($https_proxy, "https_proxy", "html-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
+    function setHttpsProxy($proxy) {
+        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
+            throw new Error(create_invalid_value_message($proxy, "setHttpsProxy", "html-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
         
-        $this->fields['https_proxy'] = $https_proxy;
+        $this->fields['https_proxy'] = $proxy;
         return $this;
     }
 
     /**
     * A client certificate to authenticate Pdfcrowd converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security.
     *
-    * @param client_certificate The file must be in PKCS12 format. The file must exist and not be empty.
+    * @param certificate The file must be in PKCS12 format. The file must exist and not be empty.
     * @return The converter object.
     */
-    function setClientCertificate($client_certificate) {
-        if (!(filesize($client_certificate) > 0))
-            throw new Error(create_invalid_value_message($client_certificate, "client_certificate", "html-to-pdf", "The file must exist and not be empty.", "set_client_certificate"), 470);
+    function setClientCertificate($certificate) {
+        if (!(filesize($certificate) > 0))
+            throw new Error(create_invalid_value_message($certificate, "setClientCertificate", "html-to-pdf", "The file must exist and not be empty.", "set_client_certificate"), 470);
         
-        $this->files['client_certificate'] = $client_certificate;
+        $this->files['client_certificate'] = $certificate;
         return $this;
     }
 
     /**
     * A password for PKCS12 file with a client certificate if it is needed.
     *
-    * @param client_certificate_password
+    * @param password
     * @return The converter object.
     */
-    function setClientCertificatePassword($client_certificate_password) {
-        $this->fields['client_certificate_password'] = $client_certificate_password;
+    function setClientCertificatePassword($password) {
+        $this->fields['client_certificate_password'] = $password;
+        return $this;
+    }
+
+    /**
+    * Set the internal DPI resolution used for positioning of PDF contents. It can help in situations when there are small inaccuracies in the PDF. It is recommended to use values that are a multiple of 72, such as 288 or 360.
+    *
+    * @param dpi The DPI value. The value must be in the range of 72-600.
+    * @return The converter object.
+    */
+    function setLayoutDpi($dpi) {
+        if (!(intval($dpi) >= 72 && intval($dpi) <= 600))
+            throw new Error(create_invalid_value_message($dpi, "setLayoutDpi", "html-to-pdf", "The value must be in the range of 72-600.", "set_layout_dpi"), 470);
+        
+        $this->fields['layout_dpi'] = $dpi;
+        return $this;
+    }
+
+    /**
+    * A 2D transformation matrix applied to the main contents on each page. The origin [0,0] is located at the top-left corner of the contents. The resolution is 72 dpi.
+    *
+    * @param matrix A comma separated string of matrix elements: "scaleX,skewX,transX,skewY,scaleY,transY"
+    * @return The converter object.
+    */
+    function setContentsMatrix($matrix) {
+        $this->fields['contents_matrix'] = $matrix;
+        return $this;
+    }
+
+    /**
+    * A 2D transformation matrix applied to the page header contents. The origin [0,0] is located at the top-left corner of the header. The resolution is 72 dpi.
+    *
+    * @param matrix A comma separated string of matrix elements: "scaleX,skewX,transX,skewY,scaleY,transY"
+    * @return The converter object.
+    */
+    function setHeaderMatrix($matrix) {
+        $this->fields['header_matrix'] = $matrix;
+        return $this;
+    }
+
+    /**
+    * A 2D transformation matrix applied to the page footer contents. The origin [0,0] is located at the top-left corner of the footer. The resolution is 72 dpi.
+    *
+    * @param matrix A comma separated string of matrix elements: "scaleX,skewX,transX,skewY,scaleY,transY"
+    * @return The converter object.
+    */
+    function setFooterMatrix($matrix) {
+        $this->fields['footer_matrix'] = $matrix;
+        return $this;
+    }
+
+    /**
+    * Disable automatic height adjustment that compensates for pixel to point rounding errors.
+    *
+    * @param value Set to <span class='field-value'>true</span> to disable automatic height scale.
+    * @return The converter object.
+    */
+    function setDisablePageHeightOptimization($value) {
+        $this->fields['disable_page_height_optimization'] = $value;
+        return $this;
+    }
+
+    /**
+    * Add special CSS classes to the main document's body element. This allows applying custom styling based on these classes:
+  <ul>
+    <li><span class='field-value'>pdfcrowd-page-X</span> - where X is the current page number</li>
+    <li><span class='field-value'>pdfcrowd-page-odd</span> - odd page</li>
+    <li><span class='field-value'>pdfcrowd-page-even</span> - even page</li>
+  </ul>
+    * Warning: If your custom styling affects the contents area size (e.g. by using different margins, padding, border width), the resulting PDF may contain duplicit contents or some contents may be missing.
+    *
+    * @param value Set to <span class='field-value'>true</span> to add the special CSS classes.
+    * @return The converter object.
+    */
+    function setMainDocumentCssAnnotation($value) {
+        $this->fields['main_document_css_annotation'] = $value;
+        return $this;
+    }
+
+    /**
+    * Add special CSS classes to the header/footer's body element. This allows applying custom styling based on these classes:
+  <ul>
+    <li><span class='field-value'>pdfcrowd-page-X</span> - where X is the current page number</li>
+    <li><span class='field-value'>pdfcrowd-page-count-X</span> - where X is the total page count</li>
+    <li><span class='field-value'>pdfcrowd-page-first</span> - the first page</li>
+    <li><span class='field-value'>pdfcrowd-page-last</span> - the last page</li>
+    <li><span class='field-value'>pdfcrowd-page-odd</span> - odd page</li>
+    <li><span class='field-value'>pdfcrowd-page-even</span> - even page</li>
+  </ul>
+    *
+    * @param value Set to <span class='field-value'>true</span> to add the special CSS classes.
+    * @return The converter object.
+    */
+    function setHeaderFooterCssAnnotation($value) {
+        $this->fields['header_footer_css_annotation'] = $value;
+        return $this;
+    }
+
+    /**
+    * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
+    *
+    * @param version The version identifier. Allowed values are latest, 20.10, 18.10.
+    * @return The converter object.
+    */
+    function setConverterVersion($version) {
+        if (!preg_match("/(?i)^(latest|20.10|18.10)$/", $version))
+            throw new Error(create_invalid_value_message($version, "setConverterVersion", "html-to-pdf", "Allowed values are latest, 20.10, 18.10.", "set_converter_version"), 470);
+        
+        $this->helper->setConverterVersion($version);
         return $this;
     }
 
@@ -2480,22 +2650,22 @@ class HtmlToPdfClient {
     * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
     * Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
     *
-    * @param use_http Set to <span class='field-value'>true</span> to use HTTP.
+    * @param value Set to <span class='field-value'>true</span> to use HTTP.
     * @return The converter object.
     */
-    function setUseHttp($use_http) {
-        $this->helper->setUseHttp($use_http);
+    function setUseHttp($value) {
+        $this->helper->setUseHttp($value);
         return $this;
     }
 
     /**
     * Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
     *
-    * @param user_agent The user agent string.
+    * @param agent The user agent string.
     * @return The converter object.
     */
-    function setUserAgent($user_agent) {
-        $this->helper->setUserAgent($user_agent);
+    function setUserAgent($agent) {
+        $this->helper->setUserAgent($agent);
         return $this;
     }
 
@@ -2516,10 +2686,10 @@ class HtmlToPdfClient {
     /**
     * Use cURL for the conversion request instead of the file_get_contents() PHP function.
     *
-    * @param use_curl Set to <span class='field-value'>true</span> to use PHP's cURL.
+    * @param value Set to <span class='field-value'>true</span> to use PHP's cURL.
     * @return The converter object.
     */
-    function setUseCurl($use_curl) {
+    function setUseCurl($value) {
         $this->helper->setUseCurl($use_curl);
         return $this;
     }
@@ -2527,11 +2697,11 @@ class HtmlToPdfClient {
     /**
     * Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     *
-    * @param retry_count Number of retries wanted.
+    * @param count Number of retries wanted.
     * @return The converter object.
     */
-    function setRetryCount($retry_count) {
-        $this->helper->setRetryCount($retry_count);
+    function setRetryCount($count) {
+        $this->helper->setRetryCount($count);
         return $this;
     }
 
@@ -2566,7 +2736,7 @@ class HtmlToImageClient {
     */
     function setOutputFormat($output_format) {
         if (!preg_match("/(?i)^(png|jpg|gif|tiff|bmp|ico|ppm|pgm|pbm|pnm|psb|pct|ras|tga|sgi|sun|webp)$/", $output_format))
-            throw new Error(create_invalid_value_message($output_format, "output_format", "html-to-image", "Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.", "set_output_format"), 470);
+            throw new Error(create_invalid_value_message($output_format, "setOutputFormat", "html-to-image", "Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.", "set_output_format"), 470);
         
         $this->fields['output_format'] = $output_format;
         return $this;
@@ -2580,7 +2750,7 @@ class HtmlToImageClient {
     */
     function convertUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "url", "html-to-image", "The supported protocols are http:// and https://.", "convert_url"), 470);
+            throw new Error(create_invalid_value_message($url, "convertUrl", "html-to-image", "The supported protocols are http:// and https://.", "convert_url"), 470);
         
         $this->fields['url'] = $url;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
@@ -2594,7 +2764,7 @@ class HtmlToImageClient {
     */
     function convertUrlToStream($url, $out_stream) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "url", "html-to-image", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
+            throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "html-to-image", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
         
         $this->fields['url'] = $url;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
@@ -2608,7 +2778,7 @@ class HtmlToImageClient {
     */
     function convertUrlToFile($url, $file_path) {
         if (!($file_path != null && $file_path !== ''))
-            throw new Error(create_invalid_value_message($file_path, "file_path", "html-to-image", "The string must not be empty.", "convert_url_to_file"), 470);
+            throw new Error(create_invalid_value_message($file_path, "convertUrlToFile::file_path", "html-to-image", "The string must not be empty.", "convert_url_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
         if (!$output_file) {
@@ -2634,7 +2804,7 @@ class HtmlToImageClient {
     */
     function convertFile($file) {
         if (!(filesize($file) > 0))
-            throw new Error(create_invalid_value_message($file, "file", "html-to-image", "The file must exist and not be empty.", "convert_file"), 470);
+            throw new Error(create_invalid_value_message($file, "convertFile", "html-to-image", "The file must exist and not be empty.", "convert_file"), 470);
         
         $this->files['file'] = $file;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
@@ -2648,7 +2818,7 @@ class HtmlToImageClient {
     */
     function convertFileToStream($file, $out_stream) {
         if (!(filesize($file) > 0))
-            throw new Error(create_invalid_value_message($file, "file", "html-to-image", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
+            throw new Error(create_invalid_value_message($file, "convertFileToStream::file", "html-to-image", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
         
         $this->files['file'] = $file;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
@@ -2662,7 +2832,7 @@ class HtmlToImageClient {
     */
     function convertFileToFile($file, $file_path) {
         if (!($file_path != null && $file_path !== ''))
-            throw new Error(create_invalid_value_message($file_path, "file_path", "html-to-image", "The string must not be empty.", "convert_file_to_file"), 470);
+            throw new Error(create_invalid_value_message($file_path, "convertFileToFile::file_path", "html-to-image", "The string must not be empty.", "convert_file_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
         if (!$output_file) {
@@ -2688,7 +2858,7 @@ class HtmlToImageClient {
     */
     function convertString($text) {
         if (!($text != null && $text !== ''))
-            throw new Error(create_invalid_value_message($text, "text", "html-to-image", "The string must not be empty.", "convert_string"), 470);
+            throw new Error(create_invalid_value_message($text, "convertString", "html-to-image", "The string must not be empty.", "convert_string"), 470);
         
         $this->fields['text'] = $text;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
@@ -2702,7 +2872,7 @@ class HtmlToImageClient {
     */
     function convertStringToStream($text, $out_stream) {
         if (!($text != null && $text !== ''))
-            throw new Error(create_invalid_value_message($text, "text", "html-to-image", "The string must not be empty.", "convert_string_to_stream"), 470);
+            throw new Error(create_invalid_value_message($text, "convertStringToStream::text", "html-to-image", "The string must not be empty.", "convert_string_to_stream"), 470);
         
         $this->fields['text'] = $text;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
@@ -2716,7 +2886,7 @@ class HtmlToImageClient {
     */
     function convertStringToFile($text, $file_path) {
         if (!($file_path != null && $file_path !== ''))
-            throw new Error(create_invalid_value_message($file_path, "file_path", "html-to-image", "The string must not be empty.", "convert_string_to_file"), 470);
+            throw new Error(create_invalid_value_message($file_path, "convertStringToFile::file_path", "html-to-image", "The string must not be empty.", "convert_string_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
         if (!$output_file) {
@@ -2764,7 +2934,7 @@ class HtmlToImageClient {
     */
     function setDataFormat($data_format) {
         if (!preg_match("/(?i)^(auto|json|xml|yaml|csv)$/", $data_format))
-            throw new Error(create_invalid_value_message($data_format, "data_format", "html-to-image", "Allowed values are auto, json, xml, yaml, csv.", "set_data_format"), 470);
+            throw new Error(create_invalid_value_message($data_format, "setDataFormat", "html-to-image", "Allowed values are auto, json, xml, yaml, csv.", "set_data_format"), 470);
         
         $this->fields['data_format'] = $data_format;
         return $this;
@@ -2773,121 +2943,157 @@ class HtmlToImageClient {
     /**
     * Set the encoding of the data file set by <a href='#set_data_file'>setDataFile</a>.
     *
-    * @param data_encoding The data file encoding.
+    * @param encoding The data file encoding.
     * @return The converter object.
     */
-    function setDataEncoding($data_encoding) {
-        $this->fields['data_encoding'] = $data_encoding;
+    function setDataEncoding($encoding) {
+        $this->fields['data_encoding'] = $encoding;
         return $this;
     }
 
     /**
     * Ignore undefined variables in the HTML template. The default mode is strict so any undefined variable causes the conversion to fail. You can use <span class='field-value text-nowrap'>&#x007b;&#x0025; if variable is defined &#x0025;&#x007d;</span> to check if the variable is defined.
     *
-    * @param data_ignore_undefined Set to <span class='field-value'>true</span> to ignore undefined variables.
+    * @param value Set to <span class='field-value'>true</span> to ignore undefined variables.
     * @return The converter object.
     */
-    function setDataIgnoreUndefined($data_ignore_undefined) {
-        $this->fields['data_ignore_undefined'] = $data_ignore_undefined;
+    function setDataIgnoreUndefined($value) {
+        $this->fields['data_ignore_undefined'] = $value;
         return $this;
     }
 
     /**
     * Auto escape HTML symbols in the input data before placing them into the output.
     *
-    * @param data_auto_escape Set to <span class='field-value'>true</span> to turn auto escaping on.
+    * @param value Set to <span class='field-value'>true</span> to turn auto escaping on.
     * @return The converter object.
     */
-    function setDataAutoEscape($data_auto_escape) {
-        $this->fields['data_auto_escape'] = $data_auto_escape;
+    function setDataAutoEscape($value) {
+        $this->fields['data_auto_escape'] = $value;
         return $this;
     }
 
     /**
     * Auto trim whitespace around each template command block.
     *
-    * @param data_trim_blocks Set to <span class='field-value'>true</span> to turn auto trimming on.
+    * @param value Set to <span class='field-value'>true</span> to turn auto trimming on.
     * @return The converter object.
     */
-    function setDataTrimBlocks($data_trim_blocks) {
-        $this->fields['data_trim_blocks'] = $data_trim_blocks;
+    function setDataTrimBlocks($value) {
+        $this->fields['data_trim_blocks'] = $value;
         return $this;
     }
 
     /**
     * Set the advanced data options:<ul><li><span class='field-value'>csv_delimiter</span> - The CSV data delimiter, the default is <span class='field-value'>,</span>.</li><li><span class='field-value'>xml_remove_root</span> - Remove the root XML element from the input data.</li><li><span class='field-value'>data_root</span> - The name of the root element inserted into the input data without a root node (e.g. CSV), the default is <span class='field-value'>data</span>.</li></ul>
     *
-    * @param data_options Comma separated list of options.
+    * @param options Comma separated list of options.
     * @return The converter object.
     */
-    function setDataOptions($data_options) {
-        $this->fields['data_options'] = $data_options;
+    function setDataOptions($options) {
+        $this->fields['data_options'] = $options;
+        return $this;
+    }
+
+    /**
+    * Use the print version of the page if available (@media print).
+    *
+    * @param value Set to <span class='field-value'>true</span> to use the print version of the page.
+    * @return The converter object.
+    */
+    function setUsePrintMedia($value) {
+        $this->fields['use_print_media'] = $value;
         return $this;
     }
 
     /**
     * Do not print the background graphics.
     *
-    * @param no_background Set to <span class='field-value'>true</span> to disable the background graphics.
+    * @param value Set to <span class='field-value'>true</span> to disable the background graphics.
     * @return The converter object.
     */
-    function setNoBackground($no_background) {
-        $this->fields['no_background'] = $no_background;
+    function setNoBackground($value) {
+        $this->fields['no_background'] = $value;
         return $this;
     }
 
     /**
     * Do not execute JavaScript.
     *
-    * @param disable_javascript Set to <span class='field-value'>true</span> to disable JavaScript in web pages.
+    * @param value Set to <span class='field-value'>true</span> to disable JavaScript in web pages.
     * @return The converter object.
     */
-    function setDisableJavascript($disable_javascript) {
-        $this->fields['disable_javascript'] = $disable_javascript;
+    function setDisableJavascript($value) {
+        $this->fields['disable_javascript'] = $value;
         return $this;
     }
 
     /**
     * Do not load images.
     *
-    * @param disable_image_loading Set to <span class='field-value'>true</span> to disable loading of images.
+    * @param value Set to <span class='field-value'>true</span> to disable loading of images.
     * @return The converter object.
     */
-    function setDisableImageLoading($disable_image_loading) {
-        $this->fields['disable_image_loading'] = $disable_image_loading;
+    function setDisableImageLoading($value) {
+        $this->fields['disable_image_loading'] = $value;
         return $this;
     }
 
     /**
     * Disable loading fonts from remote sources.
     *
-    * @param disable_remote_fonts Set to <span class='field-value'>true</span> disable loading remote fonts.
+    * @param value Set to <span class='field-value'>true</span> disable loading remote fonts.
     * @return The converter object.
     */
-    function setDisableRemoteFonts($disable_remote_fonts) {
-        $this->fields['disable_remote_fonts'] = $disable_remote_fonts;
+    function setDisableRemoteFonts($value) {
+        $this->fields['disable_remote_fonts'] = $value;
+        return $this;
+    }
+
+    /**
+    * Specifies how iframes are handled.
+    *
+    * @param iframes Allowed values are all, same-origin, none.
+    * @return The converter object.
+    */
+    function setLoadIframes($iframes) {
+        if (!preg_match("/(?i)^(all|same-origin|none)$/", $iframes))
+            throw new Error(create_invalid_value_message($iframes, "setLoadIframes", "html-to-image", "Allowed values are all, same-origin, none.", "set_load_iframes"), 470);
+        
+        $this->fields['load_iframes'] = $iframes;
         return $this;
     }
 
     /**
     * Try to block ads. Enabling this option can produce smaller output and speed up the conversion.
     *
-    * @param block_ads Set to <span class='field-value'>true</span> to block ads in web pages.
+    * @param value Set to <span class='field-value'>true</span> to block ads in web pages.
     * @return The converter object.
     */
-    function setBlockAds($block_ads) {
-        $this->fields['block_ads'] = $block_ads;
+    function setBlockAds($value) {
+        $this->fields['block_ads'] = $value;
         return $this;
     }
 
     /**
     * Set the default HTML content text encoding.
     *
-    * @param default_encoding The text encoding of the HTML content.
+    * @param encoding The text encoding of the HTML content.
     * @return The converter object.
     */
-    function setDefaultEncoding($default_encoding) {
-        $this->fields['default_encoding'] = $default_encoding;
+    function setDefaultEncoding($encoding) {
+        $this->fields['default_encoding'] = $encoding;
+        return $this;
+    }
+
+    /**
+    * Set the locale for the conversion. This may affect the output format of dates, times and numbers.
+    *
+    * @param locale The locale code according to ISO 639.
+    * @return The converter object.
+    */
+    function setLocale($locale) {
+        $this->fields['locale'] = $locale;
         return $this;
     }
 
@@ -2927,28 +3133,6 @@ class HtmlToImageClient {
     }
 
     /**
-    * Use the print version of the page if available (@media print).
-    *
-    * @param use_print_media Set to <span class='field-value'>true</span> to use the print version of the page.
-    * @return The converter object.
-    */
-    function setUsePrintMedia($use_print_media) {
-        $this->fields['use_print_media'] = $use_print_media;
-        return $this;
-    }
-
-    /**
-    * Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.
-    *
-    * @param no_xpdfcrowd_header Set to <span class='field-value'>true</span> to disable sending X-Pdfcrowd HTTP header.
-    * @return The converter object.
-    */
-    function setNoXpdfcrowdHeader($no_xpdfcrowd_header) {
-        $this->fields['no_xpdfcrowd_header'] = $no_xpdfcrowd_header;
-        return $this;
-    }
-
-    /**
     * Set cookies that are sent in Pdfcrowd HTTP requests.
     *
     * @param cookies The cookie string.
@@ -2962,11 +3146,11 @@ class HtmlToImageClient {
     /**
     * Do not allow insecure HTTPS connections.
     *
-    * @param verify_ssl_certificates Set to <span class='field-value'>true</span> to enable SSL certificate verification.
+    * @param value Set to <span class='field-value'>true</span> to enable SSL certificate verification.
     * @return The converter object.
     */
-    function setVerifySslCertificates($verify_ssl_certificates) {
-        $this->fields['verify_ssl_certificates'] = $verify_ssl_certificates;
+    function setVerifySslCertificates($value) {
+        $this->fields['verify_ssl_certificates'] = $value;
         return $this;
     }
 
@@ -2993,58 +3177,69 @@ class HtmlToImageClient {
     }
 
     /**
-    * Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
+    * Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.
     *
-    * @param custom_javascript A string containing a JavaScript code. The string must not be empty.
+    * @param value Set to <span class='field-value'>true</span> to disable sending X-Pdfcrowd HTTP header.
     * @return The converter object.
     */
-    function setCustomJavascript($custom_javascript) {
-        if (!($custom_javascript != null && $custom_javascript !== ''))
-            throw new Error(create_invalid_value_message($custom_javascript, "custom_javascript", "html-to-image", "The string must not be empty.", "set_custom_javascript"), 470);
+    function setNoXpdfcrowdHeader($value) {
+        $this->fields['no_xpdfcrowd_header'] = $value;
+        return $this;
+    }
+
+    /**
+    * Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
+    *
+    * @param javascript A string containing a JavaScript code. The string must not be empty.
+    * @return The converter object.
+    */
+    function setCustomJavascript($javascript) {
+        if (!($javascript != null && $javascript !== ''))
+            throw new Error(create_invalid_value_message($javascript, "setCustomJavascript", "html-to-image", "The string must not be empty.", "set_custom_javascript"), 470);
         
-        $this->fields['custom_javascript'] = $custom_javascript;
+        $this->fields['custom_javascript'] = $javascript;
         return $this;
     }
 
     /**
     * Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
     *
-    * @param on_load_javascript A string containing a JavaScript code. The string must not be empty.
+    * @param javascript A string containing a JavaScript code. The string must not be empty.
     * @return The converter object.
     */
-    function setOnLoadJavascript($on_load_javascript) {
-        if (!($on_load_javascript != null && $on_load_javascript !== ''))
-            throw new Error(create_invalid_value_message($on_load_javascript, "on_load_javascript", "html-to-image", "The string must not be empty.", "set_on_load_javascript"), 470);
+    function setOnLoadJavascript($javascript) {
+        if (!($javascript != null && $javascript !== ''))
+            throw new Error(create_invalid_value_message($javascript, "setOnLoadJavascript", "html-to-image", "The string must not be empty.", "set_on_load_javascript"), 470);
         
-        $this->fields['on_load_javascript'] = $on_load_javascript;
+        $this->fields['on_load_javascript'] = $javascript;
         return $this;
     }
 
     /**
     * Set a custom HTTP header that is sent in Pdfcrowd HTTP requests.
     *
-    * @param custom_http_header A string containing the header name and value separated by a colon.
+    * @param header A string containing the header name and value separated by a colon.
     * @return The converter object.
     */
-    function setCustomHttpHeader($custom_http_header) {
-        if (!preg_match("/^.+:.+$/", $custom_http_header))
-            throw new Error(create_invalid_value_message($custom_http_header, "custom_http_header", "html-to-image", "A string containing the header name and value separated by a colon.", "set_custom_http_header"), 470);
+    function setCustomHttpHeader($header) {
+        if (!preg_match("/^.+:.+$/", $header))
+            throw new Error(create_invalid_value_message($header, "setCustomHttpHeader", "html-to-image", "A string containing the header name and value separated by a colon.", "set_custom_http_header"), 470);
         
-        $this->fields['custom_http_header'] = $custom_http_header;
+        $this->fields['custom_http_header'] = $header;
         return $this;
     }
 
     /**
     * Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter.
     *
-    * @param javascript_delay The number of milliseconds to wait. Must be a positive integer number or 0.
+    * @param delay The number of milliseconds to wait. Must be a positive integer number or 0.
     * @return The converter object.
     */
-    function setJavascriptDelay($javascript_delay) {
-        if (!(intval($javascript_delay) >= 0))
-            throw new Error(create_invalid_value_message($javascript_delay, "javascript_delay", "html-to-image", "Must be a positive integer number or 0.", "set_javascript_delay"), 470);
+    function setJavascriptDelay($delay) {
+        if (!(intval($delay) >= 0))
+            throw new Error(create_invalid_value_message($delay, "setJavascriptDelay", "html-to-image", "Must be a positive integer number or 0.", "set_javascript_delay"), 470);
         
-        $this->fields['javascript_delay'] = $javascript_delay;
+        $this->fields['javascript_delay'] = $delay;
         return $this;
     }
 
@@ -3056,7 +3251,7 @@ class HtmlToImageClient {
     */
     function setElementToConvert($selectors) {
         if (!($selectors != null && $selectors !== ''))
-            throw new Error(create_invalid_value_message($selectors, "selectors", "html-to-image", "The string must not be empty.", "set_element_to_convert"), 470);
+            throw new Error(create_invalid_value_message($selectors, "setElementToConvert", "html-to-image", "The string must not be empty.", "set_element_to_convert"), 470);
         
         $this->fields['element_to_convert'] = $selectors;
         return $this;
@@ -3070,7 +3265,7 @@ class HtmlToImageClient {
     */
     function setElementToConvertMode($mode) {
         if (!preg_match("/(?i)^(cut-out|remove-siblings|hide-siblings)$/", $mode))
-            throw new Error(create_invalid_value_message($mode, "mode", "html-to-image", "Allowed values are cut-out, remove-siblings, hide-siblings.", "set_element_to_convert_mode"), 470);
+            throw new Error(create_invalid_value_message($mode, "setElementToConvertMode", "html-to-image", "Allowed values are cut-out, remove-siblings, hide-siblings.", "set_element_to_convert_mode"), 470);
         
         $this->fields['element_to_convert_mode'] = $mode;
         return $this;
@@ -3084,7 +3279,7 @@ class HtmlToImageClient {
     */
     function setWaitForElement($selectors) {
         if (!($selectors != null && $selectors !== ''))
-            throw new Error(create_invalid_value_message($selectors, "selectors", "html-to-image", "The string must not be empty.", "set_wait_for_element"), 470);
+            throw new Error(create_invalid_value_message($selectors, "setWaitForElement", "html-to-image", "The string must not be empty.", "set_wait_for_element"), 470);
         
         $this->fields['wait_for_element'] = $selectors;
         return $this;
@@ -3093,53 +3288,67 @@ class HtmlToImageClient {
     /**
     * Set the output image width in pixels.
     *
-    * @param screenshot_width The value must be in the range 96-65000.
+    * @param width The value must be in the range 96-65000.
     * @return The converter object.
     */
-    function setScreenshotWidth($screenshot_width) {
-        if (!(intval($screenshot_width) >= 96 && intval($screenshot_width) <= 65000))
-            throw new Error(create_invalid_value_message($screenshot_width, "screenshot_width", "html-to-image", "The value must be in the range 96-65000.", "set_screenshot_width"), 470);
+    function setScreenshotWidth($width) {
+        if (!(intval($width) >= 96 && intval($width) <= 65000))
+            throw new Error(create_invalid_value_message($width, "setScreenshotWidth", "html-to-image", "The value must be in the range 96-65000.", "set_screenshot_width"), 470);
         
-        $this->fields['screenshot_width'] = $screenshot_width;
+        $this->fields['screenshot_width'] = $width;
         return $this;
     }
 
     /**
     * Set the output image height in pixels. If it is not specified, actual document height is used.
     *
-    * @param screenshot_height Must be a positive integer number.
+    * @param height Must be a positive integer number.
     * @return The converter object.
     */
-    function setScreenshotHeight($screenshot_height) {
-        if (!(intval($screenshot_height) > 0))
-            throw new Error(create_invalid_value_message($screenshot_height, "screenshot_height", "html-to-image", "Must be a positive integer number.", "set_screenshot_height"), 470);
+    function setScreenshotHeight($height) {
+        if (!(intval($height) > 0))
+            throw new Error(create_invalid_value_message($height, "setScreenshotHeight", "html-to-image", "Must be a positive integer number.", "set_screenshot_height"), 470);
         
-        $this->fields['screenshot_height'] = $screenshot_height;
+        $this->fields['screenshot_height'] = $height;
         return $this;
     }
 
     /**
     * Set the scaling factor (zoom) for the output image.
     *
-    * @param scale_factor The percentage value. Must be a positive integer number.
+    * @param factor The percentage value. Must be a positive integer number.
     * @return The converter object.
     */
-    function setScaleFactor($scale_factor) {
-        if (!(intval($scale_factor) > 0))
-            throw new Error(create_invalid_value_message($scale_factor, "scale_factor", "html-to-image", "Must be a positive integer number.", "set_scale_factor"), 470);
+    function setScaleFactor($factor) {
+        if (!(intval($factor) > 0))
+            throw new Error(create_invalid_value_message($factor, "setScaleFactor", "html-to-image", "Must be a positive integer number.", "set_scale_factor"), 470);
         
-        $this->fields['scale_factor'] = $scale_factor;
+        $this->fields['scale_factor'] = $factor;
+        return $this;
+    }
+
+    /**
+    * The output image background color.
+    *
+    * @param color The value must be in RRGGBB or RRGGBBAA hexadecimal format.
+    * @return The converter object.
+    */
+    function setBackgroundColor($color) {
+        if (!preg_match("/^[0-9a-fA-F]{6,8}$/", $color))
+            throw new Error(create_invalid_value_message($color, "setBackgroundColor", "html-to-image", "The value must be in RRGGBB or RRGGBBAA hexadecimal format.", "set_background_color"), 470);
+        
+        $this->fields['background_color'] = $color;
         return $this;
     }
 
     /**
     * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method or available in <a href='/user/account/log/conversion/'>conversion statistics</a>.
     *
-    * @param debug_log Set to <span class='field-value'>true</span> to enable the debug logging.
+    * @param value Set to <span class='field-value'>true</span> to enable the debug logging.
     * @return The converter object.
     */
-    function setDebugLog($debug_log) {
-        $this->fields['debug_log'] = $debug_log;
+    function setDebugLog($value) {
+        $this->fields['debug_log'] = $value;
         return $this;
     }
 
@@ -3187,6 +3396,14 @@ class HtmlToImageClient {
     }
 
     /**
+    * Get the version details.
+    * @return API version, converter version, and client version.
+    */
+    function getVersion() {
+        return 'client '.ConnectionHelper::CLIENT_VERSION.', API v2, converter '.$this->helper->getConverterVersion();
+    }
+
+    /**
     * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
     *
     * @param tag A string with the custom tag.
@@ -3200,53 +3417,67 @@ class HtmlToImageClient {
     /**
     * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
     *
-    * @param http_proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
     * @return The converter object.
     */
-    function setHttpProxy($http_proxy) {
-        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $http_proxy))
-            throw new Error(create_invalid_value_message($http_proxy, "http_proxy", "html-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
+    function setHttpProxy($proxy) {
+        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
+            throw new Error(create_invalid_value_message($proxy, "setHttpProxy", "html-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
         
-        $this->fields['http_proxy'] = $http_proxy;
+        $this->fields['http_proxy'] = $proxy;
         return $this;
     }
 
     /**
     * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
     *
-    * @param https_proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
     * @return The converter object.
     */
-    function setHttpsProxy($https_proxy) {
-        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $https_proxy))
-            throw new Error(create_invalid_value_message($https_proxy, "https_proxy", "html-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
+    function setHttpsProxy($proxy) {
+        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
+            throw new Error(create_invalid_value_message($proxy, "setHttpsProxy", "html-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
         
-        $this->fields['https_proxy'] = $https_proxy;
+        $this->fields['https_proxy'] = $proxy;
         return $this;
     }
 
     /**
     * A client certificate to authenticate Pdfcrowd converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security.
     *
-    * @param client_certificate The file must be in PKCS12 format. The file must exist and not be empty.
+    * @param certificate The file must be in PKCS12 format. The file must exist and not be empty.
     * @return The converter object.
     */
-    function setClientCertificate($client_certificate) {
-        if (!(filesize($client_certificate) > 0))
-            throw new Error(create_invalid_value_message($client_certificate, "client_certificate", "html-to-image", "The file must exist and not be empty.", "set_client_certificate"), 470);
+    function setClientCertificate($certificate) {
+        if (!(filesize($certificate) > 0))
+            throw new Error(create_invalid_value_message($certificate, "setClientCertificate", "html-to-image", "The file must exist and not be empty.", "set_client_certificate"), 470);
         
-        $this->files['client_certificate'] = $client_certificate;
+        $this->files['client_certificate'] = $certificate;
         return $this;
     }
 
     /**
     * A password for PKCS12 file with a client certificate if it is needed.
     *
-    * @param client_certificate_password
+    * @param password
     * @return The converter object.
     */
-    function setClientCertificatePassword($client_certificate_password) {
-        $this->fields['client_certificate_password'] = $client_certificate_password;
+    function setClientCertificatePassword($password) {
+        $this->fields['client_certificate_password'] = $password;
+        return $this;
+    }
+
+    /**
+    * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
+    *
+    * @param version The version identifier. Allowed values are latest, 20.10, 18.10.
+    * @return The converter object.
+    */
+    function setConverterVersion($version) {
+        if (!preg_match("/(?i)^(latest|20.10|18.10)$/", $version))
+            throw new Error(create_invalid_value_message($version, "setConverterVersion", "html-to-image", "Allowed values are latest, 20.10, 18.10.", "set_converter_version"), 470);
+        
+        $this->helper->setConverterVersion($version);
         return $this;
     }
 
@@ -3254,22 +3485,22 @@ class HtmlToImageClient {
     * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
     * Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
     *
-    * @param use_http Set to <span class='field-value'>true</span> to use HTTP.
+    * @param value Set to <span class='field-value'>true</span> to use HTTP.
     * @return The converter object.
     */
-    function setUseHttp($use_http) {
-        $this->helper->setUseHttp($use_http);
+    function setUseHttp($value) {
+        $this->helper->setUseHttp($value);
         return $this;
     }
 
     /**
     * Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
     *
-    * @param user_agent The user agent string.
+    * @param agent The user agent string.
     * @return The converter object.
     */
-    function setUserAgent($user_agent) {
-        $this->helper->setUserAgent($user_agent);
+    function setUserAgent($agent) {
+        $this->helper->setUserAgent($agent);
         return $this;
     }
 
@@ -3290,10 +3521,10 @@ class HtmlToImageClient {
     /**
     * Use cURL for the conversion request instead of the file_get_contents() PHP function.
     *
-    * @param use_curl Set to <span class='field-value'>true</span> to use PHP's cURL.
+    * @param value Set to <span class='field-value'>true</span> to use PHP's cURL.
     * @return The converter object.
     */
-    function setUseCurl($use_curl) {
+    function setUseCurl($value) {
         $this->helper->setUseCurl($use_curl);
         return $this;
     }
@@ -3301,11 +3532,11 @@ class HtmlToImageClient {
     /**
     * Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     *
-    * @param retry_count Number of retries wanted.
+    * @param count Number of retries wanted.
     * @return The converter object.
     */
-    function setRetryCount($retry_count) {
-        $this->helper->setRetryCount($retry_count);
+    function setRetryCount($count) {
+        $this->helper->setRetryCount($count);
         return $this;
     }
 
@@ -3340,7 +3571,7 @@ class ImageToImageClient {
     */
     function convertUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "url", "image-to-image", "The supported protocols are http:// and https://.", "convert_url"), 470);
+            throw new Error(create_invalid_value_message($url, "convertUrl", "image-to-image", "The supported protocols are http:// and https://.", "convert_url"), 470);
         
         $this->fields['url'] = $url;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
@@ -3354,7 +3585,7 @@ class ImageToImageClient {
     */
     function convertUrlToStream($url, $out_stream) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "url", "image-to-image", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
+            throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "image-to-image", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
         
         $this->fields['url'] = $url;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
@@ -3368,7 +3599,7 @@ class ImageToImageClient {
     */
     function convertUrlToFile($url, $file_path) {
         if (!($file_path != null && $file_path !== ''))
-            throw new Error(create_invalid_value_message($file_path, "file_path", "image-to-image", "The string must not be empty.", "convert_url_to_file"), 470);
+            throw new Error(create_invalid_value_message($file_path, "convertUrlToFile::file_path", "image-to-image", "The string must not be empty.", "convert_url_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
         if (!$output_file) {
@@ -3389,12 +3620,12 @@ class ImageToImageClient {
     /**
     * Convert a local file.
     *
-    * @param file The path to a local file to convert.<br> The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). The file must exist and not be empty.
+    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
     * @return Byte array containing the conversion output.
     */
     function convertFile($file) {
         if (!(filesize($file) > 0))
-            throw new Error(create_invalid_value_message($file, "file", "image-to-image", "The file must exist and not be empty.", "convert_file"), 470);
+            throw new Error(create_invalid_value_message($file, "convertFile", "image-to-image", "The file must exist and not be empty.", "convert_file"), 470);
         
         $this->files['file'] = $file;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
@@ -3403,12 +3634,12 @@ class ImageToImageClient {
     /**
     * Convert a local file and write the result to an output stream.
     *
-    * @param file The path to a local file to convert.<br> The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). The file must exist and not be empty.
+    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
     * @param out_stream The output stream that will contain the conversion output.
     */
     function convertFileToStream($file, $out_stream) {
         if (!(filesize($file) > 0))
-            throw new Error(create_invalid_value_message($file, "file", "image-to-image", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
+            throw new Error(create_invalid_value_message($file, "convertFileToStream::file", "image-to-image", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
         
         $this->files['file'] = $file;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
@@ -3417,12 +3648,12 @@ class ImageToImageClient {
     /**
     * Convert a local file and write the result to a local file.
     *
-    * @param file The path to a local file to convert.<br> The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). The file must exist and not be empty.
+    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
     * @param file_path The output file path. The string must not be empty.
     */
     function convertFileToFile($file, $file_path) {
         if (!($file_path != null && $file_path !== ''))
-            throw new Error(create_invalid_value_message($file_path, "file_path", "image-to-image", "The string must not be empty.", "convert_file_to_file"), 470);
+            throw new Error(create_invalid_value_message($file_path, "convertFileToFile::file_path", "image-to-image", "The string must not be empty.", "convert_file_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
         if (!$output_file) {
@@ -3470,7 +3701,7 @@ class ImageToImageClient {
     */
     function convertRawDataToFile($data, $file_path) {
         if (!($file_path != null && $file_path !== ''))
-            throw new Error(create_invalid_value_message($file_path, "file_path", "image-to-image", "The string must not be empty.", "convert_raw_data_to_file"), 470);
+            throw new Error(create_invalid_value_message($file_path, "convertRawDataToFile::file_path", "image-to-image", "The string must not be empty.", "convert_raw_data_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
         if (!$output_file) {
@@ -3496,7 +3727,7 @@ class ImageToImageClient {
     */
     function setOutputFormat($output_format) {
         if (!preg_match("/(?i)^(png|jpg|gif|tiff|bmp|ico|ppm|pgm|pbm|pnm|psb|pct|ras|tga|sgi|sun|webp)$/", $output_format))
-            throw new Error(create_invalid_value_message($output_format, "output_format", "image-to-image", "Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.", "set_output_format"), 470);
+            throw new Error(create_invalid_value_message($output_format, "setOutputFormat", "image-to-image", "Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.", "set_output_format"), 470);
         
         $this->fields['output_format'] = $output_format;
         return $this;
@@ -3527,11 +3758,11 @@ class ImageToImageClient {
     /**
     * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method or available in <a href='/user/account/log/conversion/'>conversion statistics</a>.
     *
-    * @param debug_log Set to <span class='field-value'>true</span> to enable the debug logging.
+    * @param value Set to <span class='field-value'>true</span> to enable the debug logging.
     * @return The converter object.
     */
-    function setDebugLog($debug_log) {
-        $this->fields['debug_log'] = $debug_log;
+    function setDebugLog($value) {
+        $this->fields['debug_log'] = $value;
         return $this;
     }
 
@@ -3579,6 +3810,14 @@ class ImageToImageClient {
     }
 
     /**
+    * Get the version details.
+    * @return API version, converter version, and client version.
+    */
+    function getVersion() {
+        return 'client '.ConnectionHelper::CLIENT_VERSION.', API v2, converter '.$this->helper->getConverterVersion();
+    }
+
+    /**
     * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
     *
     * @param tag A string with the custom tag.
@@ -3592,28 +3831,42 @@ class ImageToImageClient {
     /**
     * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
     *
-    * @param http_proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
     * @return The converter object.
     */
-    function setHttpProxy($http_proxy) {
-        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $http_proxy))
-            throw new Error(create_invalid_value_message($http_proxy, "http_proxy", "image-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
+    function setHttpProxy($proxy) {
+        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
+            throw new Error(create_invalid_value_message($proxy, "setHttpProxy", "image-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
         
-        $this->fields['http_proxy'] = $http_proxy;
+        $this->fields['http_proxy'] = $proxy;
         return $this;
     }
 
     /**
     * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
     *
-    * @param https_proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
     * @return The converter object.
     */
-    function setHttpsProxy($https_proxy) {
-        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $https_proxy))
-            throw new Error(create_invalid_value_message($https_proxy, "https_proxy", "image-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
+    function setHttpsProxy($proxy) {
+        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
+            throw new Error(create_invalid_value_message($proxy, "setHttpsProxy", "image-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
         
-        $this->fields['https_proxy'] = $https_proxy;
+        $this->fields['https_proxy'] = $proxy;
+        return $this;
+    }
+
+    /**
+    * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
+    *
+    * @param version The version identifier. Allowed values are latest, 20.10, 18.10.
+    * @return The converter object.
+    */
+    function setConverterVersion($version) {
+        if (!preg_match("/(?i)^(latest|20.10|18.10)$/", $version))
+            throw new Error(create_invalid_value_message($version, "setConverterVersion", "image-to-image", "Allowed values are latest, 20.10, 18.10.", "set_converter_version"), 470);
+        
+        $this->helper->setConverterVersion($version);
         return $this;
     }
 
@@ -3621,22 +3874,22 @@ class ImageToImageClient {
     * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
     * Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
     *
-    * @param use_http Set to <span class='field-value'>true</span> to use HTTP.
+    * @param value Set to <span class='field-value'>true</span> to use HTTP.
     * @return The converter object.
     */
-    function setUseHttp($use_http) {
-        $this->helper->setUseHttp($use_http);
+    function setUseHttp($value) {
+        $this->helper->setUseHttp($value);
         return $this;
     }
 
     /**
     * Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
     *
-    * @param user_agent The user agent string.
+    * @param agent The user agent string.
     * @return The converter object.
     */
-    function setUserAgent($user_agent) {
-        $this->helper->setUserAgent($user_agent);
+    function setUserAgent($agent) {
+        $this->helper->setUserAgent($agent);
         return $this;
     }
 
@@ -3657,10 +3910,10 @@ class ImageToImageClient {
     /**
     * Use cURL for the conversion request instead of the file_get_contents() PHP function.
     *
-    * @param use_curl Set to <span class='field-value'>true</span> to use PHP's cURL.
+    * @param value Set to <span class='field-value'>true</span> to use PHP's cURL.
     * @return The converter object.
     */
-    function setUseCurl($use_curl) {
+    function setUseCurl($value) {
         $this->helper->setUseCurl($use_curl);
         return $this;
     }
@@ -3668,11 +3921,11 @@ class ImageToImageClient {
     /**
     * Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     *
-    * @param retry_count Number of retries wanted.
+    * @param count Number of retries wanted.
     * @return The converter object.
     */
-    function setRetryCount($retry_count) {
-        $this->helper->setRetryCount($retry_count);
+    function setRetryCount($count) {
+        $this->helper->setRetryCount($count);
         return $this;
     }
 
@@ -3707,7 +3960,7 @@ class PdfToPdfClient {
     */
     function setAction($action) {
         if (!preg_match("/(?i)^(join|shuffle)$/", $action))
-            throw new Error(create_invalid_value_message($action, "action", "pdf-to-pdf", "Allowed values are join, shuffle.", "set_action"), 470);
+            throw new Error(create_invalid_value_message($action, "setAction", "pdf-to-pdf", "Allowed values are join, shuffle.", "set_action"), 470);
         
         $this->fields['action'] = $action;
         return $this;
@@ -3737,7 +3990,7 @@ class PdfToPdfClient {
     */
     function convertToFile($file_path) {
         if (!($file_path != null && $file_path !== ''))
-            throw new Error(create_invalid_value_message($file_path, "file_path", "pdf-to-pdf", "The string must not be empty.", "convert_to_file"), 470);
+            throw new Error(create_invalid_value_message($file_path, "convertToFile", "pdf-to-pdf", "The string must not be empty.", "convert_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
         $this->convertToStream($output_file);
@@ -3752,7 +4005,7 @@ class PdfToPdfClient {
     */
     function addPdfFile($file_path) {
         if (!(filesize($file_path) > 0))
-            throw new Error(create_invalid_value_message($file_path, "file_path", "pdf-to-pdf", "The file must exist and not be empty.", "add_pdf_file"), 470);
+            throw new Error(create_invalid_value_message($file_path, "addPdfFile", "pdf-to-pdf", "The file must exist and not be empty.", "add_pdf_file"), 470);
         
         $this->files['f_' . $this->file_id] = $file_path;
         $this->file_id++;
@@ -3762,14 +4015,14 @@ class PdfToPdfClient {
     /**
     * Add in-memory raw PDF data to the list of the input PDFs.<br>Typical usage is for adding PDF created by another Pdfcrowd converter.<br><br> Example in PHP:<br> <b>$clientPdf2Pdf</b>-&gt;addPdfRawData(<b>$clientHtml2Pdf</b>-&gt;convertUrl('http://www.example.com'));
     *
-    * @param pdf_raw_data The raw PDF data. The input data must be PDF content.
+    * @param data The raw PDF data. The input data must be PDF content.
     * @return The converter object.
     */
-    function addPdfRawData($pdf_raw_data) {
-        if (!($pdf_raw_data != null && strlen($pdf_raw_data) > 300 && substr($pdf_raw_data, 0, 4) == '%PDF'))
-            throw new Error(create_invalid_value_message("raw PDF data", "pdf_raw_data", "pdf-to-pdf", "The input data must be PDF content.", "add_pdf_raw_data"), 470);
+    function addPdfRawData($data) {
+        if (!($data != null && strlen($data) > 300 && substr($data, 0, 4) == '%PDF'))
+            throw new Error(create_invalid_value_message("raw PDF data", "addPdfRawData", "pdf-to-pdf", "The input data must be PDF content.", "add_pdf_raw_data"), 470);
         
-        $this->raw_data['f_' . $this->file_id] = $pdf_raw_data;
+        $this->raw_data['f_' . $this->file_id] = $data;
         $this->file_id++;
         return $this;
     }
@@ -3777,347 +4030,347 @@ class PdfToPdfClient {
     /**
     * Apply the first page of the watermark PDF to every page of the output PDF.
     *
-    * @param page_watermark The file path to a local watermark PDF file. The file must exist and not be empty.
+    * @param watermark The file path to a local watermark PDF file. The file must exist and not be empty.
     * @return The converter object.
     */
-    function setPageWatermark($page_watermark) {
-        if (!(filesize($page_watermark) > 0))
-            throw new Error(create_invalid_value_message($page_watermark, "page_watermark", "pdf-to-pdf", "The file must exist and not be empty.", "set_page_watermark"), 470);
+    function setPageWatermark($watermark) {
+        if (!(filesize($watermark) > 0))
+            throw new Error(create_invalid_value_message($watermark, "setPageWatermark", "pdf-to-pdf", "The file must exist and not be empty.", "set_page_watermark"), 470);
         
-        $this->files['page_watermark'] = $page_watermark;
+        $this->files['page_watermark'] = $watermark;
         return $this;
     }
 
     /**
     * Load a watermark PDF from the specified URL and apply the first page of the watermark PDF to every page of the output PDF.
     *
-    * @param page_watermark_url The supported protocols are http:// and https://.
+    * @param url The supported protocols are http:// and https://.
     * @return The converter object.
     */
-    function setPageWatermarkUrl($page_watermark_url) {
-        if (!preg_match("/(?i)^https?:\/\/.*$/", $page_watermark_url))
-            throw new Error(create_invalid_value_message($page_watermark_url, "page_watermark_url", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_page_watermark_url"), 470);
+    function setPageWatermarkUrl($url) {
+        if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
+            throw new Error(create_invalid_value_message($url, "setPageWatermarkUrl", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_page_watermark_url"), 470);
         
-        $this->fields['page_watermark_url'] = $page_watermark_url;
+        $this->fields['page_watermark_url'] = $url;
         return $this;
     }
 
     /**
     * Apply each page of the specified watermark PDF to the corresponding page of the output PDF.
     *
-    * @param multipage_watermark The file path to a local watermark PDF file. The file must exist and not be empty.
+    * @param watermark The file path to a local watermark PDF file. The file must exist and not be empty.
     * @return The converter object.
     */
-    function setMultipageWatermark($multipage_watermark) {
-        if (!(filesize($multipage_watermark) > 0))
-            throw new Error(create_invalid_value_message($multipage_watermark, "multipage_watermark", "pdf-to-pdf", "The file must exist and not be empty.", "set_multipage_watermark"), 470);
+    function setMultipageWatermark($watermark) {
+        if (!(filesize($watermark) > 0))
+            throw new Error(create_invalid_value_message($watermark, "setMultipageWatermark", "pdf-to-pdf", "The file must exist and not be empty.", "set_multipage_watermark"), 470);
         
-        $this->files['multipage_watermark'] = $multipage_watermark;
+        $this->files['multipage_watermark'] = $watermark;
         return $this;
     }
 
     /**
     * Load a watermark PDF from the specified URL and apply each page of the specified watermark PDF to the corresponding page of the output PDF.
     *
-    * @param multipage_watermark_url The supported protocols are http:// and https://.
+    * @param url The supported protocols are http:// and https://.
     * @return The converter object.
     */
-    function setMultipageWatermarkUrl($multipage_watermark_url) {
-        if (!preg_match("/(?i)^https?:\/\/.*$/", $multipage_watermark_url))
-            throw new Error(create_invalid_value_message($multipage_watermark_url, "multipage_watermark_url", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_watermark_url"), 470);
+    function setMultipageWatermarkUrl($url) {
+        if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
+            throw new Error(create_invalid_value_message($url, "setMultipageWatermarkUrl", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_watermark_url"), 470);
         
-        $this->fields['multipage_watermark_url'] = $multipage_watermark_url;
+        $this->fields['multipage_watermark_url'] = $url;
         return $this;
     }
 
     /**
     * Apply the first page of the specified PDF to the background of every page of the output PDF.
     *
-    * @param page_background The file path to a local background PDF file. The file must exist and not be empty.
+    * @param background The file path to a local background PDF file. The file must exist and not be empty.
     * @return The converter object.
     */
-    function setPageBackground($page_background) {
-        if (!(filesize($page_background) > 0))
-            throw new Error(create_invalid_value_message($page_background, "page_background", "pdf-to-pdf", "The file must exist and not be empty.", "set_page_background"), 470);
+    function setPageBackground($background) {
+        if (!(filesize($background) > 0))
+            throw new Error(create_invalid_value_message($background, "setPageBackground", "pdf-to-pdf", "The file must exist and not be empty.", "set_page_background"), 470);
         
-        $this->files['page_background'] = $page_background;
+        $this->files['page_background'] = $background;
         return $this;
     }
 
     /**
     * Load a background PDF from the specified URL and apply the first page of the background PDF to every page of the output PDF.
     *
-    * @param page_background_url The supported protocols are http:// and https://.
+    * @param url The supported protocols are http:// and https://.
     * @return The converter object.
     */
-    function setPageBackgroundUrl($page_background_url) {
-        if (!preg_match("/(?i)^https?:\/\/.*$/", $page_background_url))
-            throw new Error(create_invalid_value_message($page_background_url, "page_background_url", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_page_background_url"), 470);
+    function setPageBackgroundUrl($url) {
+        if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
+            throw new Error(create_invalid_value_message($url, "setPageBackgroundUrl", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_page_background_url"), 470);
         
-        $this->fields['page_background_url'] = $page_background_url;
+        $this->fields['page_background_url'] = $url;
         return $this;
     }
 
     /**
     * Apply each page of the specified PDF to the background of the corresponding page of the output PDF.
     *
-    * @param multipage_background The file path to a local background PDF file. The file must exist and not be empty.
+    * @param background The file path to a local background PDF file. The file must exist and not be empty.
     * @return The converter object.
     */
-    function setMultipageBackground($multipage_background) {
-        if (!(filesize($multipage_background) > 0))
-            throw new Error(create_invalid_value_message($multipage_background, "multipage_background", "pdf-to-pdf", "The file must exist and not be empty.", "set_multipage_background"), 470);
+    function setMultipageBackground($background) {
+        if (!(filesize($background) > 0))
+            throw new Error(create_invalid_value_message($background, "setMultipageBackground", "pdf-to-pdf", "The file must exist and not be empty.", "set_multipage_background"), 470);
         
-        $this->files['multipage_background'] = $multipage_background;
+        $this->files['multipage_background'] = $background;
         return $this;
     }
 
     /**
     * Load a background PDF from the specified URL and apply each page of the specified background PDF to the corresponding page of the output PDF.
     *
-    * @param multipage_background_url The supported protocols are http:// and https://.
+    * @param url The supported protocols are http:// and https://.
     * @return The converter object.
     */
-    function setMultipageBackgroundUrl($multipage_background_url) {
-        if (!preg_match("/(?i)^https?:\/\/.*$/", $multipage_background_url))
-            throw new Error(create_invalid_value_message($multipage_background_url, "multipage_background_url", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_background_url"), 470);
+    function setMultipageBackgroundUrl($url) {
+        if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
+            throw new Error(create_invalid_value_message($url, "setMultipageBackgroundUrl", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_background_url"), 470);
         
-        $this->fields['multipage_background_url'] = $multipage_background_url;
+        $this->fields['multipage_background_url'] = $url;
         return $this;
     }
 
     /**
     * Create linearized PDF. This is also known as Fast Web View.
     *
-    * @param linearize Set to <span class='field-value'>true</span> to create linearized PDF.
+    * @param value Set to <span class='field-value'>true</span> to create linearized PDF.
     * @return The converter object.
     */
-    function setLinearize($linearize) {
-        $this->fields['linearize'] = $linearize;
+    function setLinearize($value) {
+        $this->fields['linearize'] = $value;
         return $this;
     }
 
     /**
     * Encrypt the PDF. This prevents search engines from indexing the contents.
     *
-    * @param encrypt Set to <span class='field-value'>true</span> to enable PDF encryption.
+    * @param value Set to <span class='field-value'>true</span> to enable PDF encryption.
     * @return The converter object.
     */
-    function setEncrypt($encrypt) {
-        $this->fields['encrypt'] = $encrypt;
+    function setEncrypt($value) {
+        $this->fields['encrypt'] = $value;
         return $this;
     }
 
     /**
     * Protect the PDF with a user password. When a PDF has a user password, it must be supplied in order to view the document and to perform operations allowed by the access permissions.
     *
-    * @param user_password The user password.
+    * @param password The user password.
     * @return The converter object.
     */
-    function setUserPassword($user_password) {
-        $this->fields['user_password'] = $user_password;
+    function setUserPassword($password) {
+        $this->fields['user_password'] = $password;
         return $this;
     }
 
     /**
     * Protect the PDF with an owner password.  Supplying an owner password grants unlimited access to the PDF including changing the passwords and access permissions.
     *
-    * @param owner_password The owner password.
+    * @param password The owner password.
     * @return The converter object.
     */
-    function setOwnerPassword($owner_password) {
-        $this->fields['owner_password'] = $owner_password;
+    function setOwnerPassword($password) {
+        $this->fields['owner_password'] = $password;
         return $this;
     }
 
     /**
     * Disallow printing of the output PDF.
     *
-    * @param no_print Set to <span class='field-value'>true</span> to set the no-print flag in the output PDF.
+    * @param value Set to <span class='field-value'>true</span> to set the no-print flag in the output PDF.
     * @return The converter object.
     */
-    function setNoPrint($no_print) {
-        $this->fields['no_print'] = $no_print;
+    function setNoPrint($value) {
+        $this->fields['no_print'] = $value;
         return $this;
     }
 
     /**
     * Disallow modification of the output PDF.
     *
-    * @param no_modify Set to <span class='field-value'>true</span> to set the read-only only flag in the output PDF.
+    * @param value Set to <span class='field-value'>true</span> to set the read-only only flag in the output PDF.
     * @return The converter object.
     */
-    function setNoModify($no_modify) {
-        $this->fields['no_modify'] = $no_modify;
+    function setNoModify($value) {
+        $this->fields['no_modify'] = $value;
         return $this;
     }
 
     /**
     * Disallow text and graphics extraction from the output PDF.
     *
-    * @param no_copy Set to <span class='field-value'>true</span> to set the no-copy flag in the output PDF.
+    * @param value Set to <span class='field-value'>true</span> to set the no-copy flag in the output PDF.
     * @return The converter object.
     */
-    function setNoCopy($no_copy) {
-        $this->fields['no_copy'] = $no_copy;
+    function setNoCopy($value) {
+        $this->fields['no_copy'] = $value;
         return $this;
     }
 
     /**
     * Specify the page layout to be used when the document is opened.
     *
-    * @param page_layout Allowed values are single-page, one-column, two-column-left, two-column-right.
+    * @param layout Allowed values are single-page, one-column, two-column-left, two-column-right.
     * @return The converter object.
     */
-    function setPageLayout($page_layout) {
-        if (!preg_match("/(?i)^(single-page|one-column|two-column-left|two-column-right)$/", $page_layout))
-            throw new Error(create_invalid_value_message($page_layout, "page_layout", "pdf-to-pdf", "Allowed values are single-page, one-column, two-column-left, two-column-right.", "set_page_layout"), 470);
+    function setPageLayout($layout) {
+        if (!preg_match("/(?i)^(single-page|one-column|two-column-left|two-column-right)$/", $layout))
+            throw new Error(create_invalid_value_message($layout, "setPageLayout", "pdf-to-pdf", "Allowed values are single-page, one-column, two-column-left, two-column-right.", "set_page_layout"), 470);
         
-        $this->fields['page_layout'] = $page_layout;
+        $this->fields['page_layout'] = $layout;
         return $this;
     }
 
     /**
     * Specify how the document should be displayed when opened.
     *
-    * @param page_mode Allowed values are full-screen, thumbnails, outlines.
+    * @param mode Allowed values are full-screen, thumbnails, outlines.
     * @return The converter object.
     */
-    function setPageMode($page_mode) {
-        if (!preg_match("/(?i)^(full-screen|thumbnails|outlines)$/", $page_mode))
-            throw new Error(create_invalid_value_message($page_mode, "page_mode", "pdf-to-pdf", "Allowed values are full-screen, thumbnails, outlines.", "set_page_mode"), 470);
+    function setPageMode($mode) {
+        if (!preg_match("/(?i)^(full-screen|thumbnails|outlines)$/", $mode))
+            throw new Error(create_invalid_value_message($mode, "setPageMode", "pdf-to-pdf", "Allowed values are full-screen, thumbnails, outlines.", "set_page_mode"), 470);
         
-        $this->fields['page_mode'] = $page_mode;
+        $this->fields['page_mode'] = $mode;
         return $this;
     }
 
     /**
     * Specify how the page should be displayed when opened.
     *
-    * @param initial_zoom_type Allowed values are fit-width, fit-height, fit-page.
+    * @param zoom_type Allowed values are fit-width, fit-height, fit-page.
     * @return The converter object.
     */
-    function setInitialZoomType($initial_zoom_type) {
-        if (!preg_match("/(?i)^(fit-width|fit-height|fit-page)$/", $initial_zoom_type))
-            throw new Error(create_invalid_value_message($initial_zoom_type, "initial_zoom_type", "pdf-to-pdf", "Allowed values are fit-width, fit-height, fit-page.", "set_initial_zoom_type"), 470);
+    function setInitialZoomType($zoom_type) {
+        if (!preg_match("/(?i)^(fit-width|fit-height|fit-page)$/", $zoom_type))
+            throw new Error(create_invalid_value_message($zoom_type, "setInitialZoomType", "pdf-to-pdf", "Allowed values are fit-width, fit-height, fit-page.", "set_initial_zoom_type"), 470);
         
-        $this->fields['initial_zoom_type'] = $initial_zoom_type;
+        $this->fields['initial_zoom_type'] = $zoom_type;
         return $this;
     }
 
     /**
     * Display the specified page when the document is opened.
     *
-    * @param initial_page Must be a positive integer number.
+    * @param page Must be a positive integer number.
     * @return The converter object.
     */
-    function setInitialPage($initial_page) {
-        if (!(intval($initial_page) > 0))
-            throw new Error(create_invalid_value_message($initial_page, "initial_page", "pdf-to-pdf", "Must be a positive integer number.", "set_initial_page"), 470);
+    function setInitialPage($page) {
+        if (!(intval($page) > 0))
+            throw new Error(create_invalid_value_message($page, "setInitialPage", "pdf-to-pdf", "Must be a positive integer number.", "set_initial_page"), 470);
         
-        $this->fields['initial_page'] = $initial_page;
+        $this->fields['initial_page'] = $page;
         return $this;
     }
 
     /**
     * Specify the initial page zoom in percents when the document is opened.
     *
-    * @param initial_zoom Must be a positive integer number.
+    * @param zoom Must be a positive integer number.
     * @return The converter object.
     */
-    function setInitialZoom($initial_zoom) {
-        if (!(intval($initial_zoom) > 0))
-            throw new Error(create_invalid_value_message($initial_zoom, "initial_zoom", "pdf-to-pdf", "Must be a positive integer number.", "set_initial_zoom"), 470);
+    function setInitialZoom($zoom) {
+        if (!(intval($zoom) > 0))
+            throw new Error(create_invalid_value_message($zoom, "setInitialZoom", "pdf-to-pdf", "Must be a positive integer number.", "set_initial_zoom"), 470);
         
-        $this->fields['initial_zoom'] = $initial_zoom;
+        $this->fields['initial_zoom'] = $zoom;
         return $this;
     }
 
     /**
     * Specify whether to hide the viewer application's tool bars when the document is active.
     *
-    * @param hide_toolbar Set to <span class='field-value'>true</span> to hide tool bars.
+    * @param value Set to <span class='field-value'>true</span> to hide tool bars.
     * @return The converter object.
     */
-    function setHideToolbar($hide_toolbar) {
-        $this->fields['hide_toolbar'] = $hide_toolbar;
+    function setHideToolbar($value) {
+        $this->fields['hide_toolbar'] = $value;
         return $this;
     }
 
     /**
     * Specify whether to hide the viewer application's menu bar when the document is active.
     *
-    * @param hide_menubar Set to <span class='field-value'>true</span> to hide the menu bar.
+    * @param value Set to <span class='field-value'>true</span> to hide the menu bar.
     * @return The converter object.
     */
-    function setHideMenubar($hide_menubar) {
-        $this->fields['hide_menubar'] = $hide_menubar;
+    function setHideMenubar($value) {
+        $this->fields['hide_menubar'] = $value;
         return $this;
     }
 
     /**
     * Specify whether to hide user interface elements in the document's window (such as scroll bars and navigation controls), leaving only the document's contents displayed.
     *
-    * @param hide_window_ui Set to <span class='field-value'>true</span> to hide ui elements.
+    * @param value Set to <span class='field-value'>true</span> to hide ui elements.
     * @return The converter object.
     */
-    function setHideWindowUi($hide_window_ui) {
-        $this->fields['hide_window_ui'] = $hide_window_ui;
+    function setHideWindowUi($value) {
+        $this->fields['hide_window_ui'] = $value;
         return $this;
     }
 
     /**
     * Specify whether to resize the document's window to fit the size of the first displayed page.
     *
-    * @param fit_window Set to <span class='field-value'>true</span> to resize the window.
+    * @param value Set to <span class='field-value'>true</span> to resize the window.
     * @return The converter object.
     */
-    function setFitWindow($fit_window) {
-        $this->fields['fit_window'] = $fit_window;
+    function setFitWindow($value) {
+        $this->fields['fit_window'] = $value;
         return $this;
     }
 
     /**
     * Specify whether to position the document's window in the center of the screen.
     *
-    * @param center_window Set to <span class='field-value'>true</span> to center the window.
+    * @param value Set to <span class='field-value'>true</span> to center the window.
     * @return The converter object.
     */
-    function setCenterWindow($center_window) {
-        $this->fields['center_window'] = $center_window;
+    function setCenterWindow($value) {
+        $this->fields['center_window'] = $value;
         return $this;
     }
 
     /**
     * Specify whether the window's title bar should display the document title. If false , the title bar should instead display the name of the PDF file containing the document.
     *
-    * @param display_title Set to <span class='field-value'>true</span> to display the title.
+    * @param value Set to <span class='field-value'>true</span> to display the title.
     * @return The converter object.
     */
-    function setDisplayTitle($display_title) {
-        $this->fields['display_title'] = $display_title;
+    function setDisplayTitle($value) {
+        $this->fields['display_title'] = $value;
         return $this;
     }
 
     /**
     * Set the predominant reading order for text to right-to-left. This option has no direct effect on the document's contents or page numbering but can be used to determine the relative positioning of pages when displayed side by side or printed n-up
     *
-    * @param right_to_left Set to <span class='field-value'>true</span> to set right-to-left reading order.
+    * @param value Set to <span class='field-value'>true</span> to set right-to-left reading order.
     * @return The converter object.
     */
-    function setRightToLeft($right_to_left) {
-        $this->fields['right_to_left'] = $right_to_left;
+    function setRightToLeft($value) {
+        $this->fields['right_to_left'] = $value;
         return $this;
     }
 
     /**
     * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method or available in <a href='/user/account/log/conversion/'>conversion statistics</a>.
     *
-    * @param debug_log Set to <span class='field-value'>true</span> to enable the debug logging.
+    * @param value Set to <span class='field-value'>true</span> to enable the debug logging.
     * @return The converter object.
     */
-    function setDebugLog($debug_log) {
-        $this->fields['debug_log'] = $debug_log;
+    function setDebugLog($value) {
+        $this->fields['debug_log'] = $value;
         return $this;
     }
 
@@ -4173,6 +4426,14 @@ class PdfToPdfClient {
     }
 
     /**
+    * Get the version details.
+    * @return API version, converter version, and client version.
+    */
+    function getVersion() {
+        return 'client '.ConnectionHelper::CLIENT_VERSION.', API v2, converter '.$this->helper->getConverterVersion();
+    }
+
+    /**
     * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
     *
     * @param tag A string with the custom tag.
@@ -4184,25 +4445,39 @@ class PdfToPdfClient {
     }
 
     /**
+    * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
+    *
+    * @param version The version identifier. Allowed values are latest, 20.10, 18.10.
+    * @return The converter object.
+    */
+    function setConverterVersion($version) {
+        if (!preg_match("/(?i)^(latest|20.10|18.10)$/", $version))
+            throw new Error(create_invalid_value_message($version, "setConverterVersion", "pdf-to-pdf", "Allowed values are latest, 20.10, 18.10.", "set_converter_version"), 470);
+        
+        $this->helper->setConverterVersion($version);
+        return $this;
+    }
+
+    /**
     * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
     * Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
     *
-    * @param use_http Set to <span class='field-value'>true</span> to use HTTP.
+    * @param value Set to <span class='field-value'>true</span> to use HTTP.
     * @return The converter object.
     */
-    function setUseHttp($use_http) {
-        $this->helper->setUseHttp($use_http);
+    function setUseHttp($value) {
+        $this->helper->setUseHttp($value);
         return $this;
     }
 
     /**
     * Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
     *
-    * @param user_agent The user agent string.
+    * @param agent The user agent string.
     * @return The converter object.
     */
-    function setUserAgent($user_agent) {
-        $this->helper->setUserAgent($user_agent);
+    function setUserAgent($agent) {
+        $this->helper->setUserAgent($agent);
         return $this;
     }
 
@@ -4223,10 +4498,10 @@ class PdfToPdfClient {
     /**
     * Use cURL for the conversion request instead of the file_get_contents() PHP function.
     *
-    * @param use_curl Set to <span class='field-value'>true</span> to use PHP's cURL.
+    * @param value Set to <span class='field-value'>true</span> to use PHP's cURL.
     * @return The converter object.
     */
-    function setUseCurl($use_curl) {
+    function setUseCurl($value) {
         $this->helper->setUseCurl($use_curl);
         return $this;
     }
@@ -4234,11 +4509,11 @@ class PdfToPdfClient {
     /**
     * Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     *
-    * @param retry_count Number of retries wanted.
+    * @param count Number of retries wanted.
     * @return The converter object.
     */
-    function setRetryCount($retry_count) {
-        $this->helper->setRetryCount($retry_count);
+    function setRetryCount($count) {
+        $this->helper->setRetryCount($count);
         return $this;
     }
 
@@ -4273,7 +4548,7 @@ class ImageToPdfClient {
     */
     function convertUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "url", "image-to-pdf", "The supported protocols are http:// and https://.", "convert_url"), 470);
+            throw new Error(create_invalid_value_message($url, "convertUrl", "image-to-pdf", "The supported protocols are http:// and https://.", "convert_url"), 470);
         
         $this->fields['url'] = $url;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
@@ -4287,7 +4562,7 @@ class ImageToPdfClient {
     */
     function convertUrlToStream($url, $out_stream) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "url", "image-to-pdf", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
+            throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "image-to-pdf", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
         
         $this->fields['url'] = $url;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
@@ -4301,7 +4576,7 @@ class ImageToPdfClient {
     */
     function convertUrlToFile($url, $file_path) {
         if (!($file_path != null && $file_path !== ''))
-            throw new Error(create_invalid_value_message($file_path, "file_path", "image-to-pdf", "The string must not be empty.", "convert_url_to_file"), 470);
+            throw new Error(create_invalid_value_message($file_path, "convertUrlToFile::file_path", "image-to-pdf", "The string must not be empty.", "convert_url_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
         if (!$output_file) {
@@ -4322,12 +4597,12 @@ class ImageToPdfClient {
     /**
     * Convert a local file.
     *
-    * @param file The path to a local file to convert.<br> The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). The file must exist and not be empty.
+    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
     * @return Byte array containing the conversion output.
     */
     function convertFile($file) {
         if (!(filesize($file) > 0))
-            throw new Error(create_invalid_value_message($file, "file", "image-to-pdf", "The file must exist and not be empty.", "convert_file"), 470);
+            throw new Error(create_invalid_value_message($file, "convertFile", "image-to-pdf", "The file must exist and not be empty.", "convert_file"), 470);
         
         $this->files['file'] = $file;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
@@ -4336,12 +4611,12 @@ class ImageToPdfClient {
     /**
     * Convert a local file and write the result to an output stream.
     *
-    * @param file The path to a local file to convert.<br> The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). The file must exist and not be empty.
+    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
     * @param out_stream The output stream that will contain the conversion output.
     */
     function convertFileToStream($file, $out_stream) {
         if (!(filesize($file) > 0))
-            throw new Error(create_invalid_value_message($file, "file", "image-to-pdf", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
+            throw new Error(create_invalid_value_message($file, "convertFileToStream::file", "image-to-pdf", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
         
         $this->files['file'] = $file;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
@@ -4350,12 +4625,12 @@ class ImageToPdfClient {
     /**
     * Convert a local file and write the result to a local file.
     *
-    * @param file The path to a local file to convert.<br> The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). The file must exist and not be empty.
+    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
     * @param file_path The output file path. The string must not be empty.
     */
     function convertFileToFile($file, $file_path) {
         if (!($file_path != null && $file_path !== ''))
-            throw new Error(create_invalid_value_message($file_path, "file_path", "image-to-pdf", "The string must not be empty.", "convert_file_to_file"), 470);
+            throw new Error(create_invalid_value_message($file_path, "convertFileToFile::file_path", "image-to-pdf", "The string must not be empty.", "convert_file_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
         if (!$output_file) {
@@ -4403,7 +4678,7 @@ class ImageToPdfClient {
     */
     function convertRawDataToFile($data, $file_path) {
         if (!($file_path != null && $file_path !== ''))
-            throw new Error(create_invalid_value_message($file_path, "file_path", "image-to-pdf", "The string must not be empty.", "convert_raw_data_to_file"), 470);
+            throw new Error(create_invalid_value_message($file_path, "convertRawDataToFile::file_path", "image-to-pdf", "The string must not be empty.", "convert_raw_data_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
         if (!$output_file) {
@@ -4446,11 +4721,11 @@ class ImageToPdfClient {
     /**
     * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method or available in <a href='/user/account/log/conversion/'>conversion statistics</a>.
     *
-    * @param debug_log Set to <span class='field-value'>true</span> to enable the debug logging.
+    * @param value Set to <span class='field-value'>true</span> to enable the debug logging.
     * @return The converter object.
     */
-    function setDebugLog($debug_log) {
-        $this->fields['debug_log'] = $debug_log;
+    function setDebugLog($value) {
+        $this->fields['debug_log'] = $value;
         return $this;
     }
 
@@ -4498,6 +4773,14 @@ class ImageToPdfClient {
     }
 
     /**
+    * Get the version details.
+    * @return API version, converter version, and client version.
+    */
+    function getVersion() {
+        return 'client '.ConnectionHelper::CLIENT_VERSION.', API v2, converter '.$this->helper->getConverterVersion();
+    }
+
+    /**
     * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
     *
     * @param tag A string with the custom tag.
@@ -4511,28 +4794,42 @@ class ImageToPdfClient {
     /**
     * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
     *
-    * @param http_proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
     * @return The converter object.
     */
-    function setHttpProxy($http_proxy) {
-        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $http_proxy))
-            throw new Error(create_invalid_value_message($http_proxy, "http_proxy", "image-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
+    function setHttpProxy($proxy) {
+        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
+            throw new Error(create_invalid_value_message($proxy, "setHttpProxy", "image-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
         
-        $this->fields['http_proxy'] = $http_proxy;
+        $this->fields['http_proxy'] = $proxy;
         return $this;
     }
 
     /**
     * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
     *
-    * @param https_proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
     * @return The converter object.
     */
-    function setHttpsProxy($https_proxy) {
-        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $https_proxy))
-            throw new Error(create_invalid_value_message($https_proxy, "https_proxy", "image-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
+    function setHttpsProxy($proxy) {
+        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
+            throw new Error(create_invalid_value_message($proxy, "setHttpsProxy", "image-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
         
-        $this->fields['https_proxy'] = $https_proxy;
+        $this->fields['https_proxy'] = $proxy;
+        return $this;
+    }
+
+    /**
+    * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
+    *
+    * @param version The version identifier. Allowed values are latest, 20.10, 18.10.
+    * @return The converter object.
+    */
+    function setConverterVersion($version) {
+        if (!preg_match("/(?i)^(latest|20.10|18.10)$/", $version))
+            throw new Error(create_invalid_value_message($version, "setConverterVersion", "image-to-pdf", "Allowed values are latest, 20.10, 18.10.", "set_converter_version"), 470);
+        
+        $this->helper->setConverterVersion($version);
         return $this;
     }
 
@@ -4540,22 +4837,22 @@ class ImageToPdfClient {
     * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
     * Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
     *
-    * @param use_http Set to <span class='field-value'>true</span> to use HTTP.
+    * @param value Set to <span class='field-value'>true</span> to use HTTP.
     * @return The converter object.
     */
-    function setUseHttp($use_http) {
-        $this->helper->setUseHttp($use_http);
+    function setUseHttp($value) {
+        $this->helper->setUseHttp($value);
         return $this;
     }
 
     /**
     * Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
     *
-    * @param user_agent The user agent string.
+    * @param agent The user agent string.
     * @return The converter object.
     */
-    function setUserAgent($user_agent) {
-        $this->helper->setUserAgent($user_agent);
+    function setUserAgent($agent) {
+        $this->helper->setUserAgent($agent);
         return $this;
     }
 
@@ -4576,10 +4873,10 @@ class ImageToPdfClient {
     /**
     * Use cURL for the conversion request instead of the file_get_contents() PHP function.
     *
-    * @param use_curl Set to <span class='field-value'>true</span> to use PHP's cURL.
+    * @param value Set to <span class='field-value'>true</span> to use PHP's cURL.
     * @return The converter object.
     */
-    function setUseCurl($use_curl) {
+    function setUseCurl($value) {
         $this->helper->setUseCurl($use_curl);
         return $this;
     }
@@ -4587,11 +4884,11 @@ class ImageToPdfClient {
     /**
     * Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     *
-    * @param retry_count Number of retries wanted.
+    * @param count Number of retries wanted.
     * @return The converter object.
     */
-    function setRetryCount($retry_count) {
-        $this->helper->setRetryCount($retry_count);
+    function setRetryCount($count) {
+        $this->helper->setRetryCount($count);
         return $this;
     }
 
