@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "5.0.0";
+    public static $client_version = "5.1.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -547,7 +547,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/5.0.0 (http://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/5.1.0 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '20.10';
@@ -592,7 +592,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '5.0.0';
+    const CLIENT_VERSION = '5.1.0';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -1093,6 +1093,54 @@ class HtmlToPdfClient {
         }
         try {
             $this->convertStringToStream($text, $output_file);
+            fclose($output_file);
+        }
+        catch(Error $why) {
+            fclose($output_file);
+            unlink($file_path);
+            throw $why;
+        }
+    }
+
+    /**
+    * Convert an input stream.
+    *
+    * @param in_stream The input stream with the source data.
+    * @return Byte array containing the conversion output.
+    */
+    function convertStream($in_stream) {
+        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        return $this->helper->post($this->fields, $this->files, $this->raw_data);
+    }
+
+    /**
+    * Convert an input stream and write the result to an output stream.
+    *
+    * @param in_stream The input stream with the source data.
+    * @param out_stream The output stream that will contain the conversion output.
+    */
+    function convertStreamToStream($in_stream, $out_stream) {
+        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
+    }
+
+    /**
+    * Convert an input stream and write the result to a local file.
+    *
+    * @param in_stream The input stream with the source data.
+    * @param file_path The output file path. The string must not be empty.
+    */
+    function convertStreamToFile($in_stream, $file_path) {
+        if (!($file_path != null && $file_path !== ''))
+            throw new Error(create_invalid_value_message($file_path, "convertStreamToFile::file_path", "html-to-pdf", "The string must not be empty.", "convert_stream_to_file"), 470);
+        
+        $output_file = fopen($file_path, "wb");
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
+            $this->convertStreamToStream($in_stream, $output_file);
             fclose($output_file);
         }
         catch(Error $why) {
@@ -2905,6 +2953,54 @@ class HtmlToImageClient {
     }
 
     /**
+    * Convert an input stream.
+    *
+    * @param in_stream The input stream with the source data.
+    * @return Byte array containing the conversion output.
+    */
+    function convertStream($in_stream) {
+        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        return $this->helper->post($this->fields, $this->files, $this->raw_data);
+    }
+
+    /**
+    * Convert an input stream and write the result to an output stream.
+    *
+    * @param in_stream The input stream with the source data.
+    * @param out_stream The output stream that will contain the conversion output.
+    */
+    function convertStreamToStream($in_stream, $out_stream) {
+        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
+    }
+
+    /**
+    * Convert an input stream and write the result to a local file.
+    *
+    * @param in_stream The input stream with the source data.
+    * @param file_path The output file path. The string must not be empty.
+    */
+    function convertStreamToFile($in_stream, $file_path) {
+        if (!($file_path != null && $file_path !== ''))
+            throw new Error(create_invalid_value_message($file_path, "convertStreamToFile::file_path", "html-to-image", "The string must not be empty.", "convert_stream_to_file"), 470);
+        
+        $output_file = fopen($file_path, "wb");
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
+            $this->convertStreamToStream($in_stream, $output_file);
+            fclose($output_file);
+        }
+        catch(Error $why) {
+            fclose($output_file);
+            unlink($file_path);
+            throw $why;
+        }
+    }
+
+    /**
     * Set the input data for template rendering. The data format can be JSON, XML, YAML or CSV.
     *
     * @param data_string The input data string.
@@ -3710,6 +3806,54 @@ class ImageToImageClient {
         }
         try {
             $this->convertRawDataToStream($data, $output_file);
+            fclose($output_file);
+        }
+        catch(Error $why) {
+            fclose($output_file);
+            unlink($file_path);
+            throw $why;
+        }
+    }
+
+    /**
+    * Convert an input stream.
+    *
+    * @param in_stream The input stream with the source data.
+    * @return Byte array containing the conversion output.
+    */
+    function convertStream($in_stream) {
+        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        return $this->helper->post($this->fields, $this->files, $this->raw_data);
+    }
+
+    /**
+    * Convert an input stream and write the result to an output stream.
+    *
+    * @param in_stream The input stream with the source data.
+    * @param out_stream The output stream that will contain the conversion output.
+    */
+    function convertStreamToStream($in_stream, $out_stream) {
+        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
+    }
+
+    /**
+    * Convert an input stream and write the result to a local file.
+    *
+    * @param in_stream The input stream with the source data.
+    * @param file_path The output file path. The string must not be empty.
+    */
+    function convertStreamToFile($in_stream, $file_path) {
+        if (!($file_path != null && $file_path !== ''))
+            throw new Error(create_invalid_value_message($file_path, "convertStreamToFile::file_path", "image-to-image", "The string must not be empty.", "convert_stream_to_file"), 470);
+        
+        $output_file = fopen($file_path, "wb");
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
+            $this->convertStreamToStream($in_stream, $output_file);
             fclose($output_file);
         }
         catch(Error $why) {
@@ -4687,6 +4831,54 @@ class ImageToPdfClient {
         }
         try {
             $this->convertRawDataToStream($data, $output_file);
+            fclose($output_file);
+        }
+        catch(Error $why) {
+            fclose($output_file);
+            unlink($file_path);
+            throw $why;
+        }
+    }
+
+    /**
+    * Convert an input stream.
+    *
+    * @param in_stream The input stream with the source data.
+    * @return Byte array containing the conversion output.
+    */
+    function convertStream($in_stream) {
+        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        return $this->helper->post($this->fields, $this->files, $this->raw_data);
+    }
+
+    /**
+    * Convert an input stream and write the result to an output stream.
+    *
+    * @param in_stream The input stream with the source data.
+    * @param out_stream The output stream that will contain the conversion output.
+    */
+    function convertStreamToStream($in_stream, $out_stream) {
+        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
+    }
+
+    /**
+    * Convert an input stream and write the result to a local file.
+    *
+    * @param in_stream The input stream with the source data.
+    * @param file_path The output file path. The string must not be empty.
+    */
+    function convertStreamToFile($in_stream, $file_path) {
+        if (!($file_path != null && $file_path !== ''))
+            throw new Error(create_invalid_value_message($file_path, "convertStreamToFile::file_path", "image-to-pdf", "The string must not be empty.", "convert_stream_to_file"), 470);
+        
+        $output_file = fopen($file_path, "wb");
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
+            $this->convertStreamToStream($in_stream, $output_file);
             fclose($output_file);
         }
         catch(Error $why) {
