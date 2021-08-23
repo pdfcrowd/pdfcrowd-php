@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "5.1.2";
+    public static $client_version = "5.2.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -547,7 +547,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/5.1.2 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/5.2.0 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '20.10';
@@ -592,7 +592,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '5.1.2';
+    const CLIENT_VERSION = '5.2.0';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -1151,6 +1151,17 @@ class HtmlToPdfClient {
     }
 
     /**
+    * Set the file name of the main HTML document stored in the input archive. If not specified, the first HTML file in the archive is used for conversion. Use this method if the input archive contains multiple HTML documents.
+    *
+    * @param filename The file name.
+    * @return The converter object.
+    */
+    function setZipMainFilename($filename) {
+        $this->fields['zip_main_filename'] = $filename;
+        return $this;
+    }
+
+    /**
     * Set the output page size.
     *
     * @param size Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.
@@ -1458,6 +1469,17 @@ class HtmlToPdfClient {
     }
 
     /**
+    * Set the file name of the header HTML document stored in the input archive. Use this method if the input archive contains multiple HTML documents.
+    *
+    * @param filename The file name.
+    * @return The converter object.
+    */
+    function setZipHeaderFilename($filename) {
+        $this->fields['zip_header_filename'] = $filename;
+        return $this;
+    }
+
+    /**
     * Load an HTML code from the specified URL and use it as the page footer. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: <ul> <li><span class='field-value'>pdfcrowd-page-count</span> - the total page count of printed pages</li> <li><span class='field-value'>pdfcrowd-page-number</span> - the current page number</li> <li><span class='field-value'>pdfcrowd-source-url</span> - the source URL of a converted document</li> </ul> The following attributes can be used: <ul> <li><span class='field-value'>data-pdfcrowd-number-format</span> - specifies the type of the used numerals. Allowed values: <ul> <li><span class='field-value'>arabic</span> - Arabic numerals, they are used by default</li> <li><span class='field-value'>roman</span> - Roman numerals</li> <li><span class='field-value'>eastern-arabic</span> - Eastern Arabic numerals</li> <li><span class='field-value'>bengali</span> - Bengali numerals</li> <li><span class='field-value'>devanagari</span> - Devanagari numerals</li> <li><span class='field-value'>thai</span> - Thai numerals</li> <li><span class='field-value'>east-asia</span> - Chinese, Vietnamese, Japanese and Korean numerals</li> <li><span class='field-value'>chinese-formal</span> - Chinese formal numerals</li> </ul> Please contact us if you need another type of numerals.<br> Example:<br> &lt;span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'&gt;&lt;/span&gt; </li> <li><span class='field-value'>data-pdfcrowd-placement</span> - specifies where to place the source URL. Allowed values: <ul> <li>The URL is inserted to the content <ul> <li> Example: &lt;span class='pdfcrowd-source-url'&gt;&lt;/span&gt;<br> will produce &lt;span&gt;http://example.com&lt;/span&gt; </li> </ul> </li> <li><span class='field-value'>href</span> - the URL is set to the href attribute <ul> <li> Example: &lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'&gt;Link to source&lt;/a&gt;<br> will produce &lt;a href='http://example.com'&gt;Link to source&lt;/a&gt; </li> </ul> </li> <li><span class='field-value'>href-and-content</span> - the URL is set to the href attribute and to the content <ul> <li> Example: &lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'&gt;&lt;/a&gt;<br> will produce &lt;a href='http://example.com'&gt;http://example.com&lt;/a&gt; </li> </ul> </li> </ul> </li> </ul>
     *
     * @param url The supported protocols are http:// and https://.
@@ -1496,6 +1518,17 @@ class HtmlToPdfClient {
             throw new Error(create_invalid_value_message($height, "setFooterHeight", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_footer_height"), 470);
         
         $this->fields['footer_height'] = $height;
+        return $this;
+    }
+
+    /**
+    * Set the file name of the footer HTML document stored in the input archive. Use this method if the input archive contains multiple HTML documents.
+    *
+    * @param filename The file name.
+    * @return The converter object.
+    */
+    function setZipFooterFilename($filename) {
+        $this->fields['zip_footer_filename'] = $filename;
         return $this;
     }
 
@@ -2211,6 +2244,17 @@ class HtmlToPdfClient {
     */
     function setKeywords($keywords) {
         $this->fields['keywords'] = $keywords;
+        return $this;
+    }
+
+    /**
+    * Extract meta tags (author, keywords and description) from the input HTML and use them in the output PDF.
+    *
+    * @param value Set to <span class='field-value'>true</span> to extract meta tags.
+    * @return The converter object.
+    */
+    function setExtractMetaTags($value) {
+        $this->fields['extract_meta_tags'] = $value;
         return $this;
     }
 
@@ -2998,6 +3042,17 @@ class HtmlToImageClient {
             unlink($file_path);
             throw $why;
         }
+    }
+
+    /**
+    * Set the file name of the main HTML document stored in the input archive. If not specified, the first HTML file in the archive is used for conversion. Use this method if the input archive contains multiple HTML documents.
+    *
+    * @param filename The file name.
+    * @return The converter object.
+    */
+    function setZipMainFilename($filename) {
+        $this->fields['zip_main_filename'] = $filename;
+        return $this;
     }
 
     /**
@@ -4357,6 +4412,64 @@ class PdfToPdfClient {
     */
     function setNoCopy($value) {
         $this->fields['no_copy'] = $value;
+        return $this;
+    }
+
+    /**
+    * Set the title of the PDF.
+    *
+    * @param title The title.
+    * @return The converter object.
+    */
+    function setTitle($title) {
+        $this->fields['title'] = $title;
+        return $this;
+    }
+
+    /**
+    * Set the subject of the PDF.
+    *
+    * @param subject The subject.
+    * @return The converter object.
+    */
+    function setSubject($subject) {
+        $this->fields['subject'] = $subject;
+        return $this;
+    }
+
+    /**
+    * Set the author of the PDF.
+    *
+    * @param author The author.
+    * @return The converter object.
+    */
+    function setAuthor($author) {
+        $this->fields['author'] = $author;
+        return $this;
+    }
+
+    /**
+    * Associate keywords with the document.
+    *
+    * @param keywords The string with the keywords.
+    * @return The converter object.
+    */
+    function setKeywords($keywords) {
+        $this->fields['keywords'] = $keywords;
+        return $this;
+    }
+
+    /**
+    * Use metadata (title, subject, author and keywords) from the n-th input PDF.
+    *
+    * @param index Set the index of the input PDF file from which to use the metadata. 0 means no metadata. Must be a positive integer number or 0.
+    * @return The converter object.
+    */
+    function setUseMetadataFrom($index) {
+        if (!(intval($index) >= 0))
+            throw new Error(create_invalid_value_message($index, "setUseMetadataFrom", "pdf-to-pdf", "Must be a positive integer number or 0.", "set_use_metadata_from"), 470);
+        
+        $this->fields['use_metadata_from'] = $index;
         return $this;
     }
 
