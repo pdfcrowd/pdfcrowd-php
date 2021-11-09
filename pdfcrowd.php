@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "5.2.0";
+    public static $client_version = "5.2.1";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -547,7 +547,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/5.2.0 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/5.2.1 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '20.10';
@@ -592,7 +592,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '5.2.0';
+    const CLIENT_VERSION = '5.2.1';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -798,19 +798,19 @@ You need to restart your web server after installation.';
     private function parse_response_headers($headers) {
         $code = 555;
         foreach ($headers as $header) {
-            if (preg_match('/HTTP\/\d\.\d\s+(\d+)\s*.*/', $header, $matches)) {
+            if (preg_match('/HTTP\/\d\.\d\s+(\d+)\s*.*/i', $header, $matches)) {
                 $code = intval($matches[1]);
-            } else if(preg_match('/X-Pdfcrowd-Job-Id:\s+(.*)/', $header, $matches)) {
+            } else if(preg_match('/X-Pdfcrowd-Job-Id:\s+(.*)/i', $header, $matches)) {
                 $this->job_id = $matches[1];
-            } else if(preg_match('/X-Pdfcrowd-Pages:\s+(.*)/', $header, $matches)) {
+            } else if(preg_match('/X-Pdfcrowd-Pages:\s+(.*)/i', $header, $matches)) {
                 $this->page_count = intval($matches[1]);
-            } else if(preg_match('/X-Pdfcrowd-Output-Size:\s+(.*)/', $header, $matches)) {
+            } else if(preg_match('/X-Pdfcrowd-Output-Size:\s+(.*)/i', $header, $matches)) {
                 $this->output_size = intval($matches[1]);
-            } else if(preg_match('/X-Pdfcrowd-Remaining-Credits:\s+(.*)/', $header, $matches)) {
+            } else if(preg_match('/X-Pdfcrowd-Remaining-Credits:\s+(.*)/i', $header, $matches)) {
                 $this->credits = intval($matches[1]);
-            } else if(preg_match('/X-Pdfcrowd-Consumed-Credits:\s+(.*)/', $header, $matches)) {
+            } else if(preg_match('/X-Pdfcrowd-Consumed-Credits:\s+(.*)/i', $header, $matches)) {
                 $this->consumed_credits = intval($matches[1]);
-            } else if(preg_match('/X-Pdfcrowd-Debug-Log:\s+(.*)/', $header, $matches)) {
+            } else if(preg_match('/X-Pdfcrowd-Debug-Log:\s+(.*)/i', $header, $matches)) {
                 $this->debug_log_url = $matches[1];
             }
         }
