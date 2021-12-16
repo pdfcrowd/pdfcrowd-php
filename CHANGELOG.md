@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+5.2.2
+-----
+
+- FIX: the hyperlinks to the Pdfcrowd API documentation have been updated
+
 5.2.1
 -----
 
