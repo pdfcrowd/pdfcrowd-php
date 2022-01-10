@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+5.3.0
+-----
+
+- NEW: setUseMobileUserAgent for HTML to PDF and HTML to Image
+
 5.2.2
 -----
 
