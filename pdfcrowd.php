@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "5.3.0";
+    public static $client_version = "5.4.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -547,7 +547,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/5.3.0 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/5.4.0 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '20.10';
@@ -592,7 +592,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '5.3.0';
+    const CLIENT_VERSION = '5.4.0';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -2027,7 +2027,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the viewport height in pixels. The viewport is the user's visible area of the page.
+    * Set the viewport height in pixels. The viewport is the user's visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000.
     *
     * @param height Must be a positive integer number.
     * @return The converter object.
@@ -2044,7 +2044,7 @@ class HtmlToPdfClient {
     * Set the viewport size. The viewport is the user's visible area of the page.
     *
     * @param width Set the viewport width in pixels. The viewport is the user's visible area of the page. The value must be in the range 96-65000.
-    * @param height Set the viewport height in pixels. The viewport is the user's visible area of the page. Must be a positive integer number.
+    * @param height Set the viewport height in pixels. The viewport is the user's visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000. Must be a positive integer number.
     * @return The converter object.
     */
     function setViewport($width, $height) {
@@ -2528,7 +2528,7 @@ class HtmlToPdfClient {
 
     /**
     * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
-    * This method can only be called after a call to one of the convertXYZ methods.
+    * This method can only be called after a call to one of the convertXtoY methods.
     * The returned value can differ from the actual count if you run parallel conversions.
     * The special value <span class='field-value'>999999</span> is returned if the information is not available.
     * @return The number of credits.
@@ -2762,7 +2762,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
+    * Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
     *
     * @param agent The user agent string.
     * @return The converter object.
@@ -2798,9 +2798,9 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
+    * Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     *
-    * @param count Number of retries wanted.
+    * @param count Number of retries.
     * @return The converter object.
     */
     function setRetryCount($count) {
@@ -3535,7 +3535,7 @@ class HtmlToImageClient {
 
     /**
     * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
-    * This method can only be called after a call to one of the convertXYZ methods.
+    * This method can only be called after a call to one of the convertXtoY methods.
     * The returned value can differ from the actual count if you run parallel conversions.
     * The special value <span class='field-value'>999999</span> is returned if the information is not available.
     * @return The number of credits.
@@ -3667,7 +3667,7 @@ class HtmlToImageClient {
     }
 
     /**
-    * Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
+    * Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
     *
     * @param agent The user agent string.
     * @return The converter object.
@@ -3703,9 +3703,9 @@ class HtmlToImageClient {
     }
 
     /**
-    * Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
+    * Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     *
-    * @param count Number of retries wanted.
+    * @param count Number of retries.
     * @return The converter object.
     */
     function setRetryCount($count) {
@@ -3997,7 +3997,7 @@ class ImageToImageClient {
 
     /**
     * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
-    * This method can only be called after a call to one of the convertXYZ methods.
+    * This method can only be called after a call to one of the convertXtoY methods.
     * The returned value can differ from the actual count if you run parallel conversions.
     * The special value <span class='field-value'>999999</span> is returned if the information is not available.
     * @return The number of credits.
@@ -4104,7 +4104,7 @@ class ImageToImageClient {
     }
 
     /**
-    * Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
+    * Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
     *
     * @param agent The user agent string.
     * @return The converter object.
@@ -4140,9 +4140,9 @@ class ImageToImageClient {
     }
 
     /**
-    * Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
+    * Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     *
-    * @param count Number of retries wanted.
+    * @param count Number of retries.
     * @return The converter object.
     */
     function setRetryCount($count) {
@@ -4245,6 +4245,17 @@ class PdfToPdfClient {
         
         $this->raw_data['f_' . $this->file_id] = $data;
         $this->file_id++;
+        return $this;
+    }
+
+    /**
+    * Password to open the encrypted PDF file.
+    *
+    * @param password The input PDF password.
+    * @return The converter object.
+    */
+    function setInputPdfPassword($password) {
+        $this->fields['input_pdf_password'] = $password;
         return $this;
     }
 
@@ -4663,7 +4674,7 @@ class PdfToPdfClient {
 
     /**
     * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
-    * This method can only be called after a call to one of the convertXYZ methods.
+    * This method can only be called after a call to one of the convertXtoY methods.
     * The returned value can differ from the actual count if you run parallel conversions.
     * The special value <span class='field-value'>999999</span> is returned if the information is not available.
     * @return The number of credits.
@@ -4750,7 +4761,7 @@ class PdfToPdfClient {
     }
 
     /**
-    * Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
+    * Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
     *
     * @param agent The user agent string.
     * @return The converter object.
@@ -4786,9 +4797,9 @@ class PdfToPdfClient {
     }
 
     /**
-    * Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
+    * Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     *
-    * @param count Number of retries wanted.
+    * @param count Number of retries.
     * @return The converter object.
     */
     function setRetryCount($count) {
@@ -5066,7 +5077,7 @@ class ImageToPdfClient {
 
     /**
     * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
-    * This method can only be called after a call to one of the convertXYZ methods.
+    * This method can only be called after a call to one of the convertXtoY methods.
     * The returned value can differ from the actual count if you run parallel conversions.
     * The special value <span class='field-value'>999999</span> is returned if the information is not available.
     * @return The number of credits.
@@ -5173,7 +5184,7 @@ class ImageToPdfClient {
     }
 
     /**
-    * Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
+    * Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
     *
     * @param agent The user agent string.
     * @return The converter object.
@@ -5209,9 +5220,9 @@ class ImageToPdfClient {
     }
 
     /**
-    * Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
+    * Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     *
-    * @param count Number of retries wanted.
+    * @param count Number of retries.
     * @return The converter object.
     */
     function setRetryCount($count) {
@@ -5219,6 +5230,561 @@ class ImageToPdfClient {
         return $this;
     }
 
+}
+
+/**
+* Conversion from PDF to HTML.
+*/
+class PdfToHtmlClient {
+    private $helper;
+    private $fields;
+
+    /**
+    * Constructor for the Pdfcrowd API client.
+    *
+    * @param user_name Your username at Pdfcrowd.
+    * @param api_key Your API key.
+    */
+    function __construct($user_name, $api_key) {
+        $this->helper = new ConnectionHelper($user_name, $api_key);
+        $this->fields = array('input_format'=>'pdf', 'output_format'=>'html');
+        $this->file_id = 1;
+        $this->files = array();
+        $this->raw_data = array();
+    }
+
+    /**
+    * Convert a PDF.
+    *
+    * @param url The address of the PDF to convert. The supported protocols are http:// and https://.
+    * @return Byte array containing the conversion output.
+    */
+    function convertUrl($url) {
+        if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
+            throw new Error(create_invalid_value_message($url, "convertUrl", "pdf-to-html", "The supported protocols are http:// and https://.", "convert_url"), 470);
+        
+        $this->fields['url'] = $url;
+        return $this->helper->post($this->fields, $this->files, $this->raw_data);
+    }
+
+    /**
+    * Convert a PDF and write the result to an output stream.
+    *
+    * @param url The address of the PDF to convert. The supported protocols are http:// and https://.
+    * @param out_stream The output stream that will contain the conversion output.
+    */
+    function convertUrlToStream($url, $out_stream) {
+        if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
+            throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "pdf-to-html", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
+        
+        $this->fields['url'] = $url;
+        $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
+    }
+
+    /**
+    * Convert a PDF and write the result to a local file.
+    *
+    * @param url The address of the PDF to convert. The supported protocols are http:// and https://.
+    * @param file_path The output file path. The string must not be empty. The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.
+    */
+    function convertUrlToFile($url, $file_path) {
+        if (!($file_path != null && $file_path !== ''))
+            throw new Error(create_invalid_value_message($file_path, "convertUrlToFile::file_path", "pdf-to-html", "The string must not be empty.", "convert_url_to_file"), 470);
+        
+        if (!($this->isOutputTypeValid($file_path)))
+            throw new Error(create_invalid_value_message($file_path, "convertUrlToFile::file_path", "pdf-to-html", "The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.", "convert_url_to_file"), 470);
+        
+        $output_file = fopen($file_path, "wb");
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
+            $this->convertUrlToStream($url, $output_file);
+            fclose($output_file);
+        }
+        catch(Error $why) {
+            fclose($output_file);
+            unlink($file_path);
+            throw $why;
+        }
+    }
+
+    /**
+    * Convert a local file.
+    *
+    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
+    * @return Byte array containing the conversion output.
+    */
+    function convertFile($file) {
+        if (!(filesize($file) > 0))
+            throw new Error(create_invalid_value_message($file, "convertFile", "pdf-to-html", "The file must exist and not be empty.", "convert_file"), 470);
+        
+        $this->files['file'] = $file;
+        return $this->helper->post($this->fields, $this->files, $this->raw_data);
+    }
+
+    /**
+    * Convert a local file and write the result to an output stream.
+    *
+    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
+    * @param out_stream The output stream that will contain the conversion output.
+    */
+    function convertFileToStream($file, $out_stream) {
+        if (!(filesize($file) > 0))
+            throw new Error(create_invalid_value_message($file, "convertFileToStream::file", "pdf-to-html", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
+        
+        $this->files['file'] = $file;
+        $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
+    }
+
+    /**
+    * Convert a local file and write the result to a local file.
+    *
+    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
+    * @param file_path The output file path. The string must not be empty. The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.
+    */
+    function convertFileToFile($file, $file_path) {
+        if (!($file_path != null && $file_path !== ''))
+            throw new Error(create_invalid_value_message($file_path, "convertFileToFile::file_path", "pdf-to-html", "The string must not be empty.", "convert_file_to_file"), 470);
+        
+        if (!($this->isOutputTypeValid($file_path)))
+            throw new Error(create_invalid_value_message($file_path, "convertFileToFile::file_path", "pdf-to-html", "The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.", "convert_file_to_file"), 470);
+        
+        $output_file = fopen($file_path, "wb");
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
+            $this->convertFileToStream($file, $output_file);
+            fclose($output_file);
+        }
+        catch(Error $why) {
+            fclose($output_file);
+            unlink($file_path);
+            throw $why;
+        }
+    }
+
+    /**
+    * Convert raw data.
+    *
+    * @param data The raw content to be converted.
+    * @return Byte array with the output.
+    */
+    function convertRawData($data) {
+        $this->raw_data['file'] = $data;
+        return $this->helper->post($this->fields, $this->files, $this->raw_data);
+    }
+
+    /**
+    * Convert raw data and write the result to an output stream.
+    *
+    * @param data The raw content to be converted.
+    * @param out_stream The output stream that will contain the conversion output.
+    */
+    function convertRawDataToStream($data, $out_stream) {
+        $this->raw_data['file'] = $data;
+        $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
+    }
+
+    /**
+    * Convert raw data to a file.
+    *
+    * @param data The raw content to be converted.
+    * @param file_path The output file path. The string must not be empty. The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.
+    */
+    function convertRawDataToFile($data, $file_path) {
+        if (!($file_path != null && $file_path !== ''))
+            throw new Error(create_invalid_value_message($file_path, "convertRawDataToFile::file_path", "pdf-to-html", "The string must not be empty.", "convert_raw_data_to_file"), 470);
+        
+        if (!($this->isOutputTypeValid($file_path)))
+            throw new Error(create_invalid_value_message($file_path, "convertRawDataToFile::file_path", "pdf-to-html", "The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.", "convert_raw_data_to_file"), 470);
+        
+        $output_file = fopen($file_path, "wb");
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
+            $this->convertRawDataToStream($data, $output_file);
+            fclose($output_file);
+        }
+        catch(Error $why) {
+            fclose($output_file);
+            unlink($file_path);
+            throw $why;
+        }
+    }
+
+    /**
+    * Convert the contents of an input stream.
+    *
+    * @param in_stream The input stream with source data.<br>
+    * @return Byte array containing the conversion output.
+    */
+    function convertStream($in_stream) {
+        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        return $this->helper->post($this->fields, $this->files, $this->raw_data);
+    }
+
+    /**
+    * Convert the contents of an input stream and write the result to an output stream.
+    *
+    * @param in_stream The input stream with source data.<br>
+    * @param out_stream The output stream that will contain the conversion output.
+    */
+    function convertStreamToStream($in_stream, $out_stream) {
+        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
+    }
+
+    /**
+    * Convert the contents of an input stream and write the result to a local file.
+    *
+    * @param in_stream The input stream with source data.<br>
+    * @param file_path The output file path. The string must not be empty. The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.
+    */
+    function convertStreamToFile($in_stream, $file_path) {
+        if (!($file_path != null && $file_path !== ''))
+            throw new Error(create_invalid_value_message($file_path, "convertStreamToFile::file_path", "pdf-to-html", "The string must not be empty.", "convert_stream_to_file"), 470);
+        
+        if (!($this->isOutputTypeValid($file_path)))
+            throw new Error(create_invalid_value_message($file_path, "convertStreamToFile::file_path", "pdf-to-html", "The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.", "convert_stream_to_file"), 470);
+        
+        $output_file = fopen($file_path, "wb");
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
+            $this->convertStreamToStream($in_stream, $output_file);
+            fclose($output_file);
+        }
+        catch(Error $why) {
+            fclose($output_file);
+            unlink($file_path);
+            throw $why;
+        }
+    }
+
+    /**
+    * Password to open the encrypted PDF file.
+    *
+    * @param password The input PDF password.
+    * @return The converter object.
+    */
+    function setPdfPassword($password) {
+        $this->fields['pdf_password'] = $password;
+        return $this;
+    }
+
+    /**
+    * Set the scaling factor (zoom) for the main page area.
+    *
+    * @param factor The percentage value. Must be a positive integer number.
+    * @return The converter object.
+    */
+    function setScaleFactor($factor) {
+        if (!(intval($factor) > 0))
+            throw new Error(create_invalid_value_message($factor, "setScaleFactor", "pdf-to-html", "Must be a positive integer number.", "set_scale_factor"), 470);
+        
+        $this->fields['scale_factor'] = $factor;
+        return $this;
+    }
+
+    /**
+    * Set the page range to print.
+    *
+    * @param pages A comma separated list of page numbers or ranges.
+    * @return The converter object.
+    */
+    function setPrintPageRange($pages) {
+        if (!preg_match("/^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$/", $pages))
+            throw new Error(create_invalid_value_message($pages, "setPrintPageRange", "pdf-to-html", "A comma separated list of page numbers or ranges.", "set_print_page_range"), 470);
+        
+        $this->fields['print_page_range'] = $pages;
+        return $this;
+    }
+
+    /**
+    * Specifies where the images are stored.
+    *
+    * @param mode The image storage mode. Allowed values are embed, separate.
+    * @return The converter object.
+    */
+    function setImageMode($mode) {
+        if (!preg_match("/(?i)^(embed|separate)$/", $mode))
+            throw new Error(create_invalid_value_message($mode, "setImageMode", "pdf-to-html", "Allowed values are embed, separate.", "set_image_mode"), 470);
+        
+        $this->fields['image_mode'] = $mode;
+        return $this;
+    }
+
+    /**
+    * Specifies where the style sheets are stored.
+    *
+    * @param mode The style sheet storage mode. Allowed values are embed, separate.
+    * @return The converter object.
+    */
+    function setCssMode($mode) {
+        if (!preg_match("/(?i)^(embed|separate)$/", $mode))
+            throw new Error(create_invalid_value_message($mode, "setCssMode", "pdf-to-html", "Allowed values are embed, separate.", "set_css_mode"), 470);
+        
+        $this->fields['css_mode'] = $mode;
+        return $this;
+    }
+
+    /**
+    * Specifies where the fonts are stored.
+    *
+    * @param mode The font storage mode. Allowed values are embed, separate.
+    * @return The converter object.
+    */
+    function setFontMode($mode) {
+        if (!preg_match("/(?i)^(embed|separate)$/", $mode))
+            throw new Error(create_invalid_value_message($mode, "setFontMode", "pdf-to-html", "Allowed values are embed, separate.", "set_font_mode"), 470);
+        
+        $this->fields['font_mode'] = $mode;
+        return $this;
+    }
+
+    /**
+    * A helper method to determine if the output file is a zip archive. The output of the conversion may be either an HTML file or a zip file containing the HTML and its external assets.
+    * @return <span class='field-value'>True</span> if the conversion output is a zip file, otherwise <span class='field-value'>False</span>.
+    */
+    function isZippedOutput() {
+        return (isset($this->fields['image_mode']) && $this->fields['image_mode'] == 'separate') || (isset($this->fields['css_mode']) && $this->fields['css_mode'] == 'separate') || (isset($this->fields['font_mode']) && $this->fields['font_mode'] == 'separate') || (isset($this->fields['force_zip']) && $this->fields['force_zip'] == 'true');
+    }
+
+    /**
+    * Enforces the zip output format.
+    *
+    * @param value Set to <span class='field-value'>true</span> to get the output as a zip archive.
+    * @return The converter object.
+    */
+    function setForceZip($value) {
+        $this->fields['force_zip'] = $value;
+        return $this;
+    }
+
+    /**
+    * Set the HTML title. The title from the input PDF is used by default.
+    *
+    * @param title The HTML title.
+    * @return The converter object.
+    */
+    function setTitle($title) {
+        $this->fields['title'] = $title;
+        return $this;
+    }
+
+    /**
+    * Set the HTML subject. The subject from the input PDF is used by default.
+    *
+    * @param subject The HTML subject.
+    * @return The converter object.
+    */
+    function setSubject($subject) {
+        $this->fields['subject'] = $subject;
+        return $this;
+    }
+
+    /**
+    * Set the HTML author. The author from the input PDF is used by default.
+    *
+    * @param author The HTML author.
+    * @return The converter object.
+    */
+    function setAuthor($author) {
+        $this->fields['author'] = $author;
+        return $this;
+    }
+
+    /**
+    * Associate keywords with the HTML document. Keywords from the input PDF are used by default.
+    *
+    * @param keywords The string containing the keywords.
+    * @return The converter object.
+    */
+    function setKeywords($keywords) {
+        $this->fields['keywords'] = $keywords;
+        return $this;
+    }
+
+    /**
+    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method or available in <a href='/user/account/log/conversion/'>conversion statistics</a>.
+    *
+    * @param value Set to <span class='field-value'>true</span> to enable the debug logging.
+    * @return The converter object.
+    */
+    function setDebugLog($value) {
+        $this->fields['debug_log'] = $value;
+        return $this;
+    }
+
+    /**
+    * Get the URL of the debug log for the last conversion.
+    * @return The link to the debug log.
+    */
+    function getDebugLogUrl() {
+        return $this->helper->getDebugLogUrl();
+    }
+
+    /**
+    * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
+    * This method can only be called after a call to one of the convertXtoY methods.
+    * The returned value can differ from the actual count if you run parallel conversions.
+    * The special value <span class='field-value'>999999</span> is returned if the information is not available.
+    * @return The number of credits.
+    */
+    function getRemainingCreditCount() {
+        return $this->helper->getRemainingCreditCount();
+    }
+
+    /**
+    * Get the number of credits consumed by the last conversion.
+    * @return The number of credits.
+    */
+    function getConsumedCreditCount() {
+        return $this->helper->getConsumedCreditCount();
+    }
+
+    /**
+    * Get the job id.
+    * @return The unique job identifier.
+    */
+    function getJobId() {
+        return $this->helper->getJobId();
+    }
+
+    /**
+    * Get the total number of pages in the output document.
+    * @return The page count.
+    */
+    function getPageCount() {
+        return $this->helper->getPageCount();
+    }
+
+    /**
+    * Get the size of the output in bytes.
+    * @return The count of bytes.
+    */
+    function getOutputSize() {
+        return $this->helper->getOutputSize();
+    }
+
+    /**
+    * Get the version details.
+    * @return API version, converter version, and client version.
+    */
+    function getVersion() {
+        return 'client '.ConnectionHelper::CLIENT_VERSION.', API v2, converter '.$this->helper->getConverterVersion();
+    }
+
+    /**
+    * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
+    *
+    * @param tag A string with the custom tag.
+    * @return The converter object.
+    */
+    function setTag($tag) {
+        $this->fields['tag'] = $tag;
+        return $this;
+    }
+
+    /**
+    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    *
+    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+    * @return The converter object.
+    */
+    function setHttpProxy($proxy) {
+        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
+            throw new Error(create_invalid_value_message($proxy, "setHttpProxy", "pdf-to-html", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
+        
+        $this->fields['http_proxy'] = $proxy;
+        return $this;
+    }
+
+    /**
+    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    *
+    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+    * @return The converter object.
+    */
+    function setHttpsProxy($proxy) {
+        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
+            throw new Error(create_invalid_value_message($proxy, "setHttpsProxy", "pdf-to-html", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
+        
+        $this->fields['https_proxy'] = $proxy;
+        return $this;
+    }
+
+    /**
+    * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+    * Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
+    *
+    * @param value Set to <span class='field-value'>true</span> to use HTTP.
+    * @return The converter object.
+    */
+    function setUseHttp($value) {
+        $this->helper->setUseHttp($value);
+        return $this;
+    }
+
+    /**
+    * Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
+    *
+    * @param agent The user agent string.
+    * @return The converter object.
+    */
+    function setUserAgent($agent) {
+        $this->helper->setUserAgent($agent);
+        return $this;
+    }
+
+    /**
+    * Specifies an HTTP proxy that the API client library will use to connect to the internet.
+    *
+    * @param host The proxy hostname.
+    * @param port The proxy port.
+    * @param user_name The username.
+    * @param password The password.
+    * @return The converter object.
+    */
+    function setProxy($host, $port, $user_name, $password) {
+        $this->helper->setProxy($host, $port, $user_name, $password);
+        return $this;
+    }
+
+    /**
+    * Use cURL for the conversion request instead of the file_get_contents() PHP function.
+    *
+    * @param value Set to <span class='field-value'>true</span> to use PHP's cURL.
+    * @return The converter object.
+    */
+    function setUseCurl($value) {
+        $this->helper->setUseCurl($value);
+        return $this;
+    }
+
+    /**
+    * Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
+    *
+    * @param count Number of retries.
+    * @return The converter object.
+    */
+    function setRetryCount($count) {
+        $this->helper->setRetryCount($count);
+        return $this;
+    }
+
+    private function isOutputTypeValid($file_path) {
+        $extension = pathinfo($file_path)['extension'];
+        return ($extension === "zip") === $this->isZippedOutput();
+    }
 }
 
 
