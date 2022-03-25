@@ -1,6 +1,19 @@
 Change Log
 ==========
 
+5.5.0
+-----
+
+- NEW: setAutodetectElementToConvert to detect the main HTML element for conversion
+- NEW: setReadabilityEnhancements to enhance the input HTML to improve the readability
+- NEW: pdfcrowd-source-title CSS class available for header and footer HTML
+
+5.4.0
+-----
+
+- NEW: PDF to HTML converter
+- NEW: setInputPdfPassword for PDF to PDF converter
+
 5.3.0
 -----
 
