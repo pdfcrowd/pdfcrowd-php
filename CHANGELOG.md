@@ -1,11 +1,16 @@
 Change Log
 ==========
 
+5.6.1
+-----
+
+- minor update of the text of the error message
+
 5.6.0
 -----
 
 - NEW: setEnablePdfForms to convert HTML forms to fillable PDF forms
-- minor update in error messages
+- minor update of the text of the error message
 
 5.5.0
 -----
