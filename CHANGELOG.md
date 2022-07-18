@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+5.6.2
+-----
+
+- minor update of documentation links
+
 5.6.1
 -----
 

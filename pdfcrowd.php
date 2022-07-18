@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "5.6.1";
+    public static $client_version = "5.6.2";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -523,7 +523,7 @@ function create_invalid_value_message($value, $field, $converter, $hint, $id) {
     if($hint != null) {
         $message = $message . " " . $hint;
     }
-    return $message . " " . "Details: https://www.pdfcrowd.com/doc/api/$converter/php/ref/#$id";
+    return $message . " " . "Details: https://www.pdfcrowd.com/api/$converter-php/ref/#$id";
 }
 
 class ConnectionHelper
@@ -547,7 +547,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/5.6.1 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/5.6.2 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '20.10';
@@ -592,7 +592,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '5.6.1';
+    const CLIENT_VERSION = '5.6.2';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -1915,7 +1915,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
+    * Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/api/libpdfcrowd/'>JavaScript library</a>.
     *
     * @param javascript A string containing a JavaScript code. The string must not be empty.
     * @return The converter object.
@@ -1929,7 +1929,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
+    * Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/api/libpdfcrowd/'>JavaScript library</a>.
     *
     * @param javascript A string containing a JavaScript code. The string must not be empty.
     * @return The converter object.
@@ -3306,7 +3306,7 @@ class HtmlToImageClient {
     }
 
     /**
-    * Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
+    * Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/api/libpdfcrowd/'>JavaScript library</a>.
     *
     * @param javascript A string containing a JavaScript code. The string must not be empty.
     * @return The converter object.
@@ -3320,7 +3320,7 @@ class HtmlToImageClient {
     }
 
     /**
-    * Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/doc/api/libpdfcrowd/'>JavaScript library</a>.
+    * Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/api/libpdfcrowd/'>JavaScript library</a>.
     *
     * @param javascript A string containing a JavaScript code. The string must not be empty.
     * @return The converter object.
