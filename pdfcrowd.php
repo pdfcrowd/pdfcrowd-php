@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "5.6.2";
+    public static $client_version = "5.7.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -547,7 +547,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/5.6.2 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/5.7.0 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '20.10';
@@ -592,7 +592,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '5.6.2';
+    const CLIENT_VERSION = '5.7.0';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -2026,12 +2026,12 @@ class HtmlToPdfClient {
     /**
     * The input HTML is automatically enhanced to improve the readability.
     *
-    * @param enhancements Allowed values are none, readability-v1.
+    * @param enhancements Allowed values are none, readability-v1, readability-v2, readability-v3.
     * @return The converter object.
     */
     function setReadabilityEnhancements($enhancements) {
-        if (!preg_match("/(?i)^(none|readability-v1)$/", $enhancements))
-            throw new Error(create_invalid_value_message($enhancements, "setReadabilityEnhancements", "html-to-pdf", "Allowed values are none, readability-v1.", "set_readability_enhancements"), 470);
+        if (!preg_match("/(?i)^(none|readability-v1|readability-v2|readability-v3)$/", $enhancements))
+            throw new Error(create_invalid_value_message($enhancements, "setReadabilityEnhancements", "html-to-pdf", "Allowed values are none, readability-v1, readability-v2, readability-v3.", "set_readability_enhancements"), 470);
         
         $this->fields['readability_enhancements'] = $enhancements;
         return $this;
@@ -3417,12 +3417,12 @@ class HtmlToImageClient {
     /**
     * The input HTML is automatically enhanced to improve the readability.
     *
-    * @param enhancements Allowed values are none, readability-v1.
+    * @param enhancements Allowed values are none, readability-v1, readability-v2, readability-v3.
     * @return The converter object.
     */
     function setReadabilityEnhancements($enhancements) {
-        if (!preg_match("/(?i)^(none|readability-v1)$/", $enhancements))
-            throw new Error(create_invalid_value_message($enhancements, "setReadabilityEnhancements", "html-to-image", "Allowed values are none, readability-v1.", "set_readability_enhancements"), 470);
+        if (!preg_match("/(?i)^(none|readability-v1|readability-v2|readability-v3)$/", $enhancements))
+            throw new Error(create_invalid_value_message($enhancements, "setReadabilityEnhancements", "html-to-image", "Allowed values are none, readability-v1, readability-v2, readability-v3.", "set_readability_enhancements"), 470);
         
         $this->fields['readability_enhancements'] = $enhancements;
         return $this;

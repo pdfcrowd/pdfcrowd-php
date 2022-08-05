@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+5.7.0
+-----
+
+- NEW: readability-v2 and readability-v3 modes for setReadabilityEnhancements API method
+
 5.6.2
 -----
 
