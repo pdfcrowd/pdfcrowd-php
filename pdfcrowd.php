@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "5.7.0";
+    public static $client_version = "5.8.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -547,7 +547,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/5.7.0 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/5.8.0 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '20.10';
@@ -592,7 +592,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '5.7.0';
+    const CLIENT_VERSION = '5.8.0';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -1586,9 +1586,9 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Apply the first page of the watermark PDF to every page of the output PDF.
+    * Apply a watermark to each page of the output PDF file. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark.
     *
-    * @param watermark The file path to a local watermark PDF file. The file must exist and not be empty.
+    * @param watermark The file path to a local file. The file must exist and not be empty.
     * @return The converter object.
     */
     function setPageWatermark($watermark) {
@@ -1600,7 +1600,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Load a watermark PDF from the specified URL and apply the first page of the watermark PDF to every page of the output PDF.
+    * Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark.
     *
     * @param url The supported protocols are http:// and https://.
     * @return The converter object.
@@ -1614,9 +1614,9 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Apply each page of the specified watermark PDF to the corresponding page of the output PDF.
+    * Apply each page of a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image.
     *
-    * @param watermark The file path to a local watermark PDF file. The file must exist and not be empty.
+    * @param watermark The file path to a local file. The file must exist and not be empty.
     * @return The converter object.
     */
     function setMultipageWatermark($watermark) {
@@ -1628,7 +1628,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Load a watermark PDF from the specified URL and apply each page of the specified watermark PDF to the corresponding page of the output PDF.
+    * Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image.
     *
     * @param url The supported protocols are http:// and https://.
     * @return The converter object.
@@ -1642,9 +1642,9 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Apply the first page of the specified PDF to the background of every page of the output PDF.
+    * Apply a background to each page of the output PDF file. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background.
     *
-    * @param background The file path to a local background PDF file. The file must exist and not be empty.
+    * @param background The file path to a local file. The file must exist and not be empty.
     * @return The converter object.
     */
     function setPageBackground($background) {
@@ -1656,7 +1656,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Load a background PDF from the specified URL and apply the first page of the background PDF to every page of the output PDF.
+    * Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background.
     *
     * @param url The supported protocols are http:// and https://.
     * @return The converter object.
@@ -1670,9 +1670,9 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Apply each page of the specified PDF to the background of the corresponding page of the output PDF.
+    * Apply each page of a background to the corresponding page of the output PDF. A background can be either a PDF or an image.
     *
-    * @param background The file path to a local background PDF file. The file must exist and not be empty.
+    * @param background The file path to a local file. The file must exist and not be empty.
     * @return The converter object.
     */
     function setMultipageBackground($background) {
@@ -1684,7 +1684,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Load a background PDF from the specified URL and apply each page of the specified background PDF to the corresponding page of the output PDF.
+    * Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image.
     *
     * @param url The supported protocols are http:// and https://.
     * @return The converter object.
@@ -4321,9 +4321,9 @@ class PdfToPdfClient {
     }
 
     /**
-    * Apply the first page of the watermark PDF to every page of the output PDF.
+    * Apply a watermark to each page of the output PDF file. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark.
     *
-    * @param watermark The file path to a local watermark PDF file. The file must exist and not be empty.
+    * @param watermark The file path to a local file. The file must exist and not be empty.
     * @return The converter object.
     */
     function setPageWatermark($watermark) {
@@ -4335,7 +4335,7 @@ class PdfToPdfClient {
     }
 
     /**
-    * Load a watermark PDF from the specified URL and apply the first page of the watermark PDF to every page of the output PDF.
+    * Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark.
     *
     * @param url The supported protocols are http:// and https://.
     * @return The converter object.
@@ -4349,9 +4349,9 @@ class PdfToPdfClient {
     }
 
     /**
-    * Apply each page of the specified watermark PDF to the corresponding page of the output PDF.
+    * Apply each page of a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image.
     *
-    * @param watermark The file path to a local watermark PDF file. The file must exist and not be empty.
+    * @param watermark The file path to a local file. The file must exist and not be empty.
     * @return The converter object.
     */
     function setMultipageWatermark($watermark) {
@@ -4363,7 +4363,7 @@ class PdfToPdfClient {
     }
 
     /**
-    * Load a watermark PDF from the specified URL and apply each page of the specified watermark PDF to the corresponding page of the output PDF.
+    * Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image.
     *
     * @param url The supported protocols are http:// and https://.
     * @return The converter object.
@@ -4377,9 +4377,9 @@ class PdfToPdfClient {
     }
 
     /**
-    * Apply the first page of the specified PDF to the background of every page of the output PDF.
+    * Apply a background to each page of the output PDF file. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background.
     *
-    * @param background The file path to a local background PDF file. The file must exist and not be empty.
+    * @param background The file path to a local file. The file must exist and not be empty.
     * @return The converter object.
     */
     function setPageBackground($background) {
@@ -4391,7 +4391,7 @@ class PdfToPdfClient {
     }
 
     /**
-    * Load a background PDF from the specified URL and apply the first page of the background PDF to every page of the output PDF.
+    * Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background.
     *
     * @param url The supported protocols are http:// and https://.
     * @return The converter object.
@@ -4405,9 +4405,9 @@ class PdfToPdfClient {
     }
 
     /**
-    * Apply each page of the specified PDF to the background of the corresponding page of the output PDF.
+    * Apply each page of a background to the corresponding page of the output PDF. A background can be either a PDF or an image.
     *
-    * @param background The file path to a local background PDF file. The file must exist and not be empty.
+    * @param background The file path to a local file. The file must exist and not be empty.
     * @return The converter object.
     */
     function setMultipageBackground($background) {
@@ -4419,7 +4419,7 @@ class PdfToPdfClient {
     }
 
     /**
-    * Load a background PDF from the specified URL and apply each page of the specified background PDF to the corresponding page of the output PDF.
+    * Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image.
     *
     * @param url The supported protocols are http:// and https://.
     * @return The converter object.

@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+5.8.0
+-----
+
+- images can be used as a watermark and a background in HTML to PDF and PDF to PDF converter
+
 5.7.0
 -----
 
