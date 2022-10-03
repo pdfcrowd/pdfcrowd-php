@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "5.8.0";
+    public static $client_version = "5.9.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -547,7 +547,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/5.8.0 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/5.9.0 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '20.10';
@@ -577,6 +577,7 @@ You need to restart your web server after installation.';
     private $consumed_credits;
     private $job_id;
     private $page_count;
+    private $total_page_count;
 
     private $proxy_host;
     private $proxy_port;
@@ -592,7 +593,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '5.8.0';
+    const CLIENT_VERSION = '5.9.0';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -609,6 +610,7 @@ You need to restart your web server after installation.';
         $this->consumed_credits = 0;
         $this->job_id = '';
         $this->page_count = 0;
+        $this->total_page_count = 0;
         $this->output_size = 0;
         $this->retry = 0;
     }
@@ -804,6 +806,8 @@ You need to restart your web server after installation.';
                 $this->job_id = $matches[1];
             } else if(preg_match('/X-Pdfcrowd-Pages:\s+(.*)/i', $header, $matches)) {
                 $this->page_count = intval($matches[1]);
+            } else if(preg_match('/X-Pdfcrowd-Total-Pages:\s+(.*)/i', $header, $matches)) {
+                $this->total_page_count = intval($matches[1]);
             } else if(preg_match('/X-Pdfcrowd-Output-Size:\s+(.*)/i', $header, $matches)) {
                 $this->output_size = intval($matches[1]);
             } else if(preg_match('/X-Pdfcrowd-Remaining-Credits:\s+(.*)/i', $header, $matches)) {
@@ -902,6 +906,10 @@ You need to restart your web server after installation.';
 
     function getPageCount() {
         return $this->page_count;
+    }
+
+    function getTotalPageCount() {
+        return $this->total_page_count;
     }
 
     function getOutputSize() {
@@ -2026,12 +2034,12 @@ class HtmlToPdfClient {
     /**
     * The input HTML is automatically enhanced to improve the readability.
     *
-    * @param enhancements Allowed values are none, readability-v1, readability-v2, readability-v3.
+    * @param enhancements Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4.
     * @return The converter object.
     */
     function setReadabilityEnhancements($enhancements) {
-        if (!preg_match("/(?i)^(none|readability-v1|readability-v2|readability-v3)$/", $enhancements))
-            throw new Error(create_invalid_value_message($enhancements, "setReadabilityEnhancements", "html-to-pdf", "Allowed values are none, readability-v1, readability-v2, readability-v3.", "set_readability_enhancements"), 470);
+        if (!preg_match("/(?i)^(none|readability-v1|readability-v2|readability-v3|readability-v4)$/", $enhancements))
+            throw new Error(create_invalid_value_message($enhancements, "setReadabilityEnhancements", "html-to-pdf", "Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4.", "set_readability_enhancements"), 470);
         
         $this->fields['readability_enhancements'] = $enhancements;
         return $this;
@@ -2590,11 +2598,19 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Get the total number of pages in the output document.
+    * Get the number of pages in the output document.
     * @return The page count.
     */
     function getPageCount() {
         return $this->helper->getPageCount();
+    }
+
+    /**
+    * Get the total number of pages in the original output document, including the pages excluded by <a href='#set_print_page_range'>setPrintPageRange()</a>.
+    * @return The total page count.
+    */
+    function getTotalPageCount() {
+        return $this->helper->getTotalPageCount();
     }
 
     /**
@@ -3417,12 +3433,12 @@ class HtmlToImageClient {
     /**
     * The input HTML is automatically enhanced to improve the readability.
     *
-    * @param enhancements Allowed values are none, readability-v1, readability-v2, readability-v3.
+    * @param enhancements Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4.
     * @return The converter object.
     */
     function setReadabilityEnhancements($enhancements) {
-        if (!preg_match("/(?i)^(none|readability-v1|readability-v2|readability-v3)$/", $enhancements))
-            throw new Error(create_invalid_value_message($enhancements, "setReadabilityEnhancements", "html-to-image", "Allowed values are none, readability-v1, readability-v2, readability-v3.", "set_readability_enhancements"), 470);
+        if (!preg_match("/(?i)^(none|readability-v1|readability-v2|readability-v3|readability-v4)$/", $enhancements))
+            throw new Error(create_invalid_value_message($enhancements, "setReadabilityEnhancements", "html-to-image", "Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4.", "set_readability_enhancements"), 470);
         
         $this->fields['readability_enhancements'] = $enhancements;
         return $this;
@@ -4761,7 +4777,7 @@ class PdfToPdfClient {
     }
 
     /**
-    * Get the total number of pages in the output document.
+    * Get the number of pages in the output document.
     * @return The page count.
     */
     function getPageCount() {
@@ -5721,7 +5737,7 @@ class PdfToHtmlClient {
     }
 
     /**
-    * Get the total number of pages in the output document.
+    * Get the number of pages in the output document.
     * @return The page count.
     */
     function getPageCount() {

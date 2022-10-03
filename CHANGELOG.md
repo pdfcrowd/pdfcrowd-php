@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+5.9.0
+-----
+
+- NEW: getTotalPageCount to get the total page count of the source document
+- NEW: readability-v4 mode for setReadabilityEnhancements API method
+
 5.8.0
 -----
 
