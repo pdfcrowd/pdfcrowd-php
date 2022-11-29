@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+5.10.0
+------
+
+- NEW: PdftoText API client for the converion from PDF to plain text
+- NEW: ImageToPdf API client supports watermarks, backgrounds and PDF format options
+- NEW: single-page-fit-ex mode for setSmartScalingMode API method
+
 5.9.0
 -----
 
