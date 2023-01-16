@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "5.10.0";
+    public static $client_version = "5.11.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -547,7 +547,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/5.10.0 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/5.11.0 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '20.10';
@@ -593,7 +593,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '5.10.0';
+    const CLIENT_VERSION = '5.11.0';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -4054,6 +4054,201 @@ class ImageToImageClient {
     }
 
     /**
+    * Set the output canvas size.
+    *
+    * @param size Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.
+    * @return The converter object.
+    */
+    function setCanvasSize($size) {
+        if (!preg_match("/(?i)^(A0|A1|A2|A3|A4|A5|A6|Letter)$/", $size))
+            throw new Error(create_invalid_value_message($size, "setCanvasSize", "image-to-image", "Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.", "set_canvas_size"), 470);
+        
+        $this->fields['canvas_size'] = $size;
+        return $this;
+    }
+
+    /**
+    * Set the output canvas width.
+    *
+    * @param width The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @return The converter object.
+    */
+    function setCanvasWidth($width) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $width))
+            throw new Error(create_invalid_value_message($width, "setCanvasWidth", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_canvas_width"), 470);
+        
+        $this->fields['canvas_width'] = $width;
+        return $this;
+    }
+
+    /**
+    * Set the output canvas height.
+    *
+    * @param height The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @return The converter object.
+    */
+    function setCanvasHeight($height) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
+            throw new Error(create_invalid_value_message($height, "setCanvasHeight", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_canvas_height"), 470);
+        
+        $this->fields['canvas_height'] = $height;
+        return $this;
+    }
+
+    /**
+    * Set the output canvas dimensions. If no canvas size is specified, margins are applied as a border around the image.
+    *
+    * @param width Set the output canvas width. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param height Set the output canvas height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @return The converter object.
+    */
+    function setCanvasDimensions($width, $height) {
+        $this->setCanvasWidth($width);
+        $this->setCanvasHeight($height);
+        return $this;
+    }
+
+    /**
+    * Set the output canvas orientation.
+    *
+    * @param orientation Allowed values are landscape, portrait.
+    * @return The converter object.
+    */
+    function setOrientation($orientation) {
+        if (!preg_match("/(?i)^(landscape|portrait)$/", $orientation))
+            throw new Error(create_invalid_value_message($orientation, "setOrientation", "image-to-image", "Allowed values are landscape, portrait.", "set_orientation"), 470);
+        
+        $this->fields['orientation'] = $orientation;
+        return $this;
+    }
+
+    /**
+    * Set the image position on the page.
+    *
+    * @param position Allowed values are center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right.
+    * @return The converter object.
+    */
+    function setPosition($position) {
+        if (!preg_match("/(?i)^(center|top|bottom|left|right|top-left|top-right|bottom-left|bottom-right)$/", $position))
+            throw new Error(create_invalid_value_message($position, "setPosition", "image-to-image", "Allowed values are center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right.", "set_position"), 470);
+        
+        $this->fields['position'] = $position;
+        return $this;
+    }
+
+    /**
+    * Set the mode to print the image on the content area of the page.
+    *
+    * @param mode Allowed values are default, fit, stretch.
+    * @return The converter object.
+    */
+    function setPrintCanvasMode($mode) {
+        if (!preg_match("/(?i)^(default|fit|stretch)$/", $mode))
+            throw new Error(create_invalid_value_message($mode, "setPrintCanvasMode", "image-to-image", "Allowed values are default, fit, stretch.", "set_print_canvas_mode"), 470);
+        
+        $this->fields['print_canvas_mode'] = $mode;
+        return $this;
+    }
+
+    /**
+    * Set the output canvas top margin.
+    *
+    * @param top The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @return The converter object.
+    */
+    function setMarginTop($top) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $top))
+            throw new Error(create_invalid_value_message($top, "setMarginTop", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_margin_top"), 470);
+        
+        $this->fields['margin_top'] = $top;
+        return $this;
+    }
+
+    /**
+    * Set the output canvas right margin.
+    *
+    * @param right The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @return The converter object.
+    */
+    function setMarginRight($right) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $right))
+            throw new Error(create_invalid_value_message($right, "setMarginRight", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_margin_right"), 470);
+        
+        $this->fields['margin_right'] = $right;
+        return $this;
+    }
+
+    /**
+    * Set the output canvas bottom margin.
+    *
+    * @param bottom The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @return The converter object.
+    */
+    function setMarginBottom($bottom) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $bottom))
+            throw new Error(create_invalid_value_message($bottom, "setMarginBottom", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_margin_bottom"), 470);
+        
+        $this->fields['margin_bottom'] = $bottom;
+        return $this;
+    }
+
+    /**
+    * Set the output canvas left margin.
+    *
+    * @param left The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @return The converter object.
+    */
+    function setMarginLeft($left) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $left))
+            throw new Error(create_invalid_value_message($left, "setMarginLeft", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_margin_left"), 470);
+        
+        $this->fields['margin_left'] = $left;
+        return $this;
+    }
+
+    /**
+    * Set the output canvas margins.
+    *
+    * @param top Set the output canvas top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param right Set the output canvas right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param bottom Set the output canvas bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param left Set the output canvas left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @return The converter object.
+    */
+    function setMargins($top, $right, $bottom, $left) {
+        $this->setMarginTop($top);
+        $this->setMarginRight($right);
+        $this->setMarginBottom($bottom);
+        $this->setMarginLeft($left);
+        return $this;
+    }
+
+    /**
+    * The canvas background color in RGB or RGBA hexadecimal format. The color fills the entire canvas regardless of margins. If no canvas size is specified and the image format supports background (e.g. PDF, PNG), the background color is applied too.
+    *
+    * @param color The value must be in RRGGBB or RRGGBBAA hexadecimal format.
+    * @return The converter object.
+    */
+    function setCanvasBackgroundColor($color) {
+        if (!preg_match("/^[0-9a-fA-F]{6,8}$/", $color))
+            throw new Error(create_invalid_value_message($color, "setCanvasBackgroundColor", "image-to-image", "The value must be in RRGGBB or RRGGBBAA hexadecimal format.", "set_canvas_background_color"), 470);
+        
+        $this->fields['canvas_background_color'] = $color;
+        return $this;
+    }
+
+    /**
+    * Set the DPI resolution of the input image. The DPI affects margin options specified in points too (e.g. 1 point is equal to 1 pixel in 96 DPI).
+    *
+    * @param dpi The DPI value.
+    * @return The converter object.
+    */
+    function setDpi($dpi) {
+        $this->fields['dpi'] = $dpi;
+        return $this;
+    }
+
+    /**
     * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method or available in <a href='/user/account/log/conversion/'>conversion statistics</a>.
     *
     * @param value Set to <span class='field-value'>true</span> to enable the debug logging.
@@ -4253,12 +4448,12 @@ class PdfToPdfClient {
     /**
     * Specifies the action to be performed on the input PDFs.
     *
-    * @param action Allowed values are join, shuffle.
+    * @param action Allowed values are join, shuffle, extract, delete.
     * @return The converter object.
     */
     function setAction($action) {
-        if (!preg_match("/(?i)^(join|shuffle)$/", $action))
-            throw new Error(create_invalid_value_message($action, "setAction", "pdf-to-pdf", "Allowed values are join, shuffle.", "set_action"), 470);
+        if (!preg_match("/(?i)^(join|shuffle|extract|delete)$/", $action))
+            throw new Error(create_invalid_value_message($action, "setAction", "pdf-to-pdf", "Allowed values are join, shuffle, extract, delete.", "set_action"), 470);
         
         $this->fields['action'] = $action;
         return $this;
@@ -4333,6 +4528,20 @@ class PdfToPdfClient {
     */
     function setInputPdfPassword($password) {
         $this->fields['input_pdf_password'] = $password;
+        return $this;
+    }
+
+    /**
+    * Set the page range for <span class='field-value'>extract</span> or <span class='field-value'>delete</span> action.
+    *
+    * @param pages A comma separated list of page numbers or ranges.
+    * @return The converter object.
+    */
+    function setPageRange($pages) {
+        if (!preg_match("/^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$/", $pages))
+            throw new Error(create_invalid_value_message($pages, "setPageRange", "pdf-to-pdf", "A comma separated list of page numbers or ranges.", "set_page_range"), 470);
+        
+        $this->fields['page_range'] = $pages;
         return $this;
     }
 
@@ -5130,6 +5339,201 @@ class ImageToPdfClient {
     */
     function setRotate($rotate) {
         $this->fields['rotate'] = $rotate;
+        return $this;
+    }
+
+    /**
+    * Set the output page size.
+    *
+    * @param size Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.
+    * @return The converter object.
+    */
+    function setPageSize($size) {
+        if (!preg_match("/(?i)^(A0|A1|A2|A3|A4|A5|A6|Letter)$/", $size))
+            throw new Error(create_invalid_value_message($size, "setPageSize", "image-to-pdf", "Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.", "set_page_size"), 470);
+        
+        $this->fields['page_size'] = $size;
+        return $this;
+    }
+
+    /**
+    * Set the output page width.
+    *
+    * @param width The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @return The converter object.
+    */
+    function setPageWidth($width) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $width))
+            throw new Error(create_invalid_value_message($width, "setPageWidth", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_page_width"), 470);
+        
+        $this->fields['page_width'] = $width;
+        return $this;
+    }
+
+    /**
+    * Set the output page height.
+    *
+    * @param height The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @return The converter object.
+    */
+    function setPageHeight($height) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
+            throw new Error(create_invalid_value_message($height, "setPageHeight", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_page_height"), 470);
+        
+        $this->fields['page_height'] = $height;
+        return $this;
+    }
+
+    /**
+    * Set the output page dimensions. If no page size is specified, margins are applied as a border around the image.
+    *
+    * @param width Set the output page width. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param height Set the output page height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @return The converter object.
+    */
+    function setPageDimensions($width, $height) {
+        $this->setPageWidth($width);
+        $this->setPageHeight($height);
+        return $this;
+    }
+
+    /**
+    * Set the output page orientation.
+    *
+    * @param orientation Allowed values are landscape, portrait.
+    * @return The converter object.
+    */
+    function setOrientation($orientation) {
+        if (!preg_match("/(?i)^(landscape|portrait)$/", $orientation))
+            throw new Error(create_invalid_value_message($orientation, "setOrientation", "image-to-pdf", "Allowed values are landscape, portrait.", "set_orientation"), 470);
+        
+        $this->fields['orientation'] = $orientation;
+        return $this;
+    }
+
+    /**
+    * Set the image position on the page.
+    *
+    * @param position Allowed values are center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right.
+    * @return The converter object.
+    */
+    function setPosition($position) {
+        if (!preg_match("/(?i)^(center|top|bottom|left|right|top-left|top-right|bottom-left|bottom-right)$/", $position))
+            throw new Error(create_invalid_value_message($position, "setPosition", "image-to-pdf", "Allowed values are center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right.", "set_position"), 470);
+        
+        $this->fields['position'] = $position;
+        return $this;
+    }
+
+    /**
+    * Set the mode to print the image on the content area of the page.
+    *
+    * @param mode Allowed values are default, fit, stretch.
+    * @return The converter object.
+    */
+    function setPrintPageMode($mode) {
+        if (!preg_match("/(?i)^(default|fit|stretch)$/", $mode))
+            throw new Error(create_invalid_value_message($mode, "setPrintPageMode", "image-to-pdf", "Allowed values are default, fit, stretch.", "set_print_page_mode"), 470);
+        
+        $this->fields['print_page_mode'] = $mode;
+        return $this;
+    }
+
+    /**
+    * Set the output page top margin.
+    *
+    * @param top The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @return The converter object.
+    */
+    function setMarginTop($top) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $top))
+            throw new Error(create_invalid_value_message($top, "setMarginTop", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_margin_top"), 470);
+        
+        $this->fields['margin_top'] = $top;
+        return $this;
+    }
+
+    /**
+    * Set the output page right margin.
+    *
+    * @param right The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @return The converter object.
+    */
+    function setMarginRight($right) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $right))
+            throw new Error(create_invalid_value_message($right, "setMarginRight", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_margin_right"), 470);
+        
+        $this->fields['margin_right'] = $right;
+        return $this;
+    }
+
+    /**
+    * Set the output page bottom margin.
+    *
+    * @param bottom The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @return The converter object.
+    */
+    function setMarginBottom($bottom) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $bottom))
+            throw new Error(create_invalid_value_message($bottom, "setMarginBottom", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_margin_bottom"), 470);
+        
+        $this->fields['margin_bottom'] = $bottom;
+        return $this;
+    }
+
+    /**
+    * Set the output page left margin.
+    *
+    * @param left The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @return The converter object.
+    */
+    function setMarginLeft($left) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $left))
+            throw new Error(create_invalid_value_message($left, "setMarginLeft", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_margin_left"), 470);
+        
+        $this->fields['margin_left'] = $left;
+        return $this;
+    }
+
+    /**
+    * Set the output page margins.
+    *
+    * @param top Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param right Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param bottom Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param left Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @return The converter object.
+    */
+    function setPageMargins($top, $right, $bottom, $left) {
+        $this->setMarginTop($top);
+        $this->setMarginRight($right);
+        $this->setMarginBottom($bottom);
+        $this->setMarginLeft($left);
+        return $this;
+    }
+
+    /**
+    * The page background color in RGB or RGBA hexadecimal format. The color fills the entire page regardless of the margins. If not page size is specified and the image format supports background (e.g. PDF, PNG), the background color is applied too.
+    *
+    * @param color The value must be in RRGGBB or RRGGBBAA hexadecimal format.
+    * @return The converter object.
+    */
+    function setPageBackgroundColor($color) {
+        if (!preg_match("/^[0-9a-fA-F]{6,8}$/", $color))
+            throw new Error(create_invalid_value_message($color, "setPageBackgroundColor", "image-to-pdf", "The value must be in RRGGBB or RRGGBBAA hexadecimal format.", "set_page_background_color"), 470);
+        
+        $this->fields['page_background_color'] = $color;
+        return $this;
+    }
+
+    /**
+    * Set the DPI resolution of the input image. The DPI affects margin options specified in points too (e.g. 1 point is equal to 1 pixel in 96 DPI).
+    *
+    * @param dpi The DPI value.
+    * @return The converter object.
+    */
+    function setDpi($dpi) {
+        $this->fields['dpi'] = $dpi;
         return $this;
     }
 

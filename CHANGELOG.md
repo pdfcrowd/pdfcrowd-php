@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+5.11.0
+------
+
+- NEW: canvas setup options for ImageToImage API client
+- NEW: page setup, watermark/background and output options for ImageToPdf API client
+- FIX: rotation for ImageToPdf API client
+
 5.10.0
 ------
 
