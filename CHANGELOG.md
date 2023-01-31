@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+5.12.0
+------
+
+- NEW: setCropAreaX, setCropAreaY, setCropAreaWidth, setCropAreaHeight and setRemoveBorders methods for ImageToImage and ImageToPdf API client
+
 5.11.0
 ------
 

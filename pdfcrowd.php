@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "5.11.0";
+    public static $client_version = "5.12.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -547,7 +547,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/5.11.0 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/5.12.0 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '20.10';
@@ -593,7 +593,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '5.11.0';
+    const CLIENT_VERSION = '5.12.0';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -1186,12 +1186,12 @@ class HtmlToPdfClient {
     /**
     * Set the output page width. The safe maximum is <span class='field-value'>200in</span> otherwise some PDF viewers may be unable to open the PDF.
     *
-    * @param width The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param width The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setPageWidth($width) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $width))
-            throw new Error(create_invalid_value_message($width, "setPageWidth", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_page_width"), 470);
+            throw new Error(create_invalid_value_message($width, "setPageWidth", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_page_width"), 470);
         
         $this->fields['page_width'] = $width;
         return $this;
@@ -1200,12 +1200,12 @@ class HtmlToPdfClient {
     /**
     * Set the output page height. Use <span class='field-value'>-1</span> for a single page PDF. The safe maximum is <span class='field-value'>200in</span> otherwise some PDF viewers may be unable to open the PDF.
     *
-    * @param height The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param height The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setPageHeight($height) {
         if (!preg_match("/(?i)^0$|^\-1$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
-            throw new Error(create_invalid_value_message($height, "setPageHeight", "html-to-pdf", "The value must be -1 or specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_page_height"), 470);
+            throw new Error(create_invalid_value_message($height, "setPageHeight", "html-to-pdf", "The value must be -1 or specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_page_height"), 470);
         
         $this->fields['page_height'] = $height;
         return $this;
@@ -1214,8 +1214,8 @@ class HtmlToPdfClient {
     /**
     * Set the output page dimensions.
     *
-    * @param width Set the output page width. The safe maximum is <span class='field-value'>200in</span> otherwise some PDF viewers may be unable to open the PDF. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-    * @param height Set the output page height. Use <span class='field-value'>-1</span> for a single page PDF. The safe maximum is <span class='field-value'>200in</span> otherwise some PDF viewers may be unable to open the PDF. The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param width Set the output page width. The safe maximum is <span class='field-value'>200in</span> otherwise some PDF viewers may be unable to open the PDF. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param height Set the output page height. Use <span class='field-value'>-1</span> for a single page PDF. The safe maximum is <span class='field-value'>200in</span> otherwise some PDF viewers may be unable to open the PDF. The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setPageDimensions($width, $height) {
@@ -1241,12 +1241,12 @@ class HtmlToPdfClient {
     /**
     * Set the output page top margin.
     *
-    * @param top The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param top The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setMarginTop($top) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $top))
-            throw new Error(create_invalid_value_message($top, "setMarginTop", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_margin_top"), 470);
+            throw new Error(create_invalid_value_message($top, "setMarginTop", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_margin_top"), 470);
         
         $this->fields['margin_top'] = $top;
         return $this;
@@ -1255,12 +1255,12 @@ class HtmlToPdfClient {
     /**
     * Set the output page right margin.
     *
-    * @param right The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param right The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setMarginRight($right) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $right))
-            throw new Error(create_invalid_value_message($right, "setMarginRight", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_margin_right"), 470);
+            throw new Error(create_invalid_value_message($right, "setMarginRight", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_margin_right"), 470);
         
         $this->fields['margin_right'] = $right;
         return $this;
@@ -1269,12 +1269,12 @@ class HtmlToPdfClient {
     /**
     * Set the output page bottom margin.
     *
-    * @param bottom The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param bottom The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setMarginBottom($bottom) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $bottom))
-            throw new Error(create_invalid_value_message($bottom, "setMarginBottom", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_margin_bottom"), 470);
+            throw new Error(create_invalid_value_message($bottom, "setMarginBottom", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_margin_bottom"), 470);
         
         $this->fields['margin_bottom'] = $bottom;
         return $this;
@@ -1283,12 +1283,12 @@ class HtmlToPdfClient {
     /**
     * Set the output page left margin.
     *
-    * @param left The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param left The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setMarginLeft($left) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $left))
-            throw new Error(create_invalid_value_message($left, "setMarginLeft", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_margin_left"), 470);
+            throw new Error(create_invalid_value_message($left, "setMarginLeft", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_margin_left"), 470);
         
         $this->fields['margin_left'] = $left;
         return $this;
@@ -1308,10 +1308,10 @@ class HtmlToPdfClient {
     /**
     * Set the output page margins.
     *
-    * @param top Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-    * @param right Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-    * @param bottom Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-    * @param left Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param top Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param right Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param bottom Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param left Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setPageMargins($top, $right, $bottom, $left) {
@@ -1350,12 +1350,12 @@ class HtmlToPdfClient {
     /**
     * Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
     *
-    * @param x The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value.
+    * @param x The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
     * @return The converter object.
     */
     function setContentAreaX($x) {
         if (!preg_match("/(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $x))
-            throw new Error(create_invalid_value_message($x, "setContentAreaX", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\". It may contain a negative value.", "set_content_area_x"), 470);
+            throw new Error(create_invalid_value_message($x, "setContentAreaX", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\". It may contain a negative value.", "set_content_area_x"), 470);
         
         $this->fields['content_area_x'] = $x;
         return $this;
@@ -1364,12 +1364,12 @@ class HtmlToPdfClient {
     /**
     * Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area.
     *
-    * @param y The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value.
+    * @param y The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
     * @return The converter object.
     */
     function setContentAreaY($y) {
         if (!preg_match("/(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $y))
-            throw new Error(create_invalid_value_message($y, "setContentAreaY", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\". It may contain a negative value.", "set_content_area_y"), 470);
+            throw new Error(create_invalid_value_message($y, "setContentAreaY", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\". It may contain a negative value.", "set_content_area_y"), 470);
         
         $this->fields['content_area_y'] = $y;
         return $this;
@@ -1378,12 +1378,12 @@ class HtmlToPdfClient {
     /**
     * Set the width of the content area. It should be at least 1 inch.
     *
-    * @param width The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param width The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setContentAreaWidth($width) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $width))
-            throw new Error(create_invalid_value_message($width, "setContentAreaWidth", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_content_area_width"), 470);
+            throw new Error(create_invalid_value_message($width, "setContentAreaWidth", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_content_area_width"), 470);
         
         $this->fields['content_area_width'] = $width;
         return $this;
@@ -1392,12 +1392,12 @@ class HtmlToPdfClient {
     /**
     * Set the height of the content area. It should be at least 1 inch.
     *
-    * @param height The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param height The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setContentAreaHeight($height) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
-            throw new Error(create_invalid_value_message($height, "setContentAreaHeight", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_content_area_height"), 470);
+            throw new Error(create_invalid_value_message($height, "setContentAreaHeight", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_content_area_height"), 470);
         
         $this->fields['content_area_height'] = $height;
         return $this;
@@ -1406,10 +1406,10 @@ class HtmlToPdfClient {
     /**
     * Set the content area position and size. The content area enables to specify a web page area to be converted.
     *
-    * @param x Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value.
-    * @param y Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value.
-    * @param width Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-    * @param height Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param x Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
+    * @param y Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
+    * @param width Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param height Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setContentArea($x, $y, $width, $height) {
@@ -1465,12 +1465,12 @@ class HtmlToPdfClient {
     /**
     * Set the header height.
     *
-    * @param height The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param height The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setHeaderHeight($height) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
-            throw new Error(create_invalid_value_message($height, "setHeaderHeight", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_header_height"), 470);
+            throw new Error(create_invalid_value_message($height, "setHeaderHeight", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_header_height"), 470);
         
         $this->fields['header_height'] = $height;
         return $this;
@@ -1518,12 +1518,12 @@ class HtmlToPdfClient {
     /**
     * Set the footer height.
     *
-    * @param height The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param height The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setFooterHeight($height) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
-            throw new Error(create_invalid_value_message($height, "setFooterHeight", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_footer_height"), 470);
+            throw new Error(create_invalid_value_message($height, "setFooterHeight", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_footer_height"), 470);
         
         $this->fields['footer_height'] = $height;
         return $this;
@@ -4054,6 +4054,90 @@ class ImageToImageClient {
     }
 
     /**
+    * Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
+    *
+    * @param x The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @return The converter object.
+    */
+    function setCropAreaX($x) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $x))
+            throw new Error(create_invalid_value_message($x, "setCropAreaX", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_crop_area_x"), 470);
+        
+        $this->fields['crop_area_x'] = $x;
+        return $this;
+    }
+
+    /**
+    * Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area.
+    *
+    * @param y The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @return The converter object.
+    */
+    function setCropAreaY($y) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $y))
+            throw new Error(create_invalid_value_message($y, "setCropAreaY", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_crop_area_y"), 470);
+        
+        $this->fields['crop_area_y'] = $y;
+        return $this;
+    }
+
+    /**
+    * Set the width of the content area. It should be at least 1 inch.
+    *
+    * @param width The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @return The converter object.
+    */
+    function setCropAreaWidth($width) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $width))
+            throw new Error(create_invalid_value_message($width, "setCropAreaWidth", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_crop_area_width"), 470);
+        
+        $this->fields['crop_area_width'] = $width;
+        return $this;
+    }
+
+    /**
+    * Set the height of the content area. It should be at least 1 inch.
+    *
+    * @param height The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @return The converter object.
+    */
+    function setCropAreaHeight($height) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
+            throw new Error(create_invalid_value_message($height, "setCropAreaHeight", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_crop_area_height"), 470);
+        
+        $this->fields['crop_area_height'] = $height;
+        return $this;
+    }
+
+    /**
+    * Set the content area position and size. The content area enables to specify the part to be converted.
+    *
+    * @param x Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param y Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param width Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param height Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @return The converter object.
+    */
+    function setCropArea($x, $y, $width, $height) {
+        $this->setCropAreaX($x);
+        $this->setCropAreaY($y);
+        $this->setCropAreaWidth($width);
+        $this->setCropAreaHeight($height);
+        return $this;
+    }
+
+    /**
+    * Remove borders of an image which does not change in color.
+    *
+    * @param value Set to <span class='field-value'>true</span> to remove borders.
+    * @return The converter object.
+    */
+    function setRemoveBorders($value) {
+        $this->fields['remove_borders'] = $value;
+        return $this;
+    }
+
+    /**
     * Set the output canvas size.
     *
     * @param size Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.
@@ -4070,12 +4154,12 @@ class ImageToImageClient {
     /**
     * Set the output canvas width.
     *
-    * @param width The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param width The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setCanvasWidth($width) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $width))
-            throw new Error(create_invalid_value_message($width, "setCanvasWidth", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_canvas_width"), 470);
+            throw new Error(create_invalid_value_message($width, "setCanvasWidth", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_canvas_width"), 470);
         
         $this->fields['canvas_width'] = $width;
         return $this;
@@ -4084,12 +4168,12 @@ class ImageToImageClient {
     /**
     * Set the output canvas height.
     *
-    * @param height The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param height The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setCanvasHeight($height) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
-            throw new Error(create_invalid_value_message($height, "setCanvasHeight", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_canvas_height"), 470);
+            throw new Error(create_invalid_value_message($height, "setCanvasHeight", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_canvas_height"), 470);
         
         $this->fields['canvas_height'] = $height;
         return $this;
@@ -4098,8 +4182,8 @@ class ImageToImageClient {
     /**
     * Set the output canvas dimensions. If no canvas size is specified, margins are applied as a border around the image.
     *
-    * @param width Set the output canvas width. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-    * @param height Set the output canvas height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param width Set the output canvas width. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param height Set the output canvas height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setCanvasDimensions($width, $height) {
@@ -4123,7 +4207,7 @@ class ImageToImageClient {
     }
 
     /**
-    * Set the image position on the page.
+    * Set the image position on the canvas.
     *
     * @param position Allowed values are center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right.
     * @return The converter object.
@@ -4137,7 +4221,7 @@ class ImageToImageClient {
     }
 
     /**
-    * Set the mode to print the image on the content area of the page.
+    * Set the mode to print the image on the canvas.
     *
     * @param mode Allowed values are default, fit, stretch.
     * @return The converter object.
@@ -4153,12 +4237,12 @@ class ImageToImageClient {
     /**
     * Set the output canvas top margin.
     *
-    * @param top The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param top The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setMarginTop($top) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $top))
-            throw new Error(create_invalid_value_message($top, "setMarginTop", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_margin_top"), 470);
+            throw new Error(create_invalid_value_message($top, "setMarginTop", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_margin_top"), 470);
         
         $this->fields['margin_top'] = $top;
         return $this;
@@ -4167,12 +4251,12 @@ class ImageToImageClient {
     /**
     * Set the output canvas right margin.
     *
-    * @param right The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param right The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setMarginRight($right) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $right))
-            throw new Error(create_invalid_value_message($right, "setMarginRight", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_margin_right"), 470);
+            throw new Error(create_invalid_value_message($right, "setMarginRight", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_margin_right"), 470);
         
         $this->fields['margin_right'] = $right;
         return $this;
@@ -4181,12 +4265,12 @@ class ImageToImageClient {
     /**
     * Set the output canvas bottom margin.
     *
-    * @param bottom The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param bottom The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setMarginBottom($bottom) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $bottom))
-            throw new Error(create_invalid_value_message($bottom, "setMarginBottom", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_margin_bottom"), 470);
+            throw new Error(create_invalid_value_message($bottom, "setMarginBottom", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_margin_bottom"), 470);
         
         $this->fields['margin_bottom'] = $bottom;
         return $this;
@@ -4195,12 +4279,12 @@ class ImageToImageClient {
     /**
     * Set the output canvas left margin.
     *
-    * @param left The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param left The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setMarginLeft($left) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $left))
-            throw new Error(create_invalid_value_message($left, "setMarginLeft", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_margin_left"), 470);
+            throw new Error(create_invalid_value_message($left, "setMarginLeft", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_margin_left"), 470);
         
         $this->fields['margin_left'] = $left;
         return $this;
@@ -4209,10 +4293,10 @@ class ImageToImageClient {
     /**
     * Set the output canvas margins.
     *
-    * @param top Set the output canvas top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-    * @param right Set the output canvas right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-    * @param bottom Set the output canvas bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-    * @param left Set the output canvas left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param top Set the output canvas top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param right Set the output canvas right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param bottom Set the output canvas bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param left Set the output canvas left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setMargins($top, $right, $bottom, $left) {
@@ -5343,6 +5427,90 @@ class ImageToPdfClient {
     }
 
     /**
+    * Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
+    *
+    * @param x The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @return The converter object.
+    */
+    function setCropAreaX($x) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $x))
+            throw new Error(create_invalid_value_message($x, "setCropAreaX", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_crop_area_x"), 470);
+        
+        $this->fields['crop_area_x'] = $x;
+        return $this;
+    }
+
+    /**
+    * Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area.
+    *
+    * @param y The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @return The converter object.
+    */
+    function setCropAreaY($y) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $y))
+            throw new Error(create_invalid_value_message($y, "setCropAreaY", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_crop_area_y"), 470);
+        
+        $this->fields['crop_area_y'] = $y;
+        return $this;
+    }
+
+    /**
+    * Set the width of the content area. It should be at least 1 inch.
+    *
+    * @param width The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @return The converter object.
+    */
+    function setCropAreaWidth($width) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $width))
+            throw new Error(create_invalid_value_message($width, "setCropAreaWidth", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_crop_area_width"), 470);
+        
+        $this->fields['crop_area_width'] = $width;
+        return $this;
+    }
+
+    /**
+    * Set the height of the content area. It should be at least 1 inch.
+    *
+    * @param height The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @return The converter object.
+    */
+    function setCropAreaHeight($height) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
+            throw new Error(create_invalid_value_message($height, "setCropAreaHeight", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_crop_area_height"), 470);
+        
+        $this->fields['crop_area_height'] = $height;
+        return $this;
+    }
+
+    /**
+    * Set the content area position and size. The content area enables to specify the part to be converted.
+    *
+    * @param x Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param y Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param width Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param height Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @return The converter object.
+    */
+    function setCropArea($x, $y, $width, $height) {
+        $this->setCropAreaX($x);
+        $this->setCropAreaY($y);
+        $this->setCropAreaWidth($width);
+        $this->setCropAreaHeight($height);
+        return $this;
+    }
+
+    /**
+    * Remove borders of an image which does not change in color.
+    *
+    * @param value Set to <span class='field-value'>true</span> to remove borders.
+    * @return The converter object.
+    */
+    function setRemoveBorders($value) {
+        $this->fields['remove_borders'] = $value;
+        return $this;
+    }
+
+    /**
     * Set the output page size.
     *
     * @param size Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.
@@ -5359,12 +5527,12 @@ class ImageToPdfClient {
     /**
     * Set the output page width.
     *
-    * @param width The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param width The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setPageWidth($width) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $width))
-            throw new Error(create_invalid_value_message($width, "setPageWidth", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_page_width"), 470);
+            throw new Error(create_invalid_value_message($width, "setPageWidth", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_page_width"), 470);
         
         $this->fields['page_width'] = $width;
         return $this;
@@ -5373,12 +5541,12 @@ class ImageToPdfClient {
     /**
     * Set the output page height.
     *
-    * @param height The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param height The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setPageHeight($height) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
-            throw new Error(create_invalid_value_message($height, "setPageHeight", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_page_height"), 470);
+            throw new Error(create_invalid_value_message($height, "setPageHeight", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_page_height"), 470);
         
         $this->fields['page_height'] = $height;
         return $this;
@@ -5387,8 +5555,8 @@ class ImageToPdfClient {
     /**
     * Set the output page dimensions. If no page size is specified, margins are applied as a border around the image.
     *
-    * @param width Set the output page width. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-    * @param height Set the output page height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param width Set the output page width. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param height Set the output page height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setPageDimensions($width, $height) {
@@ -5442,12 +5610,12 @@ class ImageToPdfClient {
     /**
     * Set the output page top margin.
     *
-    * @param top The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param top The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setMarginTop($top) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $top))
-            throw new Error(create_invalid_value_message($top, "setMarginTop", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_margin_top"), 470);
+            throw new Error(create_invalid_value_message($top, "setMarginTop", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_margin_top"), 470);
         
         $this->fields['margin_top'] = $top;
         return $this;
@@ -5456,12 +5624,12 @@ class ImageToPdfClient {
     /**
     * Set the output page right margin.
     *
-    * @param right The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param right The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setMarginRight($right) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $right))
-            throw new Error(create_invalid_value_message($right, "setMarginRight", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_margin_right"), 470);
+            throw new Error(create_invalid_value_message($right, "setMarginRight", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_margin_right"), 470);
         
         $this->fields['margin_right'] = $right;
         return $this;
@@ -5470,12 +5638,12 @@ class ImageToPdfClient {
     /**
     * Set the output page bottom margin.
     *
-    * @param bottom The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param bottom The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setMarginBottom($bottom) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $bottom))
-            throw new Error(create_invalid_value_message($bottom, "setMarginBottom", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_margin_bottom"), 470);
+            throw new Error(create_invalid_value_message($bottom, "setMarginBottom", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_margin_bottom"), 470);
         
         $this->fields['margin_bottom'] = $bottom;
         return $this;
@@ -5484,12 +5652,12 @@ class ImageToPdfClient {
     /**
     * Set the output page left margin.
     *
-    * @param left The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param left The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setMarginLeft($left) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $left))
-            throw new Error(create_invalid_value_message($left, "setMarginLeft", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", or points \"pt\".", "set_margin_left"), 470);
+            throw new Error(create_invalid_value_message($left, "setMarginLeft", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_margin_left"), 470);
         
         $this->fields['margin_left'] = $left;
         return $this;
@@ -5498,10 +5666,10 @@ class ImageToPdfClient {
     /**
     * Set the output page margins.
     *
-    * @param top Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-    * @param right Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-    * @param bottom Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-    * @param left Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+    * @param top Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param right Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param bottom Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param left Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
     * @return The converter object.
     */
     function setPageMargins($top, $right, $bottom, $left) {
