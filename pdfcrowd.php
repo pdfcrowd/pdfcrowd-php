@@ -108,7 +108,7 @@ Possible reasons:
  1. The file is missing.
  2. You misspelled the file name.
  3. You use a relative file path (e.g. 'index.html') but the current working
-    directory is somewhere else than you expect: '${cwd}'
+    directory is somewhere else than you expect: '{$cwd}'
     Generally, it is safer to use an absolute file path instead of a relative one.
 ");
         }
