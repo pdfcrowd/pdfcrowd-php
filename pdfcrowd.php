@@ -108,7 +108,7 @@ Possible reasons:
  1. The file is missing.
  2. You misspelled the file name.
  3. You use a relative file path (e.g. 'index.html') but the current working
-    directory is somewhere else than you expect: '${cwd}'
+    directory is somewhere else than you expect: '{$cwd}'
     Generally, it is safer to use an absolute file path instead of a relative one.
 ");
         }
@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "5.12.0";
+    public static $client_version = "5.12.1";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -547,7 +547,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/5.12.0 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/5.12.1 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '20.10';
@@ -593,7 +593,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '5.12.0';
+    const CLIENT_VERSION = '5.12.1';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -652,8 +652,7 @@ You need to restart your web server after installation.';
     }
 
     private function should_retry($code) {
-        if (($code == 502 || getenv('PDFCROWD_UNIT_TEST_MODE'))
-            && $this->retry_count > $this->retry) {
+        if (($code == 502 || $code == 503) && $this->retry_count > $this->retry) {
             // http error 502 occures sometimes due to network problems
             // so retry request
             $this->retry++;
@@ -2850,7 +2849,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
+    * Specifies the number of automatic retries when the 502 or 503 HTTP status code is received. The status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     *
     * @param count Number of retries.
     * @return The converter object.
@@ -3780,7 +3779,7 @@ class HtmlToImageClient {
     }
 
     /**
-    * Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
+    * Specifies the number of automatic retries when the 502 or 503 HTTP status code is received. The status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     *
     * @param count Number of retries.
     * @return The converter object.
@@ -4496,7 +4495,7 @@ class ImageToImageClient {
     }
 
     /**
-    * Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
+    * Specifies the number of automatic retries when the 502 or 503 HTTP status code is received. The status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     *
     * @param count Number of retries.
     * @return The converter object.
@@ -5167,7 +5166,7 @@ class PdfToPdfClient {
     }
 
     /**
-    * Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
+    * Specifies the number of automatic retries when the 502 or 503 HTTP status code is received. The status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     *
     * @param count Number of retries.
     * @return The converter object.
@@ -6238,7 +6237,7 @@ class ImageToPdfClient {
     }
 
     /**
-    * Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
+    * Specifies the number of automatic retries when the 502 or 503 HTTP status code is received. The status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     *
     * @param count Number of retries.
     * @return The converter object.
@@ -6789,7 +6788,7 @@ class PdfToHtmlClient {
     }
 
     /**
-    * Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
+    * Specifies the number of automatic retries when the 502 or 503 HTTP status code is received. The status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     *
     * @param count Number of retries.
     * @return The converter object.
@@ -7386,7 +7385,7 @@ class PdfToTextClient {
     }
 
     /**
-    * Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
+    * Specifies the number of automatic retries when the 502 or 503 HTTP status code is received. The status code indicates a temporary network issue. This feature can be disabled by setting to 0.
     *
     * @param count Number of retries.
     * @return The converter object.
