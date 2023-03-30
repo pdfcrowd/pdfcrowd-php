@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+5.13.0
+------
+
+- NEW: setRemoveBlankPages method for HtmlToPdf API client
+
 5.12.1
 ------
 

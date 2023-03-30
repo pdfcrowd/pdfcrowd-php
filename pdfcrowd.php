@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "5.12.1";
+    public static $client_version = "5.13.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -547,7 +547,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/5.12.1 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/5.13.0 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '20.10';
@@ -593,7 +593,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '5.12.1';
+    const CLIENT_VERSION = '5.13.0';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -1430,6 +1430,20 @@ class HtmlToPdfClient {
             throw new Error(create_invalid_value_message($mode, "setCssPageRuleMode", "html-to-pdf", "Allowed values are default, mode1, mode2.", "set_css_page_rule_mode"), 470);
         
         $this->fields['css_page_rule_mode'] = $mode;
+        return $this;
+    }
+
+    /**
+    * Specifies which blank pages to exclude from the output document.
+    *
+    * @param pages The empty page behavior. Allowed values are trailing, none.
+    * @return The converter object.
+    */
+    function setRemoveBlankPages($pages) {
+        if (!preg_match("/(?i)^(trailing|none)$/", $pages))
+            throw new Error(create_invalid_value_message($pages, "setRemoveBlankPages", "html-to-pdf", "Allowed values are trailing, none.", "set_remove_blank_pages"), 470);
+        
+        $this->fields['remove_blank_pages'] = $pages;
         return $this;
     }
 
