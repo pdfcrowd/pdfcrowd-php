@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "5.13.0";
+    public static $client_version = "5.13.1";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -547,7 +547,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/5.13.0 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/5.13.1 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '20.10';
@@ -578,6 +578,8 @@ You need to restart your web server after installation.';
     private $job_id;
     private $page_count;
     private $total_page_count;
+    private $output_size;
+    private $user_agent;
 
     private $proxy_host;
     private $proxy_port;
@@ -593,7 +595,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '5.13.0';
+    const CLIENT_VERSION = '5.13.1';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -932,6 +934,9 @@ You need to restart your web server after installation.';
 class HtmlToPdfClient {
     private $helper;
     private $fields;
+    private $file_id;
+    private $files;
+    private $raw_data;
 
     /**
     * Constructor for the Pdfcrowd API client.
@@ -2881,6 +2886,9 @@ class HtmlToPdfClient {
 class HtmlToImageClient {
     private $helper;
     private $fields;
+    private $file_id;
+    private $files;
+    private $raw_data;
 
     /**
     * Constructor for the Pdfcrowd API client.
@@ -3811,6 +3819,9 @@ class HtmlToImageClient {
 class ImageToImageClient {
     private $helper;
     private $fields;
+    private $file_id;
+    private $files;
+    private $raw_data;
 
     /**
     * Constructor for the Pdfcrowd API client.
@@ -4527,6 +4538,9 @@ class ImageToImageClient {
 class PdfToPdfClient {
     private $helper;
     private $fields;
+    private $file_id;
+    private $files;
+    private $raw_data;
 
     /**
     * Constructor for the Pdfcrowd API client.
@@ -5198,6 +5212,9 @@ class PdfToPdfClient {
 class ImageToPdfClient {
     private $helper;
     private $fields;
+    private $file_id;
+    private $files;
+    private $raw_data;
 
     /**
     * Constructor for the Pdfcrowd API client.
@@ -6269,6 +6286,9 @@ class ImageToPdfClient {
 class PdfToHtmlClient {
     private $helper;
     private $fields;
+    private $file_id;
+    private $files;
+    private $raw_data;
 
     /**
     * Constructor for the Pdfcrowd API client.
@@ -6824,6 +6844,9 @@ class PdfToHtmlClient {
 class PdfToTextClient {
     private $helper;
     private $fields;
+    private $file_id;
+    private $files;
+    private $raw_data;
 
     /**
     * Constructor for the Pdfcrowd API client.

@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+5.13.1
+------
+
+- FIX: resolve deprecation warnings for PHP 8.2.7
+
 5.13.0
 ------
 
