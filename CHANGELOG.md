@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+5.14.0
+------
+
+- NEW: setCustomCss method for HtmlToPdf and HtmlToImage API clients
+
 5.13.1
 ------
 
