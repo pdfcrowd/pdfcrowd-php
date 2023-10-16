@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "5.14.0";
+    public static $client_version = "5.15.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -547,7 +547,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/5.14.0 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/5.15.0 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '20.10';
@@ -595,7 +595,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '5.14.0';
+    const CLIENT_VERSION = '5.15.0';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -2820,6 +2820,20 @@ class HtmlToPdfClient {
     }
 
     /**
+    * Set the maximum time to load the page and its resources. After this time, all requests will be considered successful. This can be useful to ensure that the conversion does not timeout. Use this method if there is no other way to fix page loading.
+    *
+    * @param max_time The number of seconds to wait. The value must be in the range 10-30.
+    * @return The converter object.
+    */
+    function setMaxLoadingTime($max_time) {
+        if (!(intval($max_time) >= 10 && intval($max_time) <= 30))
+            throw new Error(create_invalid_value_message($max_time, "setMaxLoadingTime", "html-to-pdf", "The value must be in the range 10-30.", "set_max_loading_time"), 470);
+        
+        $this->fields['max_loading_time'] = $max_time;
+        return $this;
+    }
+
+    /**
     * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
     *
     * @param version The version identifier. Allowed values are latest, 20.10, 18.10.
@@ -3150,6 +3164,62 @@ class HtmlToImageClient {
     */
     function setZipMainFilename($filename) {
         $this->fields['zip_main_filename'] = $filename;
+        return $this;
+    }
+
+    /**
+    * Set the output image width in pixels.
+    *
+    * @param width The value must be in the range 96-65000.
+    * @return The converter object.
+    */
+    function setScreenshotWidth($width) {
+        if (!(intval($width) >= 96 && intval($width) <= 65000))
+            throw new Error(create_invalid_value_message($width, "setScreenshotWidth", "html-to-image", "The value must be in the range 96-65000.", "set_screenshot_width"), 470);
+        
+        $this->fields['screenshot_width'] = $width;
+        return $this;
+    }
+
+    /**
+    * Set the output image height in pixels. If it is not specified, actual document height is used.
+    *
+    * @param height Must be a positive integer number.
+    * @return The converter object.
+    */
+    function setScreenshotHeight($height) {
+        if (!(intval($height) > 0))
+            throw new Error(create_invalid_value_message($height, "setScreenshotHeight", "html-to-image", "Must be a positive integer number.", "set_screenshot_height"), 470);
+        
+        $this->fields['screenshot_height'] = $height;
+        return $this;
+    }
+
+    /**
+    * Set the scaling factor (zoom) for the output image.
+    *
+    * @param factor The percentage value. Must be a positive integer number.
+    * @return The converter object.
+    */
+    function setScaleFactor($factor) {
+        if (!(intval($factor) > 0))
+            throw new Error(create_invalid_value_message($factor, "setScaleFactor", "html-to-image", "Must be a positive integer number.", "set_scale_factor"), 470);
+        
+        $this->fields['scale_factor'] = $factor;
+        return $this;
+    }
+
+    /**
+    * The output image background color.
+    *
+    * @param color The value must be in RRGGBB or RRGGBBAA hexadecimal format.
+    * @return The converter object.
+    */
+    function setBackgroundColor($color) {
+        if (!preg_match("/^[0-9a-fA-F]{6,8}$/", $color))
+            throw new Error(create_invalid_value_message($color, "setBackgroundColor", "html-to-image", "The value must be in RRGGBB or RRGGBBAA hexadecimal format.", "set_background_color"), 470);
+        
+        $this->fields['background_color'] = $color;
         return $this;
     }
 
@@ -3494,62 +3564,6 @@ class HtmlToImageClient {
     }
 
     /**
-    * Set the output image width in pixels.
-    *
-    * @param width The value must be in the range 96-65000.
-    * @return The converter object.
-    */
-    function setScreenshotWidth($width) {
-        if (!(intval($width) >= 96 && intval($width) <= 65000))
-            throw new Error(create_invalid_value_message($width, "setScreenshotWidth", "html-to-image", "The value must be in the range 96-65000.", "set_screenshot_width"), 470);
-        
-        $this->fields['screenshot_width'] = $width;
-        return $this;
-    }
-
-    /**
-    * Set the output image height in pixels. If it is not specified, actual document height is used.
-    *
-    * @param height Must be a positive integer number.
-    * @return The converter object.
-    */
-    function setScreenshotHeight($height) {
-        if (!(intval($height) > 0))
-            throw new Error(create_invalid_value_message($height, "setScreenshotHeight", "html-to-image", "Must be a positive integer number.", "set_screenshot_height"), 470);
-        
-        $this->fields['screenshot_height'] = $height;
-        return $this;
-    }
-
-    /**
-    * Set the scaling factor (zoom) for the output image.
-    *
-    * @param factor The percentage value. Must be a positive integer number.
-    * @return The converter object.
-    */
-    function setScaleFactor($factor) {
-        if (!(intval($factor) > 0))
-            throw new Error(create_invalid_value_message($factor, "setScaleFactor", "html-to-image", "Must be a positive integer number.", "set_scale_factor"), 470);
-        
-        $this->fields['scale_factor'] = $factor;
-        return $this;
-    }
-
-    /**
-    * The output image background color.
-    *
-    * @param color The value must be in RRGGBB or RRGGBBAA hexadecimal format.
-    * @return The converter object.
-    */
-    function setBackgroundColor($color) {
-        if (!preg_match("/^[0-9a-fA-F]{6,8}$/", $color))
-            throw new Error(create_invalid_value_message($color, "setBackgroundColor", "html-to-image", "The value must be in RRGGBB or RRGGBBAA hexadecimal format.", "set_background_color"), 470);
-        
-        $this->fields['background_color'] = $color;
-        return $this;
-    }
-
-    /**
     * Set the input data for template rendering. The data format can be JSON, XML, YAML or CSV.
     *
     * @param data_string The input data string.
@@ -3763,6 +3777,20 @@ class HtmlToImageClient {
     */
     function setClientCertificatePassword($password) {
         $this->fields['client_certificate_password'] = $password;
+        return $this;
+    }
+
+    /**
+    * Set the maximum time to load the page and its resources. After this time, all requests will be considered successful. This can be useful to ensure that the conversion does not timeout. Use this method if there is no other way to fix page loading.
+    *
+    * @param max_time The number of seconds to wait. The value must be in the range 10-30.
+    * @return The converter object.
+    */
+    function setMaxLoadingTime($max_time) {
+        if (!(intval($max_time) >= 10 && intval($max_time) <= 30))
+            throw new Error(create_invalid_value_message($max_time, "setMaxLoadingTime", "html-to-image", "The value must be in the range 10-30.", "set_max_loading_time"), 470);
+        
+        $this->fields['max_loading_time'] = $max_time;
         return $this;
     }
 

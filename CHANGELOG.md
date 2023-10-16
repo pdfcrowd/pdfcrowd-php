@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+5.15.0
+------
+
+- NEW: setMaxLoadingTime method for HtmlToPdf and HtmlToImage API clients
+
 5.14.0
 ------
 
