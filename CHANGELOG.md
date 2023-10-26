@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+5.16.0
+------
+
+- NEW: setDpi method for PdfToHtml API client
+
 5.15.0
 ------
 
