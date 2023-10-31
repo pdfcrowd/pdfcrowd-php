@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+5.17.0
+------
+
+- NEW: setImageFormat method for PdfToHtml API client
+- NEW: mode value 'none' for setImageMode method for PdfToHtml API client
+
 5.16.0
 ------
 

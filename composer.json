@@ -1,7 +1,7 @@
 {
     "name": "pdfcrowd/pdfcrowd",
     "type": "library",
-    "version": "5.16.0",
+    "version": "5.17.0",
     "description": "A client library for the Pdfcrowd API. It lets you convert between HTML, PDF and various image formats",
     "keywords": ["html", "pdf", "web service", "api", "client", "convert", "web page"],
     "homepage": "https://pdfcrowd.com/api/",

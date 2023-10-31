@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "5.16.0";
+    public static $client_version = "5.17.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -547,7 +547,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/5.16.0 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/5.17.0 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '20.10';
@@ -595,7 +595,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '5.16.0';
+    const CLIENT_VERSION = '5.17.0';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -6629,14 +6629,28 @@ class PdfToHtmlClient {
     /**
     * Specifies where the images are stored.
     *
-    * @param mode The image storage mode. Allowed values are embed, separate.
+    * @param mode The image storage mode. Allowed values are embed, separate, none.
     * @return The converter object.
     */
     function setImageMode($mode) {
-        if (!preg_match("/(?i)^(embed|separate)$/", $mode))
-            throw new Error(create_invalid_value_message($mode, "setImageMode", "pdf-to-html", "Allowed values are embed, separate.", "set_image_mode"), 470);
+        if (!preg_match("/(?i)^(embed|separate|none)$/", $mode))
+            throw new Error(create_invalid_value_message($mode, "setImageMode", "pdf-to-html", "Allowed values are embed, separate, none.", "set_image_mode"), 470);
         
         $this->fields['image_mode'] = $mode;
+        return $this;
+    }
+
+    /**
+    * Specifies a format for the output images.
+    *
+    * @param image_format The image format. Allowed values are png, jpg, svg.
+    * @return The converter object.
+    */
+    function setImageFormat($image_format) {
+        if (!preg_match("/(?i)^(png|jpg|svg)$/", $image_format))
+            throw new Error(create_invalid_value_message($image_format, "setImageFormat", "pdf-to-html", "Allowed values are png, jpg, svg.", "set_image_format"), 470);
+        
+        $this->fields['image_format'] = $image_format;
         return $this;
     }
 
