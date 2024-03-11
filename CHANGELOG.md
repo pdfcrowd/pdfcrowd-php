@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+5.18.0
+------
+
+- NEW: setSplitLigatures method for PdfToHtml API client
+
 5.17.0
 ------
 
