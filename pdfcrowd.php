@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "5.18.1";
+    public static $client_version = "5.19.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -547,7 +547,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/5.18.1 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/5.19.0 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '20.10';
@@ -595,7 +595,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '5.18.1';
+    const CLIENT_VERSION = '5.19.0';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -2119,7 +2119,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the rendering mode.
+    * Set the rendering mode of the page, allowing control over how content is displayed.
     *
     * @param mode The rendering mode. Allowed values are default, viewport.
     * @return The converter object.
@@ -2836,12 +2836,12 @@ class HtmlToPdfClient {
     /**
     * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
     *
-    * @param version The version identifier. Allowed values are latest, 20.10, 18.10.
+    * @param version The version identifier. Allowed values are latest, 24.04, 20.10, 18.10.
     * @return The converter object.
     */
     function setConverterVersion($version) {
-        if (!preg_match("/(?i)^(latest|20.10|18.10)$/", $version))
-            throw new Error(create_invalid_value_message($version, "setConverterVersion", "html-to-pdf", "Allowed values are latest, 20.10, 18.10.", "set_converter_version"), 470);
+        if (!preg_match("/(?i)^(latest|24.04|20.10|18.10)$/", $version))
+            throw new Error(create_invalid_value_message($version, "setConverterVersion", "html-to-pdf", "Allowed values are latest, 24.04, 20.10, 18.10.", "set_converter_version"), 470);
         
         $this->helper->setConverterVersion($version);
         return $this;
@@ -3797,12 +3797,12 @@ class HtmlToImageClient {
     /**
     * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
     *
-    * @param version The version identifier. Allowed values are latest, 20.10, 18.10.
+    * @param version The version identifier. Allowed values are latest, 24.04, 20.10, 18.10.
     * @return The converter object.
     */
     function setConverterVersion($version) {
-        if (!preg_match("/(?i)^(latest|20.10|18.10)$/", $version))
-            throw new Error(create_invalid_value_message($version, "setConverterVersion", "html-to-image", "Allowed values are latest, 20.10, 18.10.", "set_converter_version"), 470);
+        if (!preg_match("/(?i)^(latest|24.04|20.10|18.10)$/", $version))
+            throw new Error(create_invalid_value_message($version, "setConverterVersion", "html-to-image", "Allowed values are latest, 24.04, 20.10, 18.10.", "set_converter_version"), 470);
         
         $this->helper->setConverterVersion($version);
         return $this;
@@ -4516,12 +4516,12 @@ class ImageToImageClient {
     /**
     * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
     *
-    * @param version The version identifier. Allowed values are latest, 20.10, 18.10.
+    * @param version The version identifier. Allowed values are latest, 24.04, 20.10, 18.10.
     * @return The converter object.
     */
     function setConverterVersion($version) {
-        if (!preg_match("/(?i)^(latest|20.10|18.10)$/", $version))
-            throw new Error(create_invalid_value_message($version, "setConverterVersion", "image-to-image", "Allowed values are latest, 20.10, 18.10.", "set_converter_version"), 470);
+        if (!preg_match("/(?i)^(latest|24.04|20.10|18.10)$/", $version))
+            throw new Error(create_invalid_value_message($version, "setConverterVersion", "image-to-image", "Allowed values are latest, 24.04, 20.10, 18.10.", "set_converter_version"), 470);
         
         $this->helper->setConverterVersion($version);
         return $this;
@@ -5190,12 +5190,12 @@ class PdfToPdfClient {
     /**
     * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
     *
-    * @param version The version identifier. Allowed values are latest, 20.10, 18.10.
+    * @param version The version identifier. Allowed values are latest, 24.04, 20.10, 18.10.
     * @return The converter object.
     */
     function setConverterVersion($version) {
-        if (!preg_match("/(?i)^(latest|20.10|18.10)$/", $version))
-            throw new Error(create_invalid_value_message($version, "setConverterVersion", "pdf-to-pdf", "Allowed values are latest, 20.10, 18.10.", "set_converter_version"), 470);
+        if (!preg_match("/(?i)^(latest|24.04|20.10|18.10)$/", $version))
+            throw new Error(create_invalid_value_message($version, "setConverterVersion", "pdf-to-pdf", "Allowed values are latest, 24.04, 20.10, 18.10.", "set_converter_version"), 470);
         
         $this->helper->setConverterVersion($version);
         return $this;
@@ -6264,12 +6264,12 @@ class ImageToPdfClient {
     /**
     * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
     *
-    * @param version The version identifier. Allowed values are latest, 20.10, 18.10.
+    * @param version The version identifier. Allowed values are latest, 24.04, 20.10, 18.10.
     * @return The converter object.
     */
     function setConverterVersion($version) {
-        if (!preg_match("/(?i)^(latest|20.10|18.10)$/", $version))
-            throw new Error(create_invalid_value_message($version, "setConverterVersion", "image-to-pdf", "Allowed values are latest, 20.10, 18.10.", "set_converter_version"), 470);
+        if (!preg_match("/(?i)^(latest|24.04|20.10|18.10)$/", $version))
+            throw new Error(create_invalid_value_message($version, "setConverterVersion", "image-to-pdf", "Allowed values are latest, 24.04, 20.10, 18.10.", "set_converter_version"), 470);
         
         $this->helper->setConverterVersion($version);
         return $this;

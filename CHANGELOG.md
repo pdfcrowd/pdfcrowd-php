@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+5.19.0
+------
+
+- NEW: `setConverterVersion` can now be switched to the beta version of converter 24.04
+
 5.18.0
 ------
 
