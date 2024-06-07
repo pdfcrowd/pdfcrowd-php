@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "5.19.0";
+    public static $client_version = "5.20.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -547,7 +547,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/5.19.0 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/5.20.0 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '20.10';
@@ -595,7 +595,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '5.19.0';
+    const CLIENT_VERSION = '5.20.0';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -7460,6 +7460,568 @@ class PdfToTextClient {
     function setHttpsProxy($proxy) {
         if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
             throw new Error(create_invalid_value_message($proxy, "setHttpsProxy", "pdf-to-text", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
+        
+        $this->fields['https_proxy'] = $proxy;
+        return $this;
+    }
+
+    /**
+    * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+    * Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
+    *
+    * @param value Set to <span class='field-value'>true</span> to use HTTP.
+    * @return The converter object.
+    */
+    function setUseHttp($value) {
+        $this->helper->setUseHttp($value);
+        return $this;
+    }
+
+    /**
+    * Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
+    *
+    * @param agent The user agent string.
+    * @return The converter object.
+    */
+    function setUserAgent($agent) {
+        $this->helper->setUserAgent($agent);
+        return $this;
+    }
+
+    /**
+    * Specifies an HTTP proxy that the API client library will use to connect to the internet.
+    *
+    * @param host The proxy hostname.
+    * @param port The proxy port.
+    * @param user_name The username.
+    * @param password The password.
+    * @return The converter object.
+    */
+    function setProxy($host, $port, $user_name, $password) {
+        $this->helper->setProxy($host, $port, $user_name, $password);
+        return $this;
+    }
+
+    /**
+    * Use cURL for the conversion request instead of the file_get_contents() PHP function.
+    *
+    * @param value Set to <span class='field-value'>true</span> to use PHP's cURL.
+    * @return The converter object.
+    */
+    function setUseCurl($value) {
+        $this->helper->setUseCurl($value);
+        return $this;
+    }
+
+    /**
+    * Specifies the number of automatic retries when the 502 or 503 HTTP status code is received. The status code indicates a temporary network issue. This feature can be disabled by setting to 0.
+    *
+    * @param count Number of retries.
+    * @return The converter object.
+    */
+    function setRetryCount($count) {
+        $this->helper->setRetryCount($count);
+        return $this;
+    }
+
+}
+
+/**
+* Conversion from PDF to image.
+*/
+class PdfToImageClient {
+    private $helper;
+    private $fields;
+    private $file_id;
+    private $files;
+    private $raw_data;
+
+    /**
+    * Constructor for the Pdfcrowd API client.
+    *
+    * @param user_name Your username at Pdfcrowd.
+    * @param api_key Your API key.
+    */
+    function __construct($user_name, $api_key) {
+        $this->helper = new ConnectionHelper($user_name, $api_key);
+        $this->fields = array('input_format'=>'pdf', 'output_format'=>'png');
+        $this->file_id = 1;
+        $this->files = array();
+        $this->raw_data = array();
+    }
+
+    /**
+    * Convert an image.
+    *
+    * @param url The address of the image to convert. The supported protocols are http:// and https://.
+    * @return Byte array containing the conversion output.
+    */
+    function convertUrl($url) {
+        if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
+            throw new Error(create_invalid_value_message($url, "convertUrl", "pdf-to-image", "The supported protocols are http:// and https://.", "convert_url"), 470);
+        
+        $this->fields['url'] = $url;
+        return $this->helper->post($this->fields, $this->files, $this->raw_data);
+    }
+
+    /**
+    * Convert an image and write the result to an output stream.
+    *
+    * @param url The address of the image to convert. The supported protocols are http:// and https://.
+    * @param out_stream The output stream that will contain the conversion output.
+    */
+    function convertUrlToStream($url, $out_stream) {
+        if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
+            throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "pdf-to-image", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
+        
+        $this->fields['url'] = $url;
+        $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
+    }
+
+    /**
+    * Convert an image and write the result to a local file.
+    *
+    * @param url The address of the image to convert. The supported protocols are http:// and https://.
+    * @param file_path The output file path. The string must not be empty.
+    */
+    function convertUrlToFile($url, $file_path) {
+        if (!($file_path != null && $file_path !== ''))
+            throw new Error(create_invalid_value_message($file_path, "convertUrlToFile::file_path", "pdf-to-image", "The string must not be empty.", "convert_url_to_file"), 470);
+        
+        $output_file = fopen($file_path, "wb");
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
+            $this->convertUrlToStream($url, $output_file);
+            fclose($output_file);
+        }
+        catch(Error $why) {
+            fclose($output_file);
+            unlink($file_path);
+            throw $why;
+        }
+    }
+
+    /**
+    * Convert a local file.
+    *
+    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
+    * @return Byte array containing the conversion output.
+    */
+    function convertFile($file) {
+        if (!(filesize($file) > 0))
+            throw new Error(create_invalid_value_message($file, "convertFile", "pdf-to-image", "The file must exist and not be empty.", "convert_file"), 470);
+        
+        $this->files['file'] = $file;
+        return $this->helper->post($this->fields, $this->files, $this->raw_data);
+    }
+
+    /**
+    * Convert a local file and write the result to an output stream.
+    *
+    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
+    * @param out_stream The output stream that will contain the conversion output.
+    */
+    function convertFileToStream($file, $out_stream) {
+        if (!(filesize($file) > 0))
+            throw new Error(create_invalid_value_message($file, "convertFileToStream::file", "pdf-to-image", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
+        
+        $this->files['file'] = $file;
+        $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
+    }
+
+    /**
+    * Convert a local file and write the result to a local file.
+    *
+    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
+    * @param file_path The output file path. The string must not be empty.
+    */
+    function convertFileToFile($file, $file_path) {
+        if (!($file_path != null && $file_path !== ''))
+            throw new Error(create_invalid_value_message($file_path, "convertFileToFile::file_path", "pdf-to-image", "The string must not be empty.", "convert_file_to_file"), 470);
+        
+        $output_file = fopen($file_path, "wb");
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
+            $this->convertFileToStream($file, $output_file);
+            fclose($output_file);
+        }
+        catch(Error $why) {
+            fclose($output_file);
+            unlink($file_path);
+            throw $why;
+        }
+    }
+
+    /**
+    * Convert raw data.
+    *
+    * @param data The raw content to be converted.
+    * @return Byte array with the output.
+    */
+    function convertRawData($data) {
+        $this->raw_data['file'] = $data;
+        return $this->helper->post($this->fields, $this->files, $this->raw_data);
+    }
+
+    /**
+    * Convert raw data and write the result to an output stream.
+    *
+    * @param data The raw content to be converted.
+    * @param out_stream The output stream that will contain the conversion output.
+    */
+    function convertRawDataToStream($data, $out_stream) {
+        $this->raw_data['file'] = $data;
+        $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
+    }
+
+    /**
+    * Convert raw data to a file.
+    *
+    * @param data The raw content to be converted.
+    * @param file_path The output file path. The string must not be empty.
+    */
+    function convertRawDataToFile($data, $file_path) {
+        if (!($file_path != null && $file_path !== ''))
+            throw new Error(create_invalid_value_message($file_path, "convertRawDataToFile::file_path", "pdf-to-image", "The string must not be empty.", "convert_raw_data_to_file"), 470);
+        
+        $output_file = fopen($file_path, "wb");
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
+            $this->convertRawDataToStream($data, $output_file);
+            fclose($output_file);
+        }
+        catch(Error $why) {
+            fclose($output_file);
+            unlink($file_path);
+            throw $why;
+        }
+    }
+
+    /**
+    * Convert the contents of an input stream.
+    *
+    * @param in_stream The input stream with source data.<br>
+    * @return Byte array containing the conversion output.
+    */
+    function convertStream($in_stream) {
+        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        return $this->helper->post($this->fields, $this->files, $this->raw_data);
+    }
+
+    /**
+    * Convert the contents of an input stream and write the result to an output stream.
+    *
+    * @param in_stream The input stream with source data.<br>
+    * @param out_stream The output stream that will contain the conversion output.
+    */
+    function convertStreamToStream($in_stream, $out_stream) {
+        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
+    }
+
+    /**
+    * Convert the contents of an input stream and write the result to a local file.
+    *
+    * @param in_stream The input stream with source data.<br>
+    * @param file_path The output file path. The string must not be empty.
+    */
+    function convertStreamToFile($in_stream, $file_path) {
+        if (!($file_path != null && $file_path !== ''))
+            throw new Error(create_invalid_value_message($file_path, "convertStreamToFile::file_path", "pdf-to-image", "The string must not be empty.", "convert_stream_to_file"), 470);
+        
+        $output_file = fopen($file_path, "wb");
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
+            $this->convertStreamToStream($in_stream, $output_file);
+            fclose($output_file);
+        }
+        catch(Error $why) {
+            fclose($output_file);
+            unlink($file_path);
+            throw $why;
+        }
+    }
+
+    /**
+    * The format of the output file.
+    *
+    * @param output_format Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.
+    * @return The converter object.
+    */
+    function setOutputFormat($output_format) {
+        if (!preg_match("/(?i)^(png|jpg|gif|tiff|bmp|ico|ppm|pgm|pbm|pnm|psb|pct|ras|tga|sgi|sun|webp)$/", $output_format))
+            throw new Error(create_invalid_value_message($output_format, "setOutputFormat", "pdf-to-image", "Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.", "set_output_format"), 470);
+        
+        $this->fields['output_format'] = $output_format;
+        return $this;
+    }
+
+    /**
+    * Password to open the encrypted PDF file.
+    *
+    * @param password The input PDF password.
+    * @return The converter object.
+    */
+    function setPdfPassword($password) {
+        $this->fields['pdf_password'] = $password;
+        return $this;
+    }
+
+    /**
+    * Set the page range to print.
+    *
+    * @param pages A comma separated list of page numbers or ranges.
+    * @return The converter object.
+    */
+    function setPrintPageRange($pages) {
+        if (!preg_match("/^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$/", $pages))
+            throw new Error(create_invalid_value_message($pages, "setPrintPageRange", "pdf-to-image", "A comma separated list of page numbers or ranges.", "set_print_page_range"), 470);
+        
+        $this->fields['print_page_range'] = $pages;
+        return $this;
+    }
+
+    /**
+    * Set the output graphics DPI.
+    *
+    * @param dpi The DPI value.
+    * @return The converter object.
+    */
+    function setDpi($dpi) {
+        $this->fields['dpi'] = $dpi;
+        return $this;
+    }
+
+    /**
+    * A helper method to determine if the output file from a conversion process is a zip archive. The conversion output can be either a single image file or a zip file containing one or more image files. This method should be called after the conversion has been successfully completed.
+    * @return <span class='field-value'>True</span> if the conversion output is a zip archive, otherwise <span class='field-value'>False</span>.
+    */
+    function isZippedOutput() {
+        return (isset($this->fields['force_zip']) && $this->fields['force_zip'] == 'true') || $this->getPageCount() > 1;
+    }
+
+    /**
+    * Enforces the zip output format.
+    *
+    * @param value Set to <span class='field-value'>true</span> to get the output as a zip archive.
+    * @return The converter object.
+    */
+    function setForceZip($value) {
+        $this->fields['force_zip'] = $value;
+        return $this;
+    }
+
+    /**
+    * Use the crop box rather than media box.
+    *
+    * @param value Set to <span class='field-value'>true</span> to use crop box.
+    * @return The converter object.
+    */
+    function setUseCropbox($value) {
+        $this->fields['use_cropbox'] = $value;
+        return $this;
+    }
+
+    /**
+    * Set the top left X coordinate of the crop area in points.
+    *
+    * @param x Must be a positive integer number or 0.
+    * @return The converter object.
+    */
+    function setCropAreaX($x) {
+        if (!(intval($x) >= 0))
+            throw new Error(create_invalid_value_message($x, "setCropAreaX", "pdf-to-image", "Must be a positive integer number or 0.", "set_crop_area_x"), 470);
+        
+        $this->fields['crop_area_x'] = $x;
+        return $this;
+    }
+
+    /**
+    * Set the top left Y coordinate of the crop area in points.
+    *
+    * @param y Must be a positive integer number or 0.
+    * @return The converter object.
+    */
+    function setCropAreaY($y) {
+        if (!(intval($y) >= 0))
+            throw new Error(create_invalid_value_message($y, "setCropAreaY", "pdf-to-image", "Must be a positive integer number or 0.", "set_crop_area_y"), 470);
+        
+        $this->fields['crop_area_y'] = $y;
+        return $this;
+    }
+
+    /**
+    * Set the width of the crop area in points.
+    *
+    * @param width Must be a positive integer number or 0.
+    * @return The converter object.
+    */
+    function setCropAreaWidth($width) {
+        if (!(intval($width) >= 0))
+            throw new Error(create_invalid_value_message($width, "setCropAreaWidth", "pdf-to-image", "Must be a positive integer number or 0.", "set_crop_area_width"), 470);
+        
+        $this->fields['crop_area_width'] = $width;
+        return $this;
+    }
+
+    /**
+    * Set the height of the crop area in points.
+    *
+    * @param height Must be a positive integer number or 0.
+    * @return The converter object.
+    */
+    function setCropAreaHeight($height) {
+        if (!(intval($height) >= 0))
+            throw new Error(create_invalid_value_message($height, "setCropAreaHeight", "pdf-to-image", "Must be a positive integer number or 0.", "set_crop_area_height"), 470);
+        
+        $this->fields['crop_area_height'] = $height;
+        return $this;
+    }
+
+    /**
+    * Set the crop area. It allows to extract just a part of a PDF page.
+    *
+    * @param x Set the top left X coordinate of the crop area in points. Must be a positive integer number or 0.
+    * @param y Set the top left Y coordinate of the crop area in points. Must be a positive integer number or 0.
+    * @param width Set the width of the crop area in points. Must be a positive integer number or 0.
+    * @param height Set the height of the crop area in points. Must be a positive integer number or 0.
+    * @return The converter object.
+    */
+    function setCropArea($x, $y, $width, $height) {
+        $this->setCropAreaX($x);
+        $this->setCropAreaY($y);
+        $this->setCropAreaWidth($width);
+        $this->setCropAreaHeight($height);
+        return $this;
+    }
+
+    /**
+    * Generate a grayscale image.
+    *
+    * @param value Set to <span class='field-value'>true</span> to generate a grayscale image.
+    * @return The converter object.
+    */
+    function setUseGrayscale($value) {
+        $this->fields['use_grayscale'] = $value;
+        return $this;
+    }
+
+    /**
+    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method or available in <a href='/user/account/log/conversion/'>conversion statistics</a>.
+    *
+    * @param value Set to <span class='field-value'>true</span> to enable the debug logging.
+    * @return The converter object.
+    */
+    function setDebugLog($value) {
+        $this->fields['debug_log'] = $value;
+        return $this;
+    }
+
+    /**
+    * Get the URL of the debug log for the last conversion.
+    * @return The link to the debug log.
+    */
+    function getDebugLogUrl() {
+        return $this->helper->getDebugLogUrl();
+    }
+
+    /**
+    * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
+    * This method can only be called after a call to one of the convertXtoY methods.
+    * The returned value can differ from the actual count if you run parallel conversions.
+    * The special value <span class='field-value'>999999</span> is returned if the information is not available.
+    * @return The number of credits.
+    */
+    function getRemainingCreditCount() {
+        return $this->helper->getRemainingCreditCount();
+    }
+
+    /**
+    * Get the number of credits consumed by the last conversion.
+    * @return The number of credits.
+    */
+    function getConsumedCreditCount() {
+        return $this->helper->getConsumedCreditCount();
+    }
+
+    /**
+    * Get the job id.
+    * @return The unique job identifier.
+    */
+    function getJobId() {
+        return $this->helper->getJobId();
+    }
+
+    /**
+    * Get the number of pages in the output document.
+    * @return The page count.
+    */
+    function getPageCount() {
+        return $this->helper->getPageCount();
+    }
+
+    /**
+    * Get the size of the output in bytes.
+    * @return The count of bytes.
+    */
+    function getOutputSize() {
+        return $this->helper->getOutputSize();
+    }
+
+    /**
+    * Get the version details.
+    * @return API version, converter version, and client version.
+    */
+    function getVersion() {
+        return 'client '.ConnectionHelper::CLIENT_VERSION.', API v2, converter '.$this->helper->getConverterVersion();
+    }
+
+    /**
+    * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
+    *
+    * @param tag A string with the custom tag.
+    * @return The converter object.
+    */
+    function setTag($tag) {
+        $this->fields['tag'] = $tag;
+        return $this;
+    }
+
+    /**
+    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    *
+    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+    * @return The converter object.
+    */
+    function setHttpProxy($proxy) {
+        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
+            throw new Error(create_invalid_value_message($proxy, "setHttpProxy", "pdf-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
+        
+        $this->fields['http_proxy'] = $proxy;
+        return $this;
+    }
+
+    /**
+    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    *
+    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+    * @return The converter object.
+    */
+    function setHttpsProxy($proxy) {
+        if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
+            throw new Error(create_invalid_value_message($proxy, "setHttpsProxy", "pdf-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
         
         $this->fields['https_proxy'] = $proxy;
         return $this;

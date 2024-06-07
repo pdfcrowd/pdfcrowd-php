@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+5.20.0
+------
+
+- NEW: PdftoImage API client for the converion from PDF to image
+
 5.19.0
 ------
 
