@@ -1,6 +1,15 @@
 Change Log
 ==========
 
+6.0.0
+-----
+
+- NEW: the converter version 24.04 is used by default for the HtmlToPdf API client
+- NEW: setContentViewportWidth method for the HtmlToPdf API client
+- NEW: setContentViewportHeight method for the HtmlToPdf API client
+- NEW: setContentFitMode method for the HtmlToPdf API client
+- NEW: option `all` for the HtmlToPdf API client `setRemoveBlankPages` method
+
 5.20.0
 ------
 
@@ -14,28 +23,28 @@ Change Log
 5.18.0
 ------
 
-- NEW: setSplitLigatures method for PdfToHtml API client
+- NEW: setSplitLigatures method for the PdfToHtml API client
 
 5.17.0
 ------
 
-- NEW: setImageFormat method for PdfToHtml API client
-- NEW: mode value 'none' for setImageMode method for PdfToHtml API client
+- NEW: setImageFormat method for the PdfToHtml API client
+- NEW: mode value 'none' for setImageMode method for the PdfToHtml API client
 
 5.16.0
 ------
 
-- NEW: setDpi method for PdfToHtml API client
+- NEW: setDpi method for the PdfToHtml API client
 
 5.15.0
 ------
 
-- NEW: setMaxLoadingTime method for HtmlToPdf and HtmlToImage API clients
+- NEW: setMaxLoadingTime method for the HtmlToPdf and HtmlToImage API clients
 
 5.14.0
 ------
 
-- NEW: setCustomCss method for HtmlToPdf and HtmlToImage API clients
+- NEW: setCustomCss method for the HtmlToPdf and HtmlToImage API clients
 
 5.13.1
 ------
@@ -45,7 +54,7 @@ Change Log
 5.13.0
 ------
 
-- NEW: setRemoveBlankPages method for HtmlToPdf API client
+- NEW: setRemoveBlankPages method for the HtmlToPdf API client
 
 5.12.1
 ------
@@ -177,7 +186,7 @@ Change Log
 - NEW: setDisablePageHeightOptimization
 - NEW: setHeaderFooterCssAnnotation
 - NEW: setMainDocumentCssAnnotation
-- NEW: setBackgroundColor for HtmlToImage
+- NEW: setBackgroundColor for the HtmlToImage API client
 
 Older versions
 --------------

@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "5.20.0";
+    public static $client_version = "6.0.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -547,10 +547,10 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/5.20.0 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/6.0.0 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
-        $this->converter_version = '20.10';
+        $this->converter_version = '24.04';
 
         // find available method for POST request
         if(!ini_get('allow_url_fopen')) {
@@ -595,7 +595,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '5.20.0';
+    const CLIENT_VERSION = '6.0.0';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -1352,6 +1352,48 @@ class HtmlToPdfClient {
     }
 
     /**
+    * Set the viewport width for formatting the HTML content when generating a PDF. By specifying a viewport width, you can control how the content is rendered, ensuring it mimics the appearance on various devices or matches specific design requirements.
+    *
+    * @param width The width of the viewport. The value must be "balanced", "small", "medium", "large", "extra-large", or a number in the range 96-65000.
+    * @return The converter object.
+    */
+    function setContentViewportWidth($width) {
+        if (!preg_match("/(?i)^(balanced|small|medium|large|extra-large|[0-9]+)$/", $width))
+            throw new Error(create_invalid_value_message($width, "setContentViewportWidth", "html-to-pdf", "The value must be \"balanced\", \"small\", \"medium\", \"large\", \"extra-large\", or a number in the range 96-65000.", "set_content_viewport_width"), 470);
+        
+        $this->fields['content_viewport_width'] = $width;
+        return $this;
+    }
+
+    /**
+    * Set the viewport height for formatting the HTML content when generating a PDF. By specifying a viewport height, you can enforce loading of lazy-loaded images and also affect vertical positioning of absolutely positioned elements within the content.
+    *
+    * @param height The viewport height. The value must be "auto", "large", or a number.
+    * @return The converter object.
+    */
+    function setContentViewportHeight($height) {
+        if (!preg_match("/(?i)^(auto|large|[0-9]+)$/", $height))
+            throw new Error(create_invalid_value_message($height, "setContentViewportHeight", "html-to-pdf", "The value must be \"auto\", \"large\", or a number.", "set_content_viewport_height"), 470);
+        
+        $this->fields['content_viewport_height'] = $height;
+        return $this;
+    }
+
+    /**
+    * Specifies the mode for fitting the HTML content to the print area by upscaling or downscaling it.
+    *
+    * @param mode The fitting mode. Allowed values are auto, smart-scaling, no-scaling, viewport-width, content-width, single-page, single-page-ratio.
+    * @return The converter object.
+    */
+    function setContentFitMode($mode) {
+        if (!preg_match("/(?i)^(auto|smart-scaling|no-scaling|viewport-width|content-width|single-page|single-page-ratio)$/", $mode))
+            throw new Error(create_invalid_value_message($mode, "setContentFitMode", "html-to-pdf", "Allowed values are auto, smart-scaling, no-scaling, viewport-width, content-width, single-page, single-page-ratio.", "set_content_fit_mode"), 470);
+        
+        $this->fields['content_fit_mode'] = $mode;
+        return $this;
+    }
+
+    /**
     * Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
     *
     * @param x The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
@@ -1441,12 +1483,12 @@ class HtmlToPdfClient {
     /**
     * Specifies which blank pages to exclude from the output document.
     *
-    * @param pages The empty page behavior. Allowed values are trailing, none.
+    * @param pages The empty page behavior. Allowed values are trailing, all, none.
     * @return The converter object.
     */
     function setRemoveBlankPages($pages) {
-        if (!preg_match("/(?i)^(trailing|none)$/", $pages))
-            throw new Error(create_invalid_value_message($pages, "setRemoveBlankPages", "html-to-pdf", "Allowed values are trailing, none.", "set_remove_blank_pages"), 470);
+        if (!preg_match("/(?i)^(trailing|all|none)$/", $pages))
+            throw new Error(create_invalid_value_message($pages, "setRemoveBlankPages", "html-to-pdf", "Allowed values are trailing, all, none.", "set_remove_blank_pages"), 470);
         
         $this->fields['remove_blank_pages'] = $pages;
         return $this;
@@ -2836,12 +2878,12 @@ class HtmlToPdfClient {
     /**
     * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
     *
-    * @param version The version identifier. Allowed values are latest, 24.04, 20.10, 18.10.
+    * @param version The version identifier. Allowed values are 24.04, 20.10, 18.10, latest.
     * @return The converter object.
     */
     function setConverterVersion($version) {
-        if (!preg_match("/(?i)^(latest|24.04|20.10|18.10)$/", $version))
-            throw new Error(create_invalid_value_message($version, "setConverterVersion", "html-to-pdf", "Allowed values are latest, 24.04, 20.10, 18.10.", "set_converter_version"), 470);
+        if (!preg_match("/(?i)^(24.04|20.10|18.10|latest)$/", $version))
+            throw new Error(create_invalid_value_message($version, "setConverterVersion", "html-to-pdf", "Allowed values are 24.04, 20.10, 18.10, latest.", "set_converter_version"), 470);
         
         $this->helper->setConverterVersion($version);
         return $this;
@@ -3797,12 +3839,12 @@ class HtmlToImageClient {
     /**
     * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
     *
-    * @param version The version identifier. Allowed values are latest, 24.04, 20.10, 18.10.
+    * @param version The version identifier. Allowed values are 24.04, 20.10, 18.10, latest.
     * @return The converter object.
     */
     function setConverterVersion($version) {
-        if (!preg_match("/(?i)^(latest|24.04|20.10|18.10)$/", $version))
-            throw new Error(create_invalid_value_message($version, "setConverterVersion", "html-to-image", "Allowed values are latest, 24.04, 20.10, 18.10.", "set_converter_version"), 470);
+        if (!preg_match("/(?i)^(24.04|20.10|18.10|latest)$/", $version))
+            throw new Error(create_invalid_value_message($version, "setConverterVersion", "html-to-image", "Allowed values are 24.04, 20.10, 18.10, latest.", "set_converter_version"), 470);
         
         $this->helper->setConverterVersion($version);
         return $this;
@@ -4516,12 +4558,12 @@ class ImageToImageClient {
     /**
     * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
     *
-    * @param version The version identifier. Allowed values are latest, 24.04, 20.10, 18.10.
+    * @param version The version identifier. Allowed values are 24.04, 20.10, 18.10, latest.
     * @return The converter object.
     */
     function setConverterVersion($version) {
-        if (!preg_match("/(?i)^(latest|24.04|20.10|18.10)$/", $version))
-            throw new Error(create_invalid_value_message($version, "setConverterVersion", "image-to-image", "Allowed values are latest, 24.04, 20.10, 18.10.", "set_converter_version"), 470);
+        if (!preg_match("/(?i)^(24.04|20.10|18.10|latest)$/", $version))
+            throw new Error(create_invalid_value_message($version, "setConverterVersion", "image-to-image", "Allowed values are 24.04, 20.10, 18.10, latest.", "set_converter_version"), 470);
         
         $this->helper->setConverterVersion($version);
         return $this;
@@ -5190,12 +5232,12 @@ class PdfToPdfClient {
     /**
     * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
     *
-    * @param version The version identifier. Allowed values are latest, 24.04, 20.10, 18.10.
+    * @param version The version identifier. Allowed values are 24.04, 20.10, 18.10, latest.
     * @return The converter object.
     */
     function setConverterVersion($version) {
-        if (!preg_match("/(?i)^(latest|24.04|20.10|18.10)$/", $version))
-            throw new Error(create_invalid_value_message($version, "setConverterVersion", "pdf-to-pdf", "Allowed values are latest, 24.04, 20.10, 18.10.", "set_converter_version"), 470);
+        if (!preg_match("/(?i)^(24.04|20.10|18.10|latest)$/", $version))
+            throw new Error(create_invalid_value_message($version, "setConverterVersion", "pdf-to-pdf", "Allowed values are 24.04, 20.10, 18.10, latest.", "set_converter_version"), 470);
         
         $this->helper->setConverterVersion($version);
         return $this;
@@ -6264,12 +6306,12 @@ class ImageToPdfClient {
     /**
     * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
     *
-    * @param version The version identifier. Allowed values are latest, 24.04, 20.10, 18.10.
+    * @param version The version identifier. Allowed values are 24.04, 20.10, 18.10, latest.
     * @return The converter object.
     */
     function setConverterVersion($version) {
-        if (!preg_match("/(?i)^(latest|24.04|20.10|18.10)$/", $version))
-            throw new Error(create_invalid_value_message($version, "setConverterVersion", "image-to-pdf", "Allowed values are latest, 24.04, 20.10, 18.10.", "set_converter_version"), 470);
+        if (!preg_match("/(?i)^(24.04|20.10|18.10|latest)$/", $version))
+            throw new Error(create_invalid_value_message($version, "setConverterVersion", "image-to-pdf", "Allowed values are 24.04, 20.10, 18.10, latest.", "set_converter_version"), 470);
         
         $this->helper->setConverterVersion($version);
         return $this;
