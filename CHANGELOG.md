@@ -1,10 +1,15 @@
 Change Log
 ==========
 
+6.0.1
+-----
+
+- minor reorder of methods
+
 6.0.0
 -----
 
-- NEW: the converter version 24.04 is used by default for the HtmlToPdf API client
+- NEW: the converter version 24.04 is used by default for the HtmlToPdf and HtmlToImage API client
 - NEW: setContentViewportWidth method for the HtmlToPdf API client
 - NEW: setContentViewportHeight method for the HtmlToPdf API client
 - NEW: setContentFitMode method for the HtmlToPdf API client

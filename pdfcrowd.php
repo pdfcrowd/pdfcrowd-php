@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "6.0.0";
+    public static $client_version = "6.0.1";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -547,7 +547,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/6.0.0 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/6.0.1 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '24.04';
@@ -595,7 +595,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '6.0.0';
+    const CLIENT_VERSION = '6.0.1';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -1394,93 +1394,6 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
-    *
-    * @param x The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
-    * @return The converter object.
-    */
-    function setContentAreaX($x) {
-        if (!preg_match("/(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $x))
-            throw new Error(create_invalid_value_message($x, "setContentAreaX", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\". It may contain a negative value.", "set_content_area_x"), 470);
-        
-        $this->fields['content_area_x'] = $x;
-        return $this;
-    }
-
-    /**
-    * Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area.
-    *
-    * @param y The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
-    * @return The converter object.
-    */
-    function setContentAreaY($y) {
-        if (!preg_match("/(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $y))
-            throw new Error(create_invalid_value_message($y, "setContentAreaY", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\". It may contain a negative value.", "set_content_area_y"), 470);
-        
-        $this->fields['content_area_y'] = $y;
-        return $this;
-    }
-
-    /**
-    * Set the width of the content area. It should be at least 1 inch.
-    *
-    * @param width The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-    * @return The converter object.
-    */
-    function setContentAreaWidth($width) {
-        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $width))
-            throw new Error(create_invalid_value_message($width, "setContentAreaWidth", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_content_area_width"), 470);
-        
-        $this->fields['content_area_width'] = $width;
-        return $this;
-    }
-
-    /**
-    * Set the height of the content area. It should be at least 1 inch.
-    *
-    * @param height The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-    * @return The converter object.
-    */
-    function setContentAreaHeight($height) {
-        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
-            throw new Error(create_invalid_value_message($height, "setContentAreaHeight", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_content_area_height"), 470);
-        
-        $this->fields['content_area_height'] = $height;
-        return $this;
-    }
-
-    /**
-    * Set the content area position and size. The content area enables to specify a web page area to be converted.
-    *
-    * @param x Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
-    * @param y Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
-    * @param width Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-    * @param height Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-    * @return The converter object.
-    */
-    function setContentArea($x, $y, $width, $height) {
-        $this->setContentAreaX($x);
-        $this->setContentAreaY($y);
-        $this->setContentAreaWidth($width);
-        $this->setContentAreaHeight($height);
-        return $this;
-    }
-
-    /**
-    * Specifies behavior in presence of CSS @page rules. It may affect the page size, margins and orientation.
-    *
-    * @param mode The page rule mode. Allowed values are default, mode1, mode2.
-    * @return The converter object.
-    */
-    function setCssPageRuleMode($mode) {
-        if (!preg_match("/(?i)^(default|mode1|mode2)$/", $mode))
-            throw new Error(create_invalid_value_message($mode, "setCssPageRuleMode", "html-to-pdf", "Allowed values are default, mode1, mode2.", "set_css_page_rule_mode"), 470);
-        
-        $this->fields['css_page_rule_mode'] = $mode;
-        return $this;
-    }
-
-    /**
     * Specifies which blank pages to exclude from the output document.
     *
     * @param pages The empty page behavior. Allowed values are trailing, all, none.
@@ -1979,6 +1892,20 @@ class HtmlToPdfClient {
     */
     function setNoXpdfcrowdHeader($value) {
         $this->fields['no_xpdfcrowd_header'] = $value;
+        return $this;
+    }
+
+    /**
+    * Specifies behavior in presence of CSS @page rules. It may affect the page size, margins and orientation.
+    *
+    * @param mode The page rule mode. Allowed values are default, mode1, mode2.
+    * @return The converter object.
+    */
+    function setCssPageRuleMode($mode) {
+        if (!preg_match("/(?i)^(default|mode1|mode2)$/", $mode))
+            throw new Error(create_invalid_value_message($mode, "setCssPageRuleMode", "html-to-pdf", "Allowed values are default, mode1, mode2.", "set_css_page_rule_mode"), 470);
+        
+        $this->fields['css_page_rule_mode'] = $mode;
         return $this;
     }
 
@@ -2778,6 +2705,79 @@ class HtmlToPdfClient {
             throw new Error(create_invalid_value_message($dpi, "setLayoutDpi", "html-to-pdf", "The value must be in the range of 72-600.", "set_layout_dpi"), 470);
         
         $this->fields['layout_dpi'] = $dpi;
+        return $this;
+    }
+
+    /**
+    * Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
+    *
+    * @param x The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
+    * @return The converter object.
+    */
+    function setContentAreaX($x) {
+        if (!preg_match("/(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $x))
+            throw new Error(create_invalid_value_message($x, "setContentAreaX", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\". It may contain a negative value.", "set_content_area_x"), 470);
+        
+        $this->fields['content_area_x'] = $x;
+        return $this;
+    }
+
+    /**
+    * Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area.
+    *
+    * @param y The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
+    * @return The converter object.
+    */
+    function setContentAreaY($y) {
+        if (!preg_match("/(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $y))
+            throw new Error(create_invalid_value_message($y, "setContentAreaY", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\". It may contain a negative value.", "set_content_area_y"), 470);
+        
+        $this->fields['content_area_y'] = $y;
+        return $this;
+    }
+
+    /**
+    * Set the width of the content area. It should be at least 1 inch.
+    *
+    * @param width The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @return The converter object.
+    */
+    function setContentAreaWidth($width) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $width))
+            throw new Error(create_invalid_value_message($width, "setContentAreaWidth", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_content_area_width"), 470);
+        
+        $this->fields['content_area_width'] = $width;
+        return $this;
+    }
+
+    /**
+    * Set the height of the content area. It should be at least 1 inch.
+    *
+    * @param height The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @return The converter object.
+    */
+    function setContentAreaHeight($height) {
+        if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
+            throw new Error(create_invalid_value_message($height, "setContentAreaHeight", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_content_area_height"), 470);
+        
+        $this->fields['content_area_height'] = $height;
+        return $this;
+    }
+
+    /**
+    * Set the content area position and size. The content area enables to specify a web page area to be converted.
+    *
+    * @param x Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
+    * @param y Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
+    * @param width Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param height Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @return The converter object.
+    */
+    function setContentArea($x, $y, $width, $height) {
+        $this->setContentAreaX($x);
+        $this->setContentAreaY($y);
+        $this->setContentAreaWidth($width);
+        $this->setContentAreaHeight($height);
         return $this;
     }
 
