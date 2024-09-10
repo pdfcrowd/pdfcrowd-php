@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+6.1.0
+-----
+
+- NEW: setConversionConfig and setConversionConfigFile methods for configuring HtmlToPdf API client
+
 6.0.1
 -----
 
