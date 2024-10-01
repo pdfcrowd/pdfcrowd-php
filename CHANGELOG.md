@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+6.2.0
+-----
+
+- NEW: setType3Mode and setCustomCss methods for PdfToHtml API client
+- NEW: the conversion config JSON supports `odd`, `even`, and `last` for page definition
+- NEW: setPrintPageRange supports `odd`, `even`, and `last` for page selection
+
 6.1.0
 -----
 
