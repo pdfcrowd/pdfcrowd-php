@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+6.2.1
+-----
+
+- fix setContentViewportWidth and setContentViewportHeight accepts a numeric value followed by the "px" unit to specify pixels
+
 6.2.0
 -----
 
