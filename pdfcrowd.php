@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "6.2.1";
+    public static $client_version = "6.3.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -547,7 +547,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/6.2.1 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/6.3.0 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '24.04';
@@ -595,7 +595,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '6.2.1';
+    const CLIENT_VERSION = '6.3.0';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -6846,6 +6846,20 @@ class PdfToHtmlClient {
     }
 
     /**
+    * Add a specified prefix to all id and class attributes in the HTML content, creating a namespace for safe integration into another HTML document. This process ensures unique identifiers, preventing conflicts when merging with other HTML.
+    *
+    * @param prefix The prefix to add before each id and class attribute name. Start with a letter or underscore, and use only letters, numbers, hyphens, underscores, or colons.
+    * @return The converter object.
+    */
+    function setHtmlNamespace($prefix) {
+        if (!preg_match("/(?i)^[a-z_][a-z0-9_:-]*$/", $prefix))
+            throw new Error(create_invalid_value_message($prefix, "setHtmlNamespace", "pdf-to-html", "Start with a letter or underscore, and use only letters, numbers, hyphens, underscores, or colons.", "set_html_namespace"), 470);
+        
+        $this->fields['html_namespace'] = $prefix;
+        return $this;
+    }
+
+    /**
     * A helper method to determine if the output file is a zip archive. The output of the conversion may be either an HTML file or a zip file containing the HTML and its external assets.
     * @return <span class='field-value'>True</span> if the conversion output is a zip file, otherwise <span class='field-value'>False</span>.
     */
@@ -7014,6 +7028,20 @@ class PdfToHtmlClient {
             throw new Error(create_invalid_value_message($proxy, "setHttpsProxy", "pdf-to-html", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
         
         $this->fields['https_proxy'] = $proxy;
+        return $this;
+    }
+
+    /**
+    * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
+    *
+    * @param version The version identifier. Allowed values are 24.04, 20.10, 18.10, latest.
+    * @return The converter object.
+    */
+    function setConverterVersion($version) {
+        if (!preg_match("/(?i)^(24.04|20.10|18.10|latest)$/", $version))
+            throw new Error(create_invalid_value_message($version, "setConverterVersion", "pdf-to-html", "Allowed values are 24.04, 20.10, 18.10, latest.", "set_converter_version"), 470);
+        
+        $this->helper->setConverterVersion($version);
         return $this;
     }
 

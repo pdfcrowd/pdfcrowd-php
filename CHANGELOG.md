@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+6.3.0
+-----
+
+- NEW: setHtmlNamespace method for PdfToHtml API client
+- NEW: setConverterVersion method for PdfToHtml API client
+- fix a crash in PdfToHtml API client when PDF file contains a specific type3 font
+
 6.2.1
 -----
 
