@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "6.3.0";
+    public static $client_version = "6.4.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -547,7 +547,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/6.3.0 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/6.4.0 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '24.04';
@@ -595,7 +595,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '6.3.0';
+    const CLIENT_VERSION = '6.4.0';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -1805,23 +1805,13 @@ class HtmlToPdfClient {
         return $this;
     }
 
-    /**
-    * Set the HTTP authentication user name.
-    *
-    * @param user_name The user name.
-    * @return The converter object.
-    */
+
     function setHttpAuthUserName($user_name) {
         $this->fields['http_auth_user_name'] = $user_name;
         return $this;
     }
 
-    /**
-    * Set the HTTP authentication password.
-    *
-    * @param password The password.
-    * @return The converter object.
-    */
+
     function setHttpAuthPassword($password) {
         $this->fields['http_auth_password'] = $password;
         return $this;
@@ -2927,6 +2917,7 @@ The structure of the JSON must be:
       <li><em>headerHeight</em>: Height of the header (optional).</li>
       <li><em>footerHeight</em>: Height of the footer (optional).</li>
       <li><em>orientation</em>: Page orientation, such as "portrait" or "landscape" (optional).</li>
+      <li><em>backgroundColor</em>: Page background color in RRGGBB or RRGGBBAA hexadecimal format (optional).</li>
     </ul>
   </li>
 </ul>
@@ -2957,6 +2948,23 @@ Dimensions may be empty, 0 or specified in inches "in", millimeters "mm", centim
         return $this;
     }
 
+
+    function setSubprocessReferrer($referrer) {
+        $this->fields['subprocess_referrer'] = $referrer;
+        return $this;
+    }
+
+    /**
+    * Specifies the User-Agent HTTP header that will be used by the converter when a request is made to the converted web page.
+    *
+    * @param agent The user agent.
+    * @return The converter object.
+    */
+    function setConverterUserAgent($agent) {
+        $this->fields['converter_user_agent'] = $agent;
+        return $this;
+    }
+
     /**
     * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
     *
@@ -2980,6 +2988,17 @@ Dimensions may be empty, 0 or specified in inches "in", millimeters "mm", centim
     */
     function setUseHttp($value) {
         $this->helper->setUseHttp($value);
+        return $this;
+    }
+
+    /**
+    * Specifies the User-Agent HTTP header that the client library will use when interacting with the API.
+    *
+    * @param agent The user agent string.
+    * @return The converter object.
+    */
+    function setClientUserAgent($agent) {
+        $this->helper->setUserAgent($agent);
         return $this;
     }
 
@@ -3460,23 +3479,13 @@ class HtmlToImageClient {
         return $this;
     }
 
-    /**
-    * Set the HTTP authentication user name.
-    *
-    * @param user_name The user name.
-    * @return The converter object.
-    */
+
     function setHttpAuthUserName($user_name) {
         $this->fields['http_auth_user_name'] = $user_name;
         return $this;
     }
 
-    /**
-    * Set the HTTP authentication password.
-    *
-    * @param password The password.
-    * @return The converter object.
-    */
+
     function setHttpAuthPassword($password) {
         $this->fields['http_auth_password'] = $password;
         return $this;
@@ -3918,6 +3927,23 @@ class HtmlToImageClient {
         return $this;
     }
 
+
+    function setSubprocessReferrer($referrer) {
+        $this->fields['subprocess_referrer'] = $referrer;
+        return $this;
+    }
+
+    /**
+    * Specifies the User-Agent HTTP header that will be used by the converter when a request is made to the converted web page.
+    *
+    * @param agent The user agent.
+    * @return The converter object.
+    */
+    function setConverterUserAgent($agent) {
+        $this->fields['converter_user_agent'] = $agent;
+        return $this;
+    }
+
     /**
     * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
     *
@@ -3941,6 +3967,17 @@ class HtmlToImageClient {
     */
     function setUseHttp($value) {
         $this->helper->setUseHttp($value);
+        return $this;
+    }
+
+    /**
+    * Specifies the User-Agent HTTP header that the client library will use when interacting with the API.
+    *
+    * @param agent The user agent string.
+    * @return The converter object.
+    */
+    function setClientUserAgent($agent) {
+        $this->helper->setUserAgent($agent);
         return $this;
     }
 
@@ -4664,6 +4701,17 @@ class ImageToImageClient {
     }
 
     /**
+    * Specifies the User-Agent HTTP header that the client library will use when interacting with the API.
+    *
+    * @param agent The user agent string.
+    * @return The converter object.
+    */
+    function setClientUserAgent($agent) {
+        $this->helper->setUserAgent($agent);
+        return $this;
+    }
+
+    /**
     * Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
     *
     * @param agent The user agent string.
@@ -5334,6 +5382,17 @@ class PdfToPdfClient {
     */
     function setUseHttp($value) {
         $this->helper->setUseHttp($value);
+        return $this;
+    }
+
+    /**
+    * Specifies the User-Agent HTTP header that the client library will use when interacting with the API.
+    *
+    * @param agent The user agent string.
+    * @return The converter object.
+    */
+    function setClientUserAgent($agent) {
+        $this->helper->setUserAgent($agent);
         return $this;
     }
 
@@ -6412,6 +6471,17 @@ class ImageToPdfClient {
     }
 
     /**
+    * Specifies the User-Agent HTTP header that the client library will use when interacting with the API.
+    *
+    * @param agent The user agent string.
+    * @return The converter object.
+    */
+    function setClientUserAgent($agent) {
+        $this->helper->setUserAgent($agent);
+        return $this;
+    }
+
+    /**
     * Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
     *
     * @param agent The user agent string.
@@ -6846,7 +6916,7 @@ class PdfToHtmlClient {
     }
 
     /**
-    * Add a specified prefix to all id and class attributes in the HTML content, creating a namespace for safe integration into another HTML document. This process ensures unique identifiers, preventing conflicts when merging with other HTML.
+    * Add the specified prefix to all id and class attributes in the HTML content, creating a namespace for safe integration into another HTML document. This ensures unique identifiers, preventing conflicts when merging with other HTML.
     *
     * @param prefix The prefix to add before each id and class attribute name. Start with a letter or underscore, and use only letters, numbers, hyphens, underscores, or colons.
     * @return The converter object.
@@ -7054,6 +7124,17 @@ class PdfToHtmlClient {
     */
     function setUseHttp($value) {
         $this->helper->setUseHttp($value);
+        return $this;
+    }
+
+    /**
+    * Specifies the User-Agent HTTP header that the client library will use when interacting with the API.
+    *
+    * @param agent The user agent string.
+    * @return The converter object.
+    */
+    function setClientUserAgent($agent) {
+        $this->helper->setUserAgent($agent);
         return $this;
     }
 
@@ -7658,6 +7739,17 @@ class PdfToTextClient {
     }
 
     /**
+    * Specifies the User-Agent HTTP header that the client library will use when interacting with the API.
+    *
+    * @param agent The user agent string.
+    * @return The converter object.
+    */
+    function setClientUserAgent($agent) {
+        $this->helper->setUserAgent($agent);
+        return $this;
+    }
+
+    /**
     * Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
     *
     * @param agent The user agent string.
@@ -8216,6 +8308,17 @@ class PdfToImageClient {
     */
     function setUseHttp($value) {
         $this->helper->setUseHttp($value);
+        return $this;
+    }
+
+    /**
+    * Specifies the User-Agent HTTP header that the client library will use when interacting with the API.
+    *
+    * @param agent The user agent string.
+    * @return The converter object.
+    */
+    function setClientUserAgent($agent) {
+        $this->helper->setUserAgent($agent);
         return $this;
     }
 

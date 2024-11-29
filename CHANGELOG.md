@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+6.4.0
+-----
+
+- NEW: setConverterUserAgent method for HtmlToPdf and HtmlToImage API client
+
 6.3.0
 -----
 
