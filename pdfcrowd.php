@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "6.4.0";
+    public static $client_version = "6.5.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -509,21 +509,59 @@ Please disable it either in your php.ini file, or in your code by calling 'set_m
 namespace Pdfcrowd {
 
 class Error extends \Exception {
-    // custom string representation of object
-    public function __toString() {
-        if ($this->code) {
-            return "{$this->code} - {$this->message}";
+    protected $error;
+    protected $reasonCode;
+    protected $docLink;
+
+    public function __construct($error, $statusCode = null)
+    {
+        parent::__construct($error, $statusCode);
+
+        $this->error = $error;
+        $this->reasonCode = -1;
+        $this->docLink = '';
+
+        $pattern = '/^(\d+)\.(\d+)\s+-\s+(.*?)(?:\s+Documentation link:\s+(.*))?$/s';
+        if (preg_match($pattern, $error, $matches)) {
+            $this->code = $matches[1];
+            $this->reasonCode = $matches[2];
+            $this->message = $matches[3];
+            $this->docLink = isset($matches[4]) ? $matches[4] : '';
+        } else {
+            $this->message = $error;
+            if ($this->code) {
+                $this->error = "{$this->code} - {$this->message}";
+            }
         }
-        return "{$this->message}";
+    }
+
+    public function __toString()
+    {
+        return $this->reasonCode ? $this->error : $this->message;
+    }
+
+    public function getStatusCode()
+    {
+        return $this->code;
+    }
+
+    public function getReasonCode()
+    {
+        return $this->reasonCode;
+    }
+
+    public function getDocumentationLink()
+    {
+        return $this->docLink;
     }
 }
 
 function create_invalid_value_message($value, $field, $converter, $hint, $id) {
-    $message = "Invalid value '$value' for $field.";
+    $message = "400.311 - Invalid value '$value' for the '$field' option.";
     if($hint != null) {
         $message = $message . " " . $hint;
     }
-    return $message . " " . "Details: https://www.pdfcrowd.com/api/$converter-php/ref/#$id";
+    return $message . " " . "Documentation link: https://www.pdfcrowd.com/api/$converter-php/ref/#$id";
 }
 
 class ConnectionHelper
@@ -547,7 +585,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/6.4.0 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/6.5.0 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '24.04';
@@ -595,7 +633,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '6.4.0';
+    const CLIENT_VERSION = '6.5.0';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -735,10 +773,10 @@ You need to restart your web server after installation.';
 
         if ($error_nr != 0) {
             if (in_array($error_nr, self::$SSL_ERRORS)) {
-                throw new Error("There was a problem connecting to Pdfcrowd servers over HTTPS:\n" .
+                throw new Error("400.356 - There was a problem connecting to PDFCrowd servers over HTTPS:\n" .
                                 "{$error_str} ({$error_nr})" .
-                                "\nYou can still use the API over HTTP, you just need to add the following line right after Pdfcrowd client initialization:\n\$client->setUseHttp(true);",
-                                481);
+                                "\nYou can still use the API over HTTP, you just need to add the following line right after PDFCrowd client initialization:\n\$client->setUseHttp(true);",
+                                0);
             }
             throw new Error($error_str, $error_nr);
         }
@@ -840,10 +878,10 @@ You need to restart your web server after installation.';
                 }
                 throw new Error($this->error_message);
             }
-            throw new Error("There was a problem connecting to Pdfcrowd servers over HTTPS:\n" .
+            throw new Error("400.356 - There was a problem connecting to PDFCrowd servers over HTTPS:\n" .
                             $this->error_message .
-                            "\nYou can still use the API over HTTP, you just need to add the following line right after Pdfcrowd client initialization:\n\$client->setUseHttp(true);",
-                            481);
+                            "\nYou can still use the API over HTTP, you just need to add the following line right after PDFCrowd client initialization:\n\$client->setUseHttp(true);",
+                            0);
         }
 
         $code = $this->parse_response_headers($http_response_header);
@@ -955,12 +993,12 @@ class HtmlToPdfClient {
     /**
     * Convert a web page.
     *
-    * @param url The address of the web page to convert. The supported protocols are http:// and https://.
+    * @param url The address of the web page to convert. Supported protocols are http:// and https://.
     * @return Byte array containing the conversion output.
     */
     function convertUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "convertUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "convert_url"), 470);
+            throw new Error(create_invalid_value_message($url, "convertUrl", "html-to-pdf", "Supported protocols are http:// and https://.", "convert_url"), 470);
         
         $this->fields['url'] = $url;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
@@ -969,12 +1007,12 @@ class HtmlToPdfClient {
     /**
     * Convert a web page and write the result to an output stream.
     *
-    * @param url The address of the web page to convert. The supported protocols are http:// and https://.
+    * @param url The address of the web page to convert. Supported protocols are http:// and https://.
     * @param out_stream The output stream that will contain the conversion output.
     */
     function convertUrlToStream($url, $out_stream) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "html-to-pdf", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
+            throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "html-to-pdf", "Supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
         
         $this->fields['url'] = $url;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
@@ -983,7 +1021,7 @@ class HtmlToPdfClient {
     /**
     * Convert a web page and write the result to a local file.
     *
-    * @param url The address of the web page to convert. The supported protocols are http:// and https://.
+    * @param url The address of the web page to convert. Supported protocols are http:// and https://.
     * @param file_path The output file path. The string must not be empty.
     */
     function convertUrlToFile($url, $file_path) {
@@ -1190,12 +1228,12 @@ class HtmlToPdfClient {
     /**
     * Set the output page width. The safe maximum is <span class='field-value'>200in</span> otherwise some PDF viewers may be unable to open the PDF.
     *
-    * @param width The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param width The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setPageWidth($width) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $width))
-            throw new Error(create_invalid_value_message($width, "setPageWidth", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_page_width"), 470);
+            throw new Error(create_invalid_value_message($width, "setPageWidth", "html-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_page_width"), 470);
         
         $this->fields['page_width'] = $width;
         return $this;
@@ -1204,12 +1242,12 @@ class HtmlToPdfClient {
     /**
     * Set the output page height. Use <span class='field-value'>-1</span> for a single page PDF. The safe maximum is <span class='field-value'>200in</span> otherwise some PDF viewers may be unable to open the PDF.
     *
-    * @param height The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param height The value must be -1 or specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setPageHeight($height) {
         if (!preg_match("/(?i)^0$|^\-1$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
-            throw new Error(create_invalid_value_message($height, "setPageHeight", "html-to-pdf", "The value must be -1 or specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_page_height"), 470);
+            throw new Error(create_invalid_value_message($height, "setPageHeight", "html-to-pdf", "The value must be -1 or specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_page_height"), 470);
         
         $this->fields['page_height'] = $height;
         return $this;
@@ -1218,8 +1256,8 @@ class HtmlToPdfClient {
     /**
     * Set the output page dimensions.
     *
-    * @param width Set the output page width. The safe maximum is <span class='field-value'>200in</span> otherwise some PDF viewers may be unable to open the PDF. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-    * @param height Set the output page height. Use <span class='field-value'>-1</span> for a single page PDF. The safe maximum is <span class='field-value'>200in</span> otherwise some PDF viewers may be unable to open the PDF. The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param width Set the output page width. The safe maximum is <span class='field-value'>200in</span> otherwise some PDF viewers may be unable to open the PDF. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+    * @param height Set the output page height. Use <span class='field-value'>-1</span> for a single page PDF. The safe maximum is <span class='field-value'>200in</span> otherwise some PDF viewers may be unable to open the PDF. The value must be -1 or specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setPageDimensions($width, $height) {
@@ -1245,12 +1283,12 @@ class HtmlToPdfClient {
     /**
     * Set the output page top margin.
     *
-    * @param top The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param top The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setMarginTop($top) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $top))
-            throw new Error(create_invalid_value_message($top, "setMarginTop", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_margin_top"), 470);
+            throw new Error(create_invalid_value_message($top, "setMarginTop", "html-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_margin_top"), 470);
         
         $this->fields['margin_top'] = $top;
         return $this;
@@ -1259,12 +1297,12 @@ class HtmlToPdfClient {
     /**
     * Set the output page right margin.
     *
-    * @param right The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param right The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setMarginRight($right) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $right))
-            throw new Error(create_invalid_value_message($right, "setMarginRight", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_margin_right"), 470);
+            throw new Error(create_invalid_value_message($right, "setMarginRight", "html-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_margin_right"), 470);
         
         $this->fields['margin_right'] = $right;
         return $this;
@@ -1273,12 +1311,12 @@ class HtmlToPdfClient {
     /**
     * Set the output page bottom margin.
     *
-    * @param bottom The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param bottom The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setMarginBottom($bottom) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $bottom))
-            throw new Error(create_invalid_value_message($bottom, "setMarginBottom", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_margin_bottom"), 470);
+            throw new Error(create_invalid_value_message($bottom, "setMarginBottom", "html-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_margin_bottom"), 470);
         
         $this->fields['margin_bottom'] = $bottom;
         return $this;
@@ -1287,12 +1325,12 @@ class HtmlToPdfClient {
     /**
     * Set the output page left margin.
     *
-    * @param left The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param left The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setMarginLeft($left) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $left))
-            throw new Error(create_invalid_value_message($left, "setMarginLeft", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_margin_left"), 470);
+            throw new Error(create_invalid_value_message($left, "setMarginLeft", "html-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_margin_left"), 470);
         
         $this->fields['margin_left'] = $left;
         return $this;
@@ -1312,10 +1350,10 @@ class HtmlToPdfClient {
     /**
     * Set the output page margins.
     *
-    * @param top Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-    * @param right Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-    * @param bottom Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-    * @param left Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param top Set the output page top margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+    * @param right Set the output page right margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+    * @param bottom Set the output page bottom margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+    * @param left Set the output page left margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setPageMargins($top, $right, $bottom, $left) {
@@ -1329,12 +1367,12 @@ class HtmlToPdfClient {
     /**
     * Set the page range to print.
     *
-    * @param pages A comma separated list of page numbers or ranges. Special strings may be used, such as `odd`, `even` and `last`.
+    * @param pages A comma separated list of page numbers or ranges. Special strings may be used, such as 'odd', 'even' and 'last'.
     * @return The converter object.
     */
     function setPrintPageRange($pages) {
         if (!preg_match("/^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*)|odd|even|last)\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*)|odd|even|last)\s*$/", $pages))
-            throw new Error(create_invalid_value_message($pages, "setPrintPageRange", "html-to-pdf", "A comma separated list of page numbers or ranges. Special strings may be used, such as `odd`, `even` and `last`.", "set_print_page_range"), 470);
+            throw new Error(create_invalid_value_message($pages, "setPrintPageRange", "html-to-pdf", "A comma separated list of page numbers or ranges. Special strings may be used, such as 'odd', 'even' and 'last'.", "set_print_page_range"), 470);
         
         $this->fields['print_page_range'] = $pages;
         return $this;
@@ -1343,12 +1381,12 @@ class HtmlToPdfClient {
     /**
     * Set the viewport width for formatting the HTML content when generating a PDF. By specifying a viewport width, you can control how the content is rendered, ensuring it mimics the appearance on various devices or matches specific design requirements.
     *
-    * @param width The width of the viewport. The value must be "balanced", "small", "medium", "large", "extra-large", or a number in the range 96-65000px.
+    * @param width The width of the viewport. The value must be 'balanced', 'small', 'medium', 'large', 'extra-large', or a number in the range 96-65000px.
     * @return The converter object.
     */
     function setContentViewportWidth($width) {
         if (!preg_match("/(?i)^(balanced|small|medium|large|extra-large|[0-9]+(px)?)$/", $width))
-            throw new Error(create_invalid_value_message($width, "setContentViewportWidth", "html-to-pdf", "The value must be \"balanced\", \"small\", \"medium\", \"large\", \"extra-large\", or a number in the range 96-65000px.", "set_content_viewport_width"), 470);
+            throw new Error(create_invalid_value_message($width, "setContentViewportWidth", "html-to-pdf", "The value must be 'balanced', 'small', 'medium', 'large', 'extra-large', or a number in the range 96-65000px.", "set_content_viewport_width"), 470);
         
         $this->fields['content_viewport_width'] = $width;
         return $this;
@@ -1357,12 +1395,12 @@ class HtmlToPdfClient {
     /**
     * Set the viewport height for formatting the HTML content when generating a PDF. By specifying a viewport height, you can enforce loading of lazy-loaded images and also affect vertical positioning of absolutely positioned elements within the content.
     *
-    * @param height The viewport height. The value must be "auto", "large", or a number.
+    * @param height The viewport height. The value must be 'auto', 'large', or a number.
     * @return The converter object.
     */
     function setContentViewportHeight($height) {
         if (!preg_match("/(?i)^(auto|large|[0-9]+(px)?)$/", $height))
-            throw new Error(create_invalid_value_message($height, "setContentViewportHeight", "html-to-pdf", "The value must be \"auto\", \"large\", or a number.", "set_content_viewport_height"), 470);
+            throw new Error(create_invalid_value_message($height, "setContentViewportHeight", "html-to-pdf", "The value must be 'auto', 'large', or a number.", "set_content_viewport_height"), 470);
         
         $this->fields['content_viewport_height'] = $height;
         return $this;
@@ -1399,12 +1437,12 @@ class HtmlToPdfClient {
     /**
     * Load an HTML code from the specified URL and use it as the page header. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: <ul> <li><span class='field-value'>pdfcrowd-page-count</span> - the total page count of printed pages</li> <li><span class='field-value'>pdfcrowd-page-number</span> - the current page number</li> <li><span class='field-value'>pdfcrowd-source-url</span> - the source URL of the converted document</li> <li><span class='field-value'>pdfcrowd-source-title</span> - the title of the converted document</li> </ul> The following attributes can be used: <ul> <li><span class='field-value'>data-pdfcrowd-number-format</span> - specifies the type of the used numerals. Allowed values: <ul> <li><span class='field-value'>arabic</span> - Arabic numerals, they are used by default</li> <li><span class='field-value'>roman</span> - Roman numerals</li> <li><span class='field-value'>eastern-arabic</span> - Eastern Arabic numerals</li> <li><span class='field-value'>bengali</span> - Bengali numerals</li> <li><span class='field-value'>devanagari</span> - Devanagari numerals</li> <li><span class='field-value'>thai</span> - Thai numerals</li> <li><span class='field-value'>east-asia</span> - Chinese, Vietnamese, Japanese and Korean numerals</li> <li><span class='field-value'>chinese-formal</span> - Chinese formal numerals</li> </ul> Please contact us if you need another type of numerals.<br> Example:<br> &lt;span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'&gt;&lt;/span&gt; </li> <li><span class='field-value'>data-pdfcrowd-placement</span> - specifies where to place the source URL. Allowed values: <ul> <li>The URL is inserted to the content <ul> <li> Example: &lt;span class='pdfcrowd-source-url'&gt;&lt;/span&gt;<br> will produce &lt;span&gt;http://example.com&lt;/span&gt; </li> </ul> </li> <li><span class='field-value'>href</span> - the URL is set to the href attribute <ul> <li> Example: &lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'&gt;Link to source&lt;/a&gt;<br> will produce &lt;a href='http://example.com'&gt;Link to source&lt;/a&gt; </li> </ul> </li> <li><span class='field-value'>href-and-content</span> - the URL is set to the href attribute and to the content <ul> <li> Example: &lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'&gt;&lt;/a&gt;<br> will produce &lt;a href='http://example.com'&gt;http://example.com&lt;/a&gt; </li> </ul> </li> </ul> </li> </ul>
     *
-    * @param url The supported protocols are http:// and https://.
+    * @param url Supported protocols are http:// and https://.
     * @return The converter object.
     */
     function setHeaderUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "setHeaderUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "set_header_url"), 470);
+            throw new Error(create_invalid_value_message($url, "setHeaderUrl", "html-to-pdf", "Supported protocols are http:// and https://.", "set_header_url"), 470);
         
         $this->fields['header_url'] = $url;
         return $this;
@@ -1427,12 +1465,12 @@ class HtmlToPdfClient {
     /**
     * Set the header height.
     *
-    * @param height The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param height The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setHeaderHeight($height) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
-            throw new Error(create_invalid_value_message($height, "setHeaderHeight", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_header_height"), 470);
+            throw new Error(create_invalid_value_message($height, "setHeaderHeight", "html-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_header_height"), 470);
         
         $this->fields['header_height'] = $height;
         return $this;
@@ -1452,12 +1490,12 @@ class HtmlToPdfClient {
     /**
     * Load an HTML code from the specified URL and use it as the page footer. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: <ul> <li><span class='field-value'>pdfcrowd-page-count</span> - the total page count of printed pages</li> <li><span class='field-value'>pdfcrowd-page-number</span> - the current page number</li> <li><span class='field-value'>pdfcrowd-source-url</span> - the source URL of the converted document</li> <li><span class='field-value'>pdfcrowd-source-title</span> - the title of the converted document</li> </ul> The following attributes can be used: <ul> <li><span class='field-value'>data-pdfcrowd-number-format</span> - specifies the type of the used numerals. Allowed values: <ul> <li><span class='field-value'>arabic</span> - Arabic numerals, they are used by default</li> <li><span class='field-value'>roman</span> - Roman numerals</li> <li><span class='field-value'>eastern-arabic</span> - Eastern Arabic numerals</li> <li><span class='field-value'>bengali</span> - Bengali numerals</li> <li><span class='field-value'>devanagari</span> - Devanagari numerals</li> <li><span class='field-value'>thai</span> - Thai numerals</li> <li><span class='field-value'>east-asia</span> - Chinese, Vietnamese, Japanese and Korean numerals</li> <li><span class='field-value'>chinese-formal</span> - Chinese formal numerals</li> </ul> Please contact us if you need another type of numerals.<br> Example:<br> &lt;span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'&gt;&lt;/span&gt; </li> <li><span class='field-value'>data-pdfcrowd-placement</span> - specifies where to place the source URL. Allowed values: <ul> <li>The URL is inserted to the content <ul> <li> Example: &lt;span class='pdfcrowd-source-url'&gt;&lt;/span&gt;<br> will produce &lt;span&gt;http://example.com&lt;/span&gt; </li> </ul> </li> <li><span class='field-value'>href</span> - the URL is set to the href attribute <ul> <li> Example: &lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'&gt;Link to source&lt;/a&gt;<br> will produce &lt;a href='http://example.com'&gt;Link to source&lt;/a&gt; </li> </ul> </li> <li><span class='field-value'>href-and-content</span> - the URL is set to the href attribute and to the content <ul> <li> Example: &lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'&gt;&lt;/a&gt;<br> will produce &lt;a href='http://example.com'&gt;http://example.com&lt;/a&gt; </li> </ul> </li> </ul> </li> </ul>
     *
-    * @param url The supported protocols are http:// and https://.
+    * @param url Supported protocols are http:// and https://.
     * @return The converter object.
     */
     function setFooterUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "setFooterUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "set_footer_url"), 470);
+            throw new Error(create_invalid_value_message($url, "setFooterUrl", "html-to-pdf", "Supported protocols are http:// and https://.", "set_footer_url"), 470);
         
         $this->fields['footer_url'] = $url;
         return $this;
@@ -1480,12 +1518,12 @@ class HtmlToPdfClient {
     /**
     * Set the footer height.
     *
-    * @param height The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param height The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setFooterHeight($height) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
-            throw new Error(create_invalid_value_message($height, "setFooterHeight", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_footer_height"), 470);
+            throw new Error(create_invalid_value_message($height, "setFooterHeight", "html-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_footer_height"), 470);
         
         $this->fields['footer_height'] = $height;
         return $this;
@@ -1544,12 +1582,12 @@ class HtmlToPdfClient {
     /**
     * Set the scaling factor (zoom) for the header and footer.
     *
-    * @param factor The percentage value. The value must be in the range 10-500.
+    * @param factor The percentage value. The accepted range is 10-500.
     * @return The converter object.
     */
     function setHeaderFooterScaleFactor($factor) {
         if (!(intval($factor) >= 10 && intval($factor) <= 500))
-            throw new Error(create_invalid_value_message($factor, "setHeaderFooterScaleFactor", "html-to-pdf", "The value must be in the range 10-500.", "set_header_footer_scale_factor"), 470);
+            throw new Error(create_invalid_value_message($factor, "setHeaderFooterScaleFactor", "html-to-pdf", "The accepted range is 10-500.", "set_header_footer_scale_factor"), 470);
         
         $this->fields['header_footer_scale_factor'] = $factor;
         return $this;
@@ -1583,12 +1621,12 @@ class HtmlToPdfClient {
     /**
     * Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark.
     *
-    * @param url The supported protocols are http:// and https://.
+    * @param url Supported protocols are http:// and https://.
     * @return The converter object.
     */
     function setPageWatermarkUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "setPageWatermarkUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "set_page_watermark_url"), 470);
+            throw new Error(create_invalid_value_message($url, "setPageWatermarkUrl", "html-to-pdf", "Supported protocols are http:// and https://.", "set_page_watermark_url"), 470);
         
         $this->fields['page_watermark_url'] = $url;
         return $this;
@@ -1611,12 +1649,12 @@ class HtmlToPdfClient {
     /**
     * Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image.
     *
-    * @param url The supported protocols are http:// and https://.
+    * @param url Supported protocols are http:// and https://.
     * @return The converter object.
     */
     function setMultipageWatermarkUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "setMultipageWatermarkUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_watermark_url"), 470);
+            throw new Error(create_invalid_value_message($url, "setMultipageWatermarkUrl", "html-to-pdf", "Supported protocols are http:// and https://.", "set_multipage_watermark_url"), 470);
         
         $this->fields['multipage_watermark_url'] = $url;
         return $this;
@@ -1639,12 +1677,12 @@ class HtmlToPdfClient {
     /**
     * Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background.
     *
-    * @param url The supported protocols are http:// and https://.
+    * @param url Supported protocols are http:// and https://.
     * @return The converter object.
     */
     function setPageBackgroundUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "setPageBackgroundUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "set_page_background_url"), 470);
+            throw new Error(create_invalid_value_message($url, "setPageBackgroundUrl", "html-to-pdf", "Supported protocols are http:// and https://.", "set_page_background_url"), 470);
         
         $this->fields['page_background_url'] = $url;
         return $this;
@@ -1667,12 +1705,12 @@ class HtmlToPdfClient {
     /**
     * Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image.
     *
-    * @param url The supported protocols are http:// and https://.
+    * @param url Supported protocols are http:// and https://.
     * @return The converter object.
     */
     function setMultipageBackgroundUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "setMultipageBackgroundUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_background_url"), 470);
+            throw new Error(create_invalid_value_message($url, "setMultipageBackgroundUrl", "html-to-pdf", "Supported protocols are http:// and https://.", "set_multipage_background_url"), 470);
         
         $this->fields['multipage_background_url'] = $url;
         return $this;
@@ -1958,12 +1996,12 @@ class HtmlToPdfClient {
     /**
     * Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter.
     *
-    * @param delay The number of milliseconds to wait. Must be a positive integer number or 0.
+    * @param delay The number of milliseconds to wait. Must be a positive integer or 0.
     * @return The converter object.
     */
     function setJavascriptDelay($delay) {
         if (!(intval($delay) >= 0))
-            throw new Error(create_invalid_value_message($delay, "setJavascriptDelay", "html-to-pdf", "Must be a positive integer number or 0.", "set_javascript_delay"), 470);
+            throw new Error(create_invalid_value_message($delay, "setJavascriptDelay", "html-to-pdf", "Must be a positive integer or 0.", "set_javascript_delay"), 470);
         
         $this->fields['javascript_delay'] = $delay;
         return $this;
@@ -2039,12 +2077,12 @@ class HtmlToPdfClient {
     /**
     * Set the viewport width in pixels. The viewport is the user's visible area of the page.
     *
-    * @param width The value must be in the range 96-65000.
+    * @param width The accepted range is 96-65000.
     * @return The converter object.
     */
     function setViewportWidth($width) {
         if (!(intval($width) >= 96 && intval($width) <= 65000))
-            throw new Error(create_invalid_value_message($width, "setViewportWidth", "html-to-pdf", "The value must be in the range 96-65000.", "set_viewport_width"), 470);
+            throw new Error(create_invalid_value_message($width, "setViewportWidth", "html-to-pdf", "The accepted range is 96-65000.", "set_viewport_width"), 470);
         
         $this->fields['viewport_width'] = $width;
         return $this;
@@ -2053,12 +2091,12 @@ class HtmlToPdfClient {
     /**
     * Set the viewport height in pixels. The viewport is the user's visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000.
     *
-    * @param height Must be a positive integer number.
+    * @param height Must be a positive integer.
     * @return The converter object.
     */
     function setViewportHeight($height) {
         if (!(intval($height) > 0))
-            throw new Error(create_invalid_value_message($height, "setViewportHeight", "html-to-pdf", "Must be a positive integer number.", "set_viewport_height"), 470);
+            throw new Error(create_invalid_value_message($height, "setViewportHeight", "html-to-pdf", "Must be a positive integer.", "set_viewport_height"), 470);
         
         $this->fields['viewport_height'] = $height;
         return $this;
@@ -2067,8 +2105,8 @@ class HtmlToPdfClient {
     /**
     * Set the viewport size. The viewport is the user's visible area of the page.
     *
-    * @param width Set the viewport width in pixels. The viewport is the user's visible area of the page. The value must be in the range 96-65000.
-    * @param height Set the viewport height in pixels. The viewport is the user's visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000. Must be a positive integer number.
+    * @param width Set the viewport width in pixels. The viewport is the user's visible area of the page. The accepted range is 96-65000.
+    * @param height Set the viewport height in pixels. The viewport is the user's visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000. Must be a positive integer.
     * @return The converter object.
     */
     function setViewport($width, $height) {
@@ -2108,12 +2146,12 @@ class HtmlToPdfClient {
     /**
     * Set the scaling factor (zoom) for the main page area.
     *
-    * @param factor The percentage value. The value must be in the range 10-500.
+    * @param factor The percentage value. The accepted range is 10-500.
     * @return The converter object.
     */
     function setScaleFactor($factor) {
         if (!(intval($factor) >= 10 && intval($factor) <= 500))
-            throw new Error(create_invalid_value_message($factor, "setScaleFactor", "html-to-pdf", "The value must be in the range 10-500.", "set_scale_factor"), 470);
+            throw new Error(create_invalid_value_message($factor, "setScaleFactor", "html-to-pdf", "The accepted range is 10-500.", "set_scale_factor"), 470);
         
         $this->fields['scale_factor'] = $factor;
         return $this;
@@ -2122,12 +2160,12 @@ class HtmlToPdfClient {
     /**
     * Set the quality of embedded JPEG images. A lower quality results in a smaller PDF file but can lead to compression artifacts.
     *
-    * @param quality The percentage value. The value must be in the range 1-100.
+    * @param quality The percentage value. The accepted range is 1-100.
     * @return The converter object.
     */
     function setJpegQuality($quality) {
         if (!(intval($quality) >= 1 && intval($quality) <= 100))
-            throw new Error(create_invalid_value_message($quality, "setJpegQuality", "html-to-pdf", "The value must be in the range 1-100.", "set_jpeg_quality"), 470);
+            throw new Error(create_invalid_value_message($quality, "setJpegQuality", "html-to-pdf", "The accepted range is 1-100.", "set_jpeg_quality"), 470);
         
         $this->fields['jpeg_quality'] = $quality;
         return $this;
@@ -2150,12 +2188,12 @@ class HtmlToPdfClient {
     /**
     * Set the DPI of images in PDF. A lower DPI may result in a smaller PDF file.  If the specified DPI is higher than the actual image DPI, the original image DPI is retained (no upscaling is performed). Use <span class='field-value'>0</span> to leave the images unaltered.
     *
-    * @param dpi The DPI value. Must be a positive integer number or 0.
+    * @param dpi The DPI value. Must be a positive integer or 0.
     * @return The converter object.
     */
     function setImageDpi($dpi) {
         if (!(intval($dpi) >= 0))
-            throw new Error(create_invalid_value_message($dpi, "setImageDpi", "html-to-pdf", "Must be a positive integer number or 0.", "set_image_dpi"), 470);
+            throw new Error(create_invalid_value_message($dpi, "setImageDpi", "html-to-pdf", "Must be a positive integer or 0.", "set_image_dpi"), 470);
         
         $this->fields['image_dpi'] = $dpi;
         return $this;
@@ -2349,12 +2387,12 @@ class HtmlToPdfClient {
     /**
     * Display the specified page when the document is opened.
     *
-    * @param page Must be a positive integer number.
+    * @param page Must be a positive integer.
     * @return The converter object.
     */
     function setInitialPage($page) {
         if (!(intval($page) > 0))
-            throw new Error(create_invalid_value_message($page, "setInitialPage", "html-to-pdf", "Must be a positive integer number.", "set_initial_page"), 470);
+            throw new Error(create_invalid_value_message($page, "setInitialPage", "html-to-pdf", "Must be a positive integer.", "set_initial_page"), 470);
         
         $this->fields['initial_page'] = $page;
         return $this;
@@ -2363,12 +2401,12 @@ class HtmlToPdfClient {
     /**
     * Specify the initial page zoom in percents when the document is opened.
     *
-    * @param zoom Must be a positive integer number.
+    * @param zoom Must be a positive integer.
     * @return The converter object.
     */
     function setInitialZoom($zoom) {
         if (!(intval($zoom) > 0))
-            throw new Error(create_invalid_value_message($zoom, "setInitialZoom", "html-to-pdf", "Must be a positive integer number.", "set_initial_zoom"), 470);
+            throw new Error(create_invalid_value_message($zoom, "setInitialZoom", "html-to-pdf", "Must be a positive integer.", "set_initial_zoom"), 470);
         
         $this->fields['initial_zoom'] = $zoom;
         return $this;
@@ -2687,12 +2725,12 @@ class HtmlToPdfClient {
     /**
     * Set the internal DPI resolution used for positioning of PDF contents. It can help in situations when there are small inaccuracies in the PDF. It is recommended to use values that are a multiple of 72, such as 288 or 360.
     *
-    * @param dpi The DPI value. The value must be in the range of 72-600.
+    * @param dpi The DPI value. The accepted range is 72-600.
     * @return The converter object.
     */
     function setLayoutDpi($dpi) {
         if (!(intval($dpi) >= 72 && intval($dpi) <= 600))
-            throw new Error(create_invalid_value_message($dpi, "setLayoutDpi", "html-to-pdf", "The value must be in the range of 72-600.", "set_layout_dpi"), 470);
+            throw new Error(create_invalid_value_message($dpi, "setLayoutDpi", "html-to-pdf", "The accepted range is 72-600.", "set_layout_dpi"), 470);
         
         $this->fields['layout_dpi'] = $dpi;
         return $this;
@@ -2701,12 +2739,12 @@ class HtmlToPdfClient {
     /**
     * Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
     *
-    * @param x The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
+    * @param x The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'. It may contain a negative value.
     * @return The converter object.
     */
     function setContentAreaX($x) {
         if (!preg_match("/(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $x))
-            throw new Error(create_invalid_value_message($x, "setContentAreaX", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\". It may contain a negative value.", "set_content_area_x"), 470);
+            throw new Error(create_invalid_value_message($x, "setContentAreaX", "html-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'. It may contain a negative value.", "set_content_area_x"), 470);
         
         $this->fields['content_area_x'] = $x;
         return $this;
@@ -2715,12 +2753,12 @@ class HtmlToPdfClient {
     /**
     * Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area.
     *
-    * @param y The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
+    * @param y The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'. It may contain a negative value.
     * @return The converter object.
     */
     function setContentAreaY($y) {
         if (!preg_match("/(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $y))
-            throw new Error(create_invalid_value_message($y, "setContentAreaY", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\". It may contain a negative value.", "set_content_area_y"), 470);
+            throw new Error(create_invalid_value_message($y, "setContentAreaY", "html-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'. It may contain a negative value.", "set_content_area_y"), 470);
         
         $this->fields['content_area_y'] = $y;
         return $this;
@@ -2729,12 +2767,12 @@ class HtmlToPdfClient {
     /**
     * Set the width of the content area. It should be at least 1 inch.
     *
-    * @param width The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param width The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setContentAreaWidth($width) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $width))
-            throw new Error(create_invalid_value_message($width, "setContentAreaWidth", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_content_area_width"), 470);
+            throw new Error(create_invalid_value_message($width, "setContentAreaWidth", "html-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_content_area_width"), 470);
         
         $this->fields['content_area_width'] = $width;
         return $this;
@@ -2743,12 +2781,12 @@ class HtmlToPdfClient {
     /**
     * Set the height of the content area. It should be at least 1 inch.
     *
-    * @param height The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param height The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setContentAreaHeight($height) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
-            throw new Error(create_invalid_value_message($height, "setContentAreaHeight", "html-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_content_area_height"), 470);
+            throw new Error(create_invalid_value_message($height, "setContentAreaHeight", "html-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_content_area_height"), 470);
         
         $this->fields['content_area_height'] = $height;
         return $this;
@@ -2757,10 +2795,10 @@ class HtmlToPdfClient {
     /**
     * Set the content area position and size. The content area enables to specify a web page area to be converted.
     *
-    * @param x Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
-    * @param y Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
-    * @param width Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-    * @param height Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param x Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'. It may contain a negative value.
+    * @param y Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'. It may contain a negative value.
+    * @param width Set the width of the content area. It should be at least 1 inch. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+    * @param height Set the height of the content area. It should be at least 1 inch. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setContentArea($x, $y, $width, $height) {
@@ -2854,12 +2892,12 @@ class HtmlToPdfClient {
     /**
     * Set the maximum time to load the page and its resources. After this time, all requests will be considered successful. This can be useful to ensure that the conversion does not timeout. Use this method if there is no other way to fix page loading.
     *
-    * @param max_time The number of seconds to wait. The value must be in the range 10-30.
+    * @param max_time The number of seconds to wait. The accepted range is 10-30.
     * @return The converter object.
     */
     function setMaxLoadingTime($max_time) {
         if (!(intval($max_time) >= 10 && intval($max_time) <= 30))
-            throw new Error(create_invalid_value_message($max_time, "setMaxLoadingTime", "html-to-pdf", "The value must be in the range 10-30.", "set_max_loading_time"), 470);
+            throw new Error(create_invalid_value_message($max_time, "setMaxLoadingTime", "html-to-pdf", "The accepted range is 10-30.", "set_max_loading_time"), 470);
         
         $this->fields['max_loading_time'] = $max_time;
         return $this;
@@ -2923,7 +2961,7 @@ The structure of the JSON must be:
 </ul>
 
 <p>
-Dimensions may be empty, 0 or specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+Dimensions may be empty, 0 or specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
 </p>
     *
     * @param json_string The JSON string.
@@ -3092,12 +3130,12 @@ class HtmlToImageClient {
     /**
     * Convert a web page.
     *
-    * @param url The address of the web page to convert. The supported protocols are http:// and https://.
+    * @param url The address of the web page to convert. Supported protocols are http:// and https://.
     * @return Byte array containing the conversion output.
     */
     function convertUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "convertUrl", "html-to-image", "The supported protocols are http:// and https://.", "convert_url"), 470);
+            throw new Error(create_invalid_value_message($url, "convertUrl", "html-to-image", "Supported protocols are http:// and https://.", "convert_url"), 470);
         
         $this->fields['url'] = $url;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
@@ -3106,12 +3144,12 @@ class HtmlToImageClient {
     /**
     * Convert a web page and write the result to an output stream.
     *
-    * @param url The address of the web page to convert. The supported protocols are http:// and https://.
+    * @param url The address of the web page to convert. Supported protocols are http:// and https://.
     * @param out_stream The output stream that will contain the conversion output.
     */
     function convertUrlToStream($url, $out_stream) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "html-to-image", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
+            throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "html-to-image", "Supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
         
         $this->fields['url'] = $url;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
@@ -3120,7 +3158,7 @@ class HtmlToImageClient {
     /**
     * Convert a web page and write the result to a local file.
     *
-    * @param url The address of the web page to convert. The supported protocols are http:// and https://.
+    * @param url The address of the web page to convert. Supported protocols are http:// and https://.
     * @param file_path The output file path. The string must not be empty.
     */
     function convertUrlToFile($url, $file_path) {
@@ -3313,12 +3351,12 @@ class HtmlToImageClient {
     /**
     * Set the output image width in pixels.
     *
-    * @param width The value must be in the range 96-65000.
+    * @param width The accepted range is 96-65000.
     * @return The converter object.
     */
     function setScreenshotWidth($width) {
         if (!(intval($width) >= 96 && intval($width) <= 65000))
-            throw new Error(create_invalid_value_message($width, "setScreenshotWidth", "html-to-image", "The value must be in the range 96-65000.", "set_screenshot_width"), 470);
+            throw new Error(create_invalid_value_message($width, "setScreenshotWidth", "html-to-image", "The accepted range is 96-65000.", "set_screenshot_width"), 470);
         
         $this->fields['screenshot_width'] = $width;
         return $this;
@@ -3327,12 +3365,12 @@ class HtmlToImageClient {
     /**
     * Set the output image height in pixels. If it is not specified, actual document height is used.
     *
-    * @param height Must be a positive integer number.
+    * @param height Must be a positive integer.
     * @return The converter object.
     */
     function setScreenshotHeight($height) {
         if (!(intval($height) > 0))
-            throw new Error(create_invalid_value_message($height, "setScreenshotHeight", "html-to-image", "Must be a positive integer number.", "set_screenshot_height"), 470);
+            throw new Error(create_invalid_value_message($height, "setScreenshotHeight", "html-to-image", "Must be a positive integer.", "set_screenshot_height"), 470);
         
         $this->fields['screenshot_height'] = $height;
         return $this;
@@ -3341,12 +3379,12 @@ class HtmlToImageClient {
     /**
     * Set the scaling factor (zoom) for the output image.
     *
-    * @param factor The percentage value. Must be a positive integer number.
+    * @param factor The percentage value. Must be a positive integer.
     * @return The converter object.
     */
     function setScaleFactor($factor) {
         if (!(intval($factor) > 0))
-            throw new Error(create_invalid_value_message($factor, "setScaleFactor", "html-to-image", "Must be a positive integer number.", "set_scale_factor"), 470);
+            throw new Error(create_invalid_value_message($factor, "setScaleFactor", "html-to-image", "Must be a positive integer.", "set_scale_factor"), 470);
         
         $this->fields['scale_factor'] = $factor;
         return $this;
@@ -3618,12 +3656,12 @@ class HtmlToImageClient {
     /**
     * Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter.
     *
-    * @param delay The number of milliseconds to wait. Must be a positive integer number or 0.
+    * @param delay The number of milliseconds to wait. Must be a positive integer or 0.
     * @return The converter object.
     */
     function setJavascriptDelay($delay) {
         if (!(intval($delay) >= 0))
-            throw new Error(create_invalid_value_message($delay, "setJavascriptDelay", "html-to-image", "Must be a positive integer number or 0.", "set_javascript_delay"), 470);
+            throw new Error(create_invalid_value_message($delay, "setJavascriptDelay", "html-to-image", "Must be a positive integer or 0.", "set_javascript_delay"), 470);
         
         $this->fields['javascript_delay'] = $delay;
         return $this;
@@ -3916,12 +3954,12 @@ class HtmlToImageClient {
     /**
     * Set the maximum time to load the page and its resources. After this time, all requests will be considered successful. This can be useful to ensure that the conversion does not timeout. Use this method if there is no other way to fix page loading.
     *
-    * @param max_time The number of seconds to wait. The value must be in the range 10-30.
+    * @param max_time The number of seconds to wait. The accepted range is 10-30.
     * @return The converter object.
     */
     function setMaxLoadingTime($max_time) {
         if (!(intval($max_time) >= 10 && intval($max_time) <= 30))
-            throw new Error(create_invalid_value_message($max_time, "setMaxLoadingTime", "html-to-image", "The value must be in the range 10-30.", "set_max_loading_time"), 470);
+            throw new Error(create_invalid_value_message($max_time, "setMaxLoadingTime", "html-to-image", "The accepted range is 10-30.", "set_max_loading_time"), 470);
         
         $this->fields['max_loading_time'] = $max_time;
         return $this;
@@ -4057,12 +4095,12 @@ class ImageToImageClient {
     /**
     * Convert an image.
     *
-    * @param url The address of the image to convert. The supported protocols are http:// and https://.
+    * @param url The address of the image to convert. Supported protocols are http:// and https://.
     * @return Byte array containing the conversion output.
     */
     function convertUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "convertUrl", "image-to-image", "The supported protocols are http:// and https://.", "convert_url"), 470);
+            throw new Error(create_invalid_value_message($url, "convertUrl", "image-to-image", "Supported protocols are http:// and https://.", "convert_url"), 470);
         
         $this->fields['url'] = $url;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
@@ -4071,12 +4109,12 @@ class ImageToImageClient {
     /**
     * Convert an image and write the result to an output stream.
     *
-    * @param url The address of the image to convert. The supported protocols are http:// and https://.
+    * @param url The address of the image to convert. Supported protocols are http:// and https://.
     * @param out_stream The output stream that will contain the conversion output.
     */
     function convertUrlToStream($url, $out_stream) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "image-to-image", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
+            throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "image-to-image", "Supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
         
         $this->fields['url'] = $url;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
@@ -4085,7 +4123,7 @@ class ImageToImageClient {
     /**
     * Convert an image and write the result to a local file.
     *
-    * @param url The address of the image to convert. The supported protocols are http:// and https://.
+    * @param url The address of the image to convert. Supported protocols are http:// and https://.
     * @param file_path The output file path. The string must not be empty.
     */
     function convertUrlToFile($url, $file_path) {
@@ -4297,12 +4335,12 @@ class ImageToImageClient {
     /**
     * Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
     *
-    * @param x The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param x The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setCropAreaX($x) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $x))
-            throw new Error(create_invalid_value_message($x, "setCropAreaX", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_crop_area_x"), 470);
+            throw new Error(create_invalid_value_message($x, "setCropAreaX", "image-to-image", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_crop_area_x"), 470);
         
         $this->fields['crop_area_x'] = $x;
         return $this;
@@ -4311,12 +4349,12 @@ class ImageToImageClient {
     /**
     * Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area.
     *
-    * @param y The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param y The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setCropAreaY($y) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $y))
-            throw new Error(create_invalid_value_message($y, "setCropAreaY", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_crop_area_y"), 470);
+            throw new Error(create_invalid_value_message($y, "setCropAreaY", "image-to-image", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_crop_area_y"), 470);
         
         $this->fields['crop_area_y'] = $y;
         return $this;
@@ -4325,12 +4363,12 @@ class ImageToImageClient {
     /**
     * Set the width of the content area. It should be at least 1 inch.
     *
-    * @param width The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param width The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setCropAreaWidth($width) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $width))
-            throw new Error(create_invalid_value_message($width, "setCropAreaWidth", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_crop_area_width"), 470);
+            throw new Error(create_invalid_value_message($width, "setCropAreaWidth", "image-to-image", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_crop_area_width"), 470);
         
         $this->fields['crop_area_width'] = $width;
         return $this;
@@ -4339,12 +4377,12 @@ class ImageToImageClient {
     /**
     * Set the height of the content area. It should be at least 1 inch.
     *
-    * @param height The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param height The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setCropAreaHeight($height) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
-            throw new Error(create_invalid_value_message($height, "setCropAreaHeight", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_crop_area_height"), 470);
+            throw new Error(create_invalid_value_message($height, "setCropAreaHeight", "image-to-image", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_crop_area_height"), 470);
         
         $this->fields['crop_area_height'] = $height;
         return $this;
@@ -4353,10 +4391,10 @@ class ImageToImageClient {
     /**
     * Set the content area position and size. The content area enables to specify the part to be converted.
     *
-    * @param x Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-    * @param y Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-    * @param width Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-    * @param height Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param x Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+    * @param y Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+    * @param width Set the width of the content area. It should be at least 1 inch. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+    * @param height Set the height of the content area. It should be at least 1 inch. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setCropArea($x, $y, $width, $height) {
@@ -4395,12 +4433,12 @@ class ImageToImageClient {
     /**
     * Set the output canvas width.
     *
-    * @param width The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param width The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setCanvasWidth($width) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $width))
-            throw new Error(create_invalid_value_message($width, "setCanvasWidth", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_canvas_width"), 470);
+            throw new Error(create_invalid_value_message($width, "setCanvasWidth", "image-to-image", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_canvas_width"), 470);
         
         $this->fields['canvas_width'] = $width;
         return $this;
@@ -4409,12 +4447,12 @@ class ImageToImageClient {
     /**
     * Set the output canvas height.
     *
-    * @param height The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param height The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setCanvasHeight($height) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
-            throw new Error(create_invalid_value_message($height, "setCanvasHeight", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_canvas_height"), 470);
+            throw new Error(create_invalid_value_message($height, "setCanvasHeight", "image-to-image", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_canvas_height"), 470);
         
         $this->fields['canvas_height'] = $height;
         return $this;
@@ -4423,8 +4461,8 @@ class ImageToImageClient {
     /**
     * Set the output canvas dimensions. If no canvas size is specified, margins are applied as a border around the image.
     *
-    * @param width Set the output canvas width. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-    * @param height Set the output canvas height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param width Set the output canvas width. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+    * @param height Set the output canvas height. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setCanvasDimensions($width, $height) {
@@ -4478,12 +4516,12 @@ class ImageToImageClient {
     /**
     * Set the output canvas top margin.
     *
-    * @param top The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param top The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setMarginTop($top) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $top))
-            throw new Error(create_invalid_value_message($top, "setMarginTop", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_margin_top"), 470);
+            throw new Error(create_invalid_value_message($top, "setMarginTop", "image-to-image", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_margin_top"), 470);
         
         $this->fields['margin_top'] = $top;
         return $this;
@@ -4492,12 +4530,12 @@ class ImageToImageClient {
     /**
     * Set the output canvas right margin.
     *
-    * @param right The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param right The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setMarginRight($right) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $right))
-            throw new Error(create_invalid_value_message($right, "setMarginRight", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_margin_right"), 470);
+            throw new Error(create_invalid_value_message($right, "setMarginRight", "image-to-image", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_margin_right"), 470);
         
         $this->fields['margin_right'] = $right;
         return $this;
@@ -4506,12 +4544,12 @@ class ImageToImageClient {
     /**
     * Set the output canvas bottom margin.
     *
-    * @param bottom The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param bottom The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setMarginBottom($bottom) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $bottom))
-            throw new Error(create_invalid_value_message($bottom, "setMarginBottom", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_margin_bottom"), 470);
+            throw new Error(create_invalid_value_message($bottom, "setMarginBottom", "image-to-image", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_margin_bottom"), 470);
         
         $this->fields['margin_bottom'] = $bottom;
         return $this;
@@ -4520,12 +4558,12 @@ class ImageToImageClient {
     /**
     * Set the output canvas left margin.
     *
-    * @param left The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param left The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setMarginLeft($left) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $left))
-            throw new Error(create_invalid_value_message($left, "setMarginLeft", "image-to-image", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_margin_left"), 470);
+            throw new Error(create_invalid_value_message($left, "setMarginLeft", "image-to-image", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_margin_left"), 470);
         
         $this->fields['margin_left'] = $left;
         return $this;
@@ -4534,10 +4572,10 @@ class ImageToImageClient {
     /**
     * Set the output canvas margins.
     *
-    * @param top Set the output canvas top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-    * @param right Set the output canvas right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-    * @param bottom Set the output canvas bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-    * @param left Set the output canvas left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param top Set the output canvas top margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+    * @param right Set the output canvas right margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+    * @param bottom Set the output canvas bottom margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+    * @param left Set the output canvas left margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setMargins($top, $right, $bottom, $left) {
@@ -4901,12 +4939,12 @@ class PdfToPdfClient {
     /**
     * Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark.
     *
-    * @param url The supported protocols are http:// and https://.
+    * @param url Supported protocols are http:// and https://.
     * @return The converter object.
     */
     function setPageWatermarkUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "setPageWatermarkUrl", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_page_watermark_url"), 470);
+            throw new Error(create_invalid_value_message($url, "setPageWatermarkUrl", "pdf-to-pdf", "Supported protocols are http:// and https://.", "set_page_watermark_url"), 470);
         
         $this->fields['page_watermark_url'] = $url;
         return $this;
@@ -4929,12 +4967,12 @@ class PdfToPdfClient {
     /**
     * Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image.
     *
-    * @param url The supported protocols are http:// and https://.
+    * @param url Supported protocols are http:// and https://.
     * @return The converter object.
     */
     function setMultipageWatermarkUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "setMultipageWatermarkUrl", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_watermark_url"), 470);
+            throw new Error(create_invalid_value_message($url, "setMultipageWatermarkUrl", "pdf-to-pdf", "Supported protocols are http:// and https://.", "set_multipage_watermark_url"), 470);
         
         $this->fields['multipage_watermark_url'] = $url;
         return $this;
@@ -4957,12 +4995,12 @@ class PdfToPdfClient {
     /**
     * Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background.
     *
-    * @param url The supported protocols are http:// and https://.
+    * @param url Supported protocols are http:// and https://.
     * @return The converter object.
     */
     function setPageBackgroundUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "setPageBackgroundUrl", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_page_background_url"), 470);
+            throw new Error(create_invalid_value_message($url, "setPageBackgroundUrl", "pdf-to-pdf", "Supported protocols are http:// and https://.", "set_page_background_url"), 470);
         
         $this->fields['page_background_url'] = $url;
         return $this;
@@ -4985,12 +5023,12 @@ class PdfToPdfClient {
     /**
     * Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image.
     *
-    * @param url The supported protocols are http:// and https://.
+    * @param url Supported protocols are http:// and https://.
     * @return The converter object.
     */
     function setMultipageBackgroundUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "setMultipageBackgroundUrl", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_background_url"), 470);
+            throw new Error(create_invalid_value_message($url, "setMultipageBackgroundUrl", "pdf-to-pdf", "Supported protocols are http:// and https://.", "set_multipage_background_url"), 470);
         
         $this->fields['multipage_background_url'] = $url;
         return $this;
@@ -5120,12 +5158,12 @@ class PdfToPdfClient {
     /**
     * Use metadata (title, subject, author and keywords) from the n-th input PDF.
     *
-    * @param index Set the index of the input PDF file from which to use the metadata. 0 means no metadata. Must be a positive integer number or 0.
+    * @param index Set the index of the input PDF file from which to use the metadata. 0 means no metadata. Must be a positive integer or 0.
     * @return The converter object.
     */
     function setUseMetadataFrom($index) {
         if (!(intval($index) >= 0))
-            throw new Error(create_invalid_value_message($index, "setUseMetadataFrom", "pdf-to-pdf", "Must be a positive integer number or 0.", "set_use_metadata_from"), 470);
+            throw new Error(create_invalid_value_message($index, "setUseMetadataFrom", "pdf-to-pdf", "Must be a positive integer or 0.", "set_use_metadata_from"), 470);
         
         $this->fields['use_metadata_from'] = $index;
         return $this;
@@ -5176,12 +5214,12 @@ class PdfToPdfClient {
     /**
     * Display the specified page when the document is opened.
     *
-    * @param page Must be a positive integer number.
+    * @param page Must be a positive integer.
     * @return The converter object.
     */
     function setInitialPage($page) {
         if (!(intval($page) > 0))
-            throw new Error(create_invalid_value_message($page, "setInitialPage", "pdf-to-pdf", "Must be a positive integer number.", "set_initial_page"), 470);
+            throw new Error(create_invalid_value_message($page, "setInitialPage", "pdf-to-pdf", "Must be a positive integer.", "set_initial_page"), 470);
         
         $this->fields['initial_page'] = $page;
         return $this;
@@ -5190,12 +5228,12 @@ class PdfToPdfClient {
     /**
     * Specify the initial page zoom in percents when the document is opened.
     *
-    * @param zoom Must be a positive integer number.
+    * @param zoom Must be a positive integer.
     * @return The converter object.
     */
     function setInitialZoom($zoom) {
         if (!(intval($zoom) > 0))
-            throw new Error(create_invalid_value_message($zoom, "setInitialZoom", "pdf-to-pdf", "Must be a positive integer number.", "set_initial_zoom"), 470);
+            throw new Error(create_invalid_value_message($zoom, "setInitialZoom", "pdf-to-pdf", "Must be a positive integer.", "set_initial_zoom"), 470);
         
         $this->fields['initial_zoom'] = $zoom;
         return $this;
@@ -5472,12 +5510,12 @@ class ImageToPdfClient {
     /**
     * Convert an image.
     *
-    * @param url The address of the image to convert. The supported protocols are http:// and https://.
+    * @param url The address of the image to convert. Supported protocols are http:// and https://.
     * @return Byte array containing the conversion output.
     */
     function convertUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "convertUrl", "image-to-pdf", "The supported protocols are http:// and https://.", "convert_url"), 470);
+            throw new Error(create_invalid_value_message($url, "convertUrl", "image-to-pdf", "Supported protocols are http:// and https://.", "convert_url"), 470);
         
         $this->fields['url'] = $url;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
@@ -5486,12 +5524,12 @@ class ImageToPdfClient {
     /**
     * Convert an image and write the result to an output stream.
     *
-    * @param url The address of the image to convert. The supported protocols are http:// and https://.
+    * @param url The address of the image to convert. Supported protocols are http:// and https://.
     * @param out_stream The output stream that will contain the conversion output.
     */
     function convertUrlToStream($url, $out_stream) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "image-to-pdf", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
+            throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "image-to-pdf", "Supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
         
         $this->fields['url'] = $url;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
@@ -5500,7 +5538,7 @@ class ImageToPdfClient {
     /**
     * Convert an image and write the result to a local file.
     *
-    * @param url The address of the image to convert. The supported protocols are http:// and https://.
+    * @param url The address of the image to convert. Supported protocols are http:// and https://.
     * @param file_path The output file path. The string must not be empty.
     */
     function convertUrlToFile($url, $file_path) {
@@ -5698,12 +5736,12 @@ class ImageToPdfClient {
     /**
     * Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
     *
-    * @param x The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param x The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setCropAreaX($x) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $x))
-            throw new Error(create_invalid_value_message($x, "setCropAreaX", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_crop_area_x"), 470);
+            throw new Error(create_invalid_value_message($x, "setCropAreaX", "image-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_crop_area_x"), 470);
         
         $this->fields['crop_area_x'] = $x;
         return $this;
@@ -5712,12 +5750,12 @@ class ImageToPdfClient {
     /**
     * Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area.
     *
-    * @param y The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param y The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setCropAreaY($y) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $y))
-            throw new Error(create_invalid_value_message($y, "setCropAreaY", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_crop_area_y"), 470);
+            throw new Error(create_invalid_value_message($y, "setCropAreaY", "image-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_crop_area_y"), 470);
         
         $this->fields['crop_area_y'] = $y;
         return $this;
@@ -5726,12 +5764,12 @@ class ImageToPdfClient {
     /**
     * Set the width of the content area. It should be at least 1 inch.
     *
-    * @param width The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param width The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setCropAreaWidth($width) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $width))
-            throw new Error(create_invalid_value_message($width, "setCropAreaWidth", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_crop_area_width"), 470);
+            throw new Error(create_invalid_value_message($width, "setCropAreaWidth", "image-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_crop_area_width"), 470);
         
         $this->fields['crop_area_width'] = $width;
         return $this;
@@ -5740,12 +5778,12 @@ class ImageToPdfClient {
     /**
     * Set the height of the content area. It should be at least 1 inch.
     *
-    * @param height The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param height The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setCropAreaHeight($height) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
-            throw new Error(create_invalid_value_message($height, "setCropAreaHeight", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_crop_area_height"), 470);
+            throw new Error(create_invalid_value_message($height, "setCropAreaHeight", "image-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_crop_area_height"), 470);
         
         $this->fields['crop_area_height'] = $height;
         return $this;
@@ -5754,10 +5792,10 @@ class ImageToPdfClient {
     /**
     * Set the content area position and size. The content area enables to specify the part to be converted.
     *
-    * @param x Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-    * @param y Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-    * @param width Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-    * @param height Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param x Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+    * @param y Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+    * @param width Set the width of the content area. It should be at least 1 inch. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+    * @param height Set the height of the content area. It should be at least 1 inch. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setCropArea($x, $y, $width, $height) {
@@ -5796,12 +5834,12 @@ class ImageToPdfClient {
     /**
     * Set the output page width.
     *
-    * @param width The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param width The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setPageWidth($width) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $width))
-            throw new Error(create_invalid_value_message($width, "setPageWidth", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_page_width"), 470);
+            throw new Error(create_invalid_value_message($width, "setPageWidth", "image-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_page_width"), 470);
         
         $this->fields['page_width'] = $width;
         return $this;
@@ -5810,12 +5848,12 @@ class ImageToPdfClient {
     /**
     * Set the output page height.
     *
-    * @param height The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param height The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setPageHeight($height) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
-            throw new Error(create_invalid_value_message($height, "setPageHeight", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_page_height"), 470);
+            throw new Error(create_invalid_value_message($height, "setPageHeight", "image-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_page_height"), 470);
         
         $this->fields['page_height'] = $height;
         return $this;
@@ -5824,8 +5862,8 @@ class ImageToPdfClient {
     /**
     * Set the output page dimensions. If no page size is specified, margins are applied as a border around the image.
     *
-    * @param width Set the output page width. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-    * @param height Set the output page height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param width Set the output page width. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+    * @param height Set the output page height. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setPageDimensions($width, $height) {
@@ -5879,12 +5917,12 @@ class ImageToPdfClient {
     /**
     * Set the output page top margin.
     *
-    * @param top The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param top The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setMarginTop($top) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $top))
-            throw new Error(create_invalid_value_message($top, "setMarginTop", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_margin_top"), 470);
+            throw new Error(create_invalid_value_message($top, "setMarginTop", "image-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_margin_top"), 470);
         
         $this->fields['margin_top'] = $top;
         return $this;
@@ -5893,12 +5931,12 @@ class ImageToPdfClient {
     /**
     * Set the output page right margin.
     *
-    * @param right The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param right The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setMarginRight($right) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $right))
-            throw new Error(create_invalid_value_message($right, "setMarginRight", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_margin_right"), 470);
+            throw new Error(create_invalid_value_message($right, "setMarginRight", "image-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_margin_right"), 470);
         
         $this->fields['margin_right'] = $right;
         return $this;
@@ -5907,12 +5945,12 @@ class ImageToPdfClient {
     /**
     * Set the output page bottom margin.
     *
-    * @param bottom The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param bottom The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setMarginBottom($bottom) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $bottom))
-            throw new Error(create_invalid_value_message($bottom, "setMarginBottom", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_margin_bottom"), 470);
+            throw new Error(create_invalid_value_message($bottom, "setMarginBottom", "image-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_margin_bottom"), 470);
         
         $this->fields['margin_bottom'] = $bottom;
         return $this;
@@ -5921,12 +5959,12 @@ class ImageToPdfClient {
     /**
     * Set the output page left margin.
     *
-    * @param left The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param left The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setMarginLeft($left) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $left))
-            throw new Error(create_invalid_value_message($left, "setMarginLeft", "image-to-pdf", "The value must be specified in inches \"in\", millimeters \"mm\", centimeters \"cm\", pixels \"px\", or points \"pt\".", "set_margin_left"), 470);
+            throw new Error(create_invalid_value_message($left, "setMarginLeft", "image-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_margin_left"), 470);
         
         $this->fields['margin_left'] = $left;
         return $this;
@@ -5935,10 +5973,10 @@ class ImageToPdfClient {
     /**
     * Set the output page margins.
     *
-    * @param top Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-    * @param right Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-    * @param bottom Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-    * @param left Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+    * @param top Set the output page top margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+    * @param right Set the output page right margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+    * @param bottom Set the output page bottom margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+    * @param left Set the output page left margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
     * @return The converter object.
     */
     function setPageMargins($top, $right, $bottom, $left) {
@@ -5991,12 +6029,12 @@ class ImageToPdfClient {
     /**
     * Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark.
     *
-    * @param url The supported protocols are http:// and https://.
+    * @param url Supported protocols are http:// and https://.
     * @return The converter object.
     */
     function setPageWatermarkUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "setPageWatermarkUrl", "image-to-pdf", "The supported protocols are http:// and https://.", "set_page_watermark_url"), 470);
+            throw new Error(create_invalid_value_message($url, "setPageWatermarkUrl", "image-to-pdf", "Supported protocols are http:// and https://.", "set_page_watermark_url"), 470);
         
         $this->fields['page_watermark_url'] = $url;
         return $this;
@@ -6019,12 +6057,12 @@ class ImageToPdfClient {
     /**
     * Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image.
     *
-    * @param url The supported protocols are http:// and https://.
+    * @param url Supported protocols are http:// and https://.
     * @return The converter object.
     */
     function setMultipageWatermarkUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "setMultipageWatermarkUrl", "image-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_watermark_url"), 470);
+            throw new Error(create_invalid_value_message($url, "setMultipageWatermarkUrl", "image-to-pdf", "Supported protocols are http:// and https://.", "set_multipage_watermark_url"), 470);
         
         $this->fields['multipage_watermark_url'] = $url;
         return $this;
@@ -6047,12 +6085,12 @@ class ImageToPdfClient {
     /**
     * Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background.
     *
-    * @param url The supported protocols are http:// and https://.
+    * @param url Supported protocols are http:// and https://.
     * @return The converter object.
     */
     function setPageBackgroundUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "setPageBackgroundUrl", "image-to-pdf", "The supported protocols are http:// and https://.", "set_page_background_url"), 470);
+            throw new Error(create_invalid_value_message($url, "setPageBackgroundUrl", "image-to-pdf", "Supported protocols are http:// and https://.", "set_page_background_url"), 470);
         
         $this->fields['page_background_url'] = $url;
         return $this;
@@ -6075,12 +6113,12 @@ class ImageToPdfClient {
     /**
     * Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image.
     *
-    * @param url The supported protocols are http:// and https://.
+    * @param url Supported protocols are http:// and https://.
     * @return The converter object.
     */
     function setMultipageBackgroundUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "setMultipageBackgroundUrl", "image-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_background_url"), 470);
+            throw new Error(create_invalid_value_message($url, "setMultipageBackgroundUrl", "image-to-pdf", "Supported protocols are http:// and https://.", "set_multipage_background_url"), 470);
         
         $this->fields['multipage_background_url'] = $url;
         return $this;
@@ -6252,12 +6290,12 @@ class ImageToPdfClient {
     /**
     * Display the specified page when the document is opened.
     *
-    * @param page Must be a positive integer number.
+    * @param page Must be a positive integer.
     * @return The converter object.
     */
     function setInitialPage($page) {
         if (!(intval($page) > 0))
-            throw new Error(create_invalid_value_message($page, "setInitialPage", "image-to-pdf", "Must be a positive integer number.", "set_initial_page"), 470);
+            throw new Error(create_invalid_value_message($page, "setInitialPage", "image-to-pdf", "Must be a positive integer.", "set_initial_page"), 470);
         
         $this->fields['initial_page'] = $page;
         return $this;
@@ -6266,12 +6304,12 @@ class ImageToPdfClient {
     /**
     * Specify the initial page zoom in percents when the document is opened.
     *
-    * @param zoom Must be a positive integer number.
+    * @param zoom Must be a positive integer.
     * @return The converter object.
     */
     function setInitialZoom($zoom) {
         if (!(intval($zoom) > 0))
-            throw new Error(create_invalid_value_message($zoom, "setInitialZoom", "image-to-pdf", "Must be a positive integer number.", "set_initial_zoom"), 470);
+            throw new Error(create_invalid_value_message($zoom, "setInitialZoom", "image-to-pdf", "Must be a positive integer.", "set_initial_zoom"), 470);
         
         $this->fields['initial_zoom'] = $zoom;
         return $this;
@@ -6557,12 +6595,12 @@ class PdfToHtmlClient {
     /**
     * Convert a PDF.
     *
-    * @param url The address of the PDF to convert. The supported protocols are http:// and https://.
+    * @param url The address of the PDF to convert. Supported protocols are http:// and https://.
     * @return Byte array containing the conversion output.
     */
     function convertUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "convertUrl", "pdf-to-html", "The supported protocols are http:// and https://.", "convert_url"), 470);
+            throw new Error(create_invalid_value_message($url, "convertUrl", "pdf-to-html", "Supported protocols are http:// and https://.", "convert_url"), 470);
         
         $this->fields['url'] = $url;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
@@ -6571,12 +6609,12 @@ class PdfToHtmlClient {
     /**
     * Convert a PDF and write the result to an output stream.
     *
-    * @param url The address of the PDF to convert. The supported protocols are http:// and https://.
+    * @param url The address of the PDF to convert. Supported protocols are http:// and https://.
     * @param out_stream The output stream that will contain the conversion output.
     */
     function convertUrlToStream($url, $out_stream) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "pdf-to-html", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
+            throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "pdf-to-html", "Supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
         
         $this->fields['url'] = $url;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
@@ -6585,7 +6623,7 @@ class PdfToHtmlClient {
     /**
     * Convert a PDF and write the result to a local file.
     *
-    * @param url The address of the PDF to convert. The supported protocols are http:// and https://.
+    * @param url The address of the PDF to convert. Supported protocols are http:// and https://.
     * @param file_path The output file path. The string must not be empty. The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.
     */
     function convertUrlToFile($url, $file_path) {
@@ -6784,12 +6822,12 @@ class PdfToHtmlClient {
     /**
     * Set the scaling factor (zoom) for the main page area.
     *
-    * @param factor The percentage value. Must be a positive integer number.
+    * @param factor The percentage value. Must be a positive integer.
     * @return The converter object.
     */
     function setScaleFactor($factor) {
         if (!(intval($factor) > 0))
-            throw new Error(create_invalid_value_message($factor, "setScaleFactor", "pdf-to-html", "Must be a positive integer number.", "set_scale_factor"), 470);
+            throw new Error(create_invalid_value_message($factor, "setScaleFactor", "pdf-to-html", "Must be a positive integer.", "set_scale_factor"), 470);
         
         $this->fields['scale_factor'] = $factor;
         return $this;
@@ -7218,12 +7256,12 @@ class PdfToTextClient {
     /**
     * Convert a PDF.
     *
-    * @param url The address of the PDF to convert. The supported protocols are http:// and https://.
+    * @param url The address of the PDF to convert. Supported protocols are http:// and https://.
     * @return Byte array containing the conversion output.
     */
     function convertUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "convertUrl", "pdf-to-text", "The supported protocols are http:// and https://.", "convert_url"), 470);
+            throw new Error(create_invalid_value_message($url, "convertUrl", "pdf-to-text", "Supported protocols are http:// and https://.", "convert_url"), 470);
         
         $this->fields['url'] = $url;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
@@ -7232,12 +7270,12 @@ class PdfToTextClient {
     /**
     * Convert a PDF and write the result to an output stream.
     *
-    * @param url The address of the PDF to convert. The supported protocols are http:// and https://.
+    * @param url The address of the PDF to convert. Supported protocols are http:// and https://.
     * @param out_stream The output stream that will contain the conversion output.
     */
     function convertUrlToStream($url, $out_stream) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "pdf-to-text", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
+            throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "pdf-to-text", "Supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
         
         $this->fields['url'] = $url;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
@@ -7246,7 +7284,7 @@ class PdfToTextClient {
     /**
     * Convert a PDF and write the result to a local file.
     *
-    * @param url The address of the PDF to convert. The supported protocols are http:// and https://.
+    * @param url The address of the PDF to convert. Supported protocols are http:// and https://.
     * @param file_path The output file path. The string must not be empty.
     */
     function convertUrlToFile($url, $file_path) {
@@ -7547,12 +7585,12 @@ class PdfToTextClient {
     /**
     * Set the top left X coordinate of the crop area in points.
     *
-    * @param x Must be a positive integer number or 0.
+    * @param x Must be a positive integer or 0.
     * @return The converter object.
     */
     function setCropAreaX($x) {
         if (!(intval($x) >= 0))
-            throw new Error(create_invalid_value_message($x, "setCropAreaX", "pdf-to-text", "Must be a positive integer number or 0.", "set_crop_area_x"), 470);
+            throw new Error(create_invalid_value_message($x, "setCropAreaX", "pdf-to-text", "Must be a positive integer or 0.", "set_crop_area_x"), 470);
         
         $this->fields['crop_area_x'] = $x;
         return $this;
@@ -7561,12 +7599,12 @@ class PdfToTextClient {
     /**
     * Set the top left Y coordinate of the crop area in points.
     *
-    * @param y Must be a positive integer number or 0.
+    * @param y Must be a positive integer or 0.
     * @return The converter object.
     */
     function setCropAreaY($y) {
         if (!(intval($y) >= 0))
-            throw new Error(create_invalid_value_message($y, "setCropAreaY", "pdf-to-text", "Must be a positive integer number or 0.", "set_crop_area_y"), 470);
+            throw new Error(create_invalid_value_message($y, "setCropAreaY", "pdf-to-text", "Must be a positive integer or 0.", "set_crop_area_y"), 470);
         
         $this->fields['crop_area_y'] = $y;
         return $this;
@@ -7575,12 +7613,12 @@ class PdfToTextClient {
     /**
     * Set the width of the crop area in points.
     *
-    * @param width Must be a positive integer number or 0.
+    * @param width Must be a positive integer or 0.
     * @return The converter object.
     */
     function setCropAreaWidth($width) {
         if (!(intval($width) >= 0))
-            throw new Error(create_invalid_value_message($width, "setCropAreaWidth", "pdf-to-text", "Must be a positive integer number or 0.", "set_crop_area_width"), 470);
+            throw new Error(create_invalid_value_message($width, "setCropAreaWidth", "pdf-to-text", "Must be a positive integer or 0.", "set_crop_area_width"), 470);
         
         $this->fields['crop_area_width'] = $width;
         return $this;
@@ -7589,12 +7627,12 @@ class PdfToTextClient {
     /**
     * Set the height of the crop area in points.
     *
-    * @param height Must be a positive integer number or 0.
+    * @param height Must be a positive integer or 0.
     * @return The converter object.
     */
     function setCropAreaHeight($height) {
         if (!(intval($height) >= 0))
-            throw new Error(create_invalid_value_message($height, "setCropAreaHeight", "pdf-to-text", "Must be a positive integer number or 0.", "set_crop_area_height"), 470);
+            throw new Error(create_invalid_value_message($height, "setCropAreaHeight", "pdf-to-text", "Must be a positive integer or 0.", "set_crop_area_height"), 470);
         
         $this->fields['crop_area_height'] = $height;
         return $this;
@@ -7603,10 +7641,10 @@ class PdfToTextClient {
     /**
     * Set the crop area. It allows to extract just a part of a PDF page.
     *
-    * @param x Set the top left X coordinate of the crop area in points. Must be a positive integer number or 0.
-    * @param y Set the top left Y coordinate of the crop area in points. Must be a positive integer number or 0.
-    * @param width Set the width of the crop area in points. Must be a positive integer number or 0.
-    * @param height Set the height of the crop area in points. Must be a positive integer number or 0.
+    * @param x Set the top left X coordinate of the crop area in points. Must be a positive integer or 0.
+    * @param y Set the top left Y coordinate of the crop area in points. Must be a positive integer or 0.
+    * @param width Set the width of the crop area in points. Must be a positive integer or 0.
+    * @param height Set the height of the crop area in points. Must be a positive integer or 0.
     * @return The converter object.
     */
     function setCropArea($x, $y, $width, $height) {
@@ -7825,12 +7863,12 @@ class PdfToImageClient {
     /**
     * Convert an image.
     *
-    * @param url The address of the image to convert. The supported protocols are http:// and https://.
+    * @param url The address of the image to convert. Supported protocols are http:// and https://.
     * @return Byte array containing the conversion output.
     */
     function convertUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "convertUrl", "pdf-to-image", "The supported protocols are http:// and https://.", "convert_url"), 470);
+            throw new Error(create_invalid_value_message($url, "convertUrl", "pdf-to-image", "Supported protocols are http:// and https://.", "convert_url"), 470);
         
         $this->fields['url'] = $url;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
@@ -7839,12 +7877,12 @@ class PdfToImageClient {
     /**
     * Convert an image and write the result to an output stream.
     *
-    * @param url The address of the image to convert. The supported protocols are http:// and https://.
+    * @param url The address of the image to convert. Supported protocols are http:// and https://.
     * @param out_stream The output stream that will contain the conversion output.
     */
     function convertUrlToStream($url, $out_stream) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
-            throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "pdf-to-image", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
+            throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "pdf-to-image", "Supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
         
         $this->fields['url'] = $url;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
@@ -7853,7 +7891,7 @@ class PdfToImageClient {
     /**
     * Convert an image and write the result to a local file.
     *
-    * @param url The address of the image to convert. The supported protocols are http:// and https://.
+    * @param url The address of the image to convert. Supported protocols are http:// and https://.
     * @param file_path The output file path. The string must not be empty.
     */
     function convertUrlToFile($url, $file_path) {
@@ -8109,12 +8147,12 @@ class PdfToImageClient {
     /**
     * Set the top left X coordinate of the crop area in points.
     *
-    * @param x Must be a positive integer number or 0.
+    * @param x Must be a positive integer or 0.
     * @return The converter object.
     */
     function setCropAreaX($x) {
         if (!(intval($x) >= 0))
-            throw new Error(create_invalid_value_message($x, "setCropAreaX", "pdf-to-image", "Must be a positive integer number or 0.", "set_crop_area_x"), 470);
+            throw new Error(create_invalid_value_message($x, "setCropAreaX", "pdf-to-image", "Must be a positive integer or 0.", "set_crop_area_x"), 470);
         
         $this->fields['crop_area_x'] = $x;
         return $this;
@@ -8123,12 +8161,12 @@ class PdfToImageClient {
     /**
     * Set the top left Y coordinate of the crop area in points.
     *
-    * @param y Must be a positive integer number or 0.
+    * @param y Must be a positive integer or 0.
     * @return The converter object.
     */
     function setCropAreaY($y) {
         if (!(intval($y) >= 0))
-            throw new Error(create_invalid_value_message($y, "setCropAreaY", "pdf-to-image", "Must be a positive integer number or 0.", "set_crop_area_y"), 470);
+            throw new Error(create_invalid_value_message($y, "setCropAreaY", "pdf-to-image", "Must be a positive integer or 0.", "set_crop_area_y"), 470);
         
         $this->fields['crop_area_y'] = $y;
         return $this;
@@ -8137,12 +8175,12 @@ class PdfToImageClient {
     /**
     * Set the width of the crop area in points.
     *
-    * @param width Must be a positive integer number or 0.
+    * @param width Must be a positive integer or 0.
     * @return The converter object.
     */
     function setCropAreaWidth($width) {
         if (!(intval($width) >= 0))
-            throw new Error(create_invalid_value_message($width, "setCropAreaWidth", "pdf-to-image", "Must be a positive integer number or 0.", "set_crop_area_width"), 470);
+            throw new Error(create_invalid_value_message($width, "setCropAreaWidth", "pdf-to-image", "Must be a positive integer or 0.", "set_crop_area_width"), 470);
         
         $this->fields['crop_area_width'] = $width;
         return $this;
@@ -8151,12 +8189,12 @@ class PdfToImageClient {
     /**
     * Set the height of the crop area in points.
     *
-    * @param height Must be a positive integer number or 0.
+    * @param height Must be a positive integer or 0.
     * @return The converter object.
     */
     function setCropAreaHeight($height) {
         if (!(intval($height) >= 0))
-            throw new Error(create_invalid_value_message($height, "setCropAreaHeight", "pdf-to-image", "Must be a positive integer number or 0.", "set_crop_area_height"), 470);
+            throw new Error(create_invalid_value_message($height, "setCropAreaHeight", "pdf-to-image", "Must be a positive integer or 0.", "set_crop_area_height"), 470);
         
         $this->fields['crop_area_height'] = $height;
         return $this;
@@ -8165,10 +8203,10 @@ class PdfToImageClient {
     /**
     * Set the crop area. It allows to extract just a part of a PDF page.
     *
-    * @param x Set the top left X coordinate of the crop area in points. Must be a positive integer number or 0.
-    * @param y Set the top left Y coordinate of the crop area in points. Must be a positive integer number or 0.
-    * @param width Set the width of the crop area in points. Must be a positive integer number or 0.
-    * @param height Set the height of the crop area in points. Must be a positive integer number or 0.
+    * @param x Set the top left X coordinate of the crop area in points. Must be a positive integer or 0.
+    * @param y Set the top left Y coordinate of the crop area in points. Must be a positive integer or 0.
+    * @param width Set the width of the crop area in points. Must be a positive integer or 0.
+    * @param height Set the height of the crop area in points. Must be a positive integer or 0.
     * @return The converter object.
     */
     function setCropArea($x, $y, $width, $height) {

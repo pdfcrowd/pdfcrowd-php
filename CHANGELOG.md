@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+6.5.0
+-----
+
+- NEW: The error handling system has been updated. This includes revised status codes and messages, as well as the addition of new methods to the error class: getStatusCode, getReasonCode, and getDocumentationLink. The getCode method is deprecated and should be replaced with getStatusCode.
+
 6.4.0
 -----
 
