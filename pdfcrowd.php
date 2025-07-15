@@ -44,13 +44,13 @@ class PdfcrowdException extends Exception {
 // ======================================
 
 //
-// Pdfcrowd API client.
+// PDFCrowd API client.
 //
 class PdfCrowd {
     //
-    // Pdfcrowd constructor.
+    // PDFCrowd constructor.
     //
-    // $username - your username at Pdfcrowd
+    // $username - your username at PDFCrowd
     // $apikey  - your API key
     // $hostname - API hostname, defaults to pdfcrowd.com
     //
@@ -387,7 +387,7 @@ Possible reasons:
 
     private $fields, $scheme, $port, $api_prefix, $curlopt_timeout;
 
-    public static $client_version = "6.5.0";
+    public static $client_version = "6.5.2";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -585,7 +585,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/6.5.0 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/6.5.2 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '24.04';
@@ -633,7 +633,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '6.5.0';
+    const CLIENT_VERSION = '6.5.2';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -977,9 +977,9 @@ class HtmlToPdfClient {
     private $raw_data;
 
     /**
-    * Constructor for the Pdfcrowd API client.
+    * Constructor for the PDFCrowd API client.
     *
-    * @param user_name Your username at Pdfcrowd.
+    * @param user_name Your username at PDFCrowd.
     * @param api_key Your API key.
     */
     function __construct($user_name, $api_key) {
@@ -1869,7 +1869,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set cookies that are sent in Pdfcrowd HTTP requests.
+    * Set HTTP cookies to be included in all requests made by the converter.
     *
     * @param cookies The cookie string.
     * @return The converter object.
@@ -1913,7 +1913,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.
+    * Do not send the X-Pdfcrowd HTTP header in PDFCrowd HTTP requests.
     *
     * @param value Set to <span class='field-value'>true</span> to disable sending X-Pdfcrowd HTTP header.
     * @return The converter object.
@@ -1980,7 +1980,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set a custom HTTP header that is sent in Pdfcrowd HTTP requests.
+    * Set a custom HTTP header to be included in all requests made by the converter.
     *
     * @param header A string containing the header name and value separated by a colon.
     * @return The converter object.
@@ -1994,7 +1994,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter.
+    * Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your license defines the maximum wait time by "Max Delay" parameter.
     *
     * @param delay The number of milliseconds to wait. Must be a positive integer or 0.
     * @return The converter object.
@@ -2036,7 +2036,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Wait for the specified element in a source document. The element is specified by one or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a>. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your API license defines the maximum wait time by "Max Delay" parameter.
+    * Wait for the specified element in a source document. The element is specified by one or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a>. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your license defines the maximum wait time by "Max Delay" parameter.
     *
     * @param selectors One or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a> separated by commas. The string must not be empty.
     * @return The converter object.
@@ -2670,7 +2670,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    * A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
     *
     * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
     * @return The converter object.
@@ -2684,7 +2684,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    * A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
     *
     * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
     * @return The converter object.
@@ -2698,7 +2698,7 @@ class HtmlToPdfClient {
     }
 
     /**
-    * A client certificate to authenticate Pdfcrowd converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security.
+    * A client certificate to authenticate the converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security.
     *
     * @param certificate The file must be in PKCS12 format. The file must exist and not be empty.
     * @return The converter object.
@@ -3018,7 +3018,7 @@ Dimensions may be empty, 0 or specified in inches 'in', millimeters 'mm', centim
     }
 
     /**
-    * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+    * Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API.
     * Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
     *
     * @param value Set to <span class='field-value'>true</span> to use HTTP.
@@ -3100,9 +3100,9 @@ class HtmlToImageClient {
     private $raw_data;
 
     /**
-    * Constructor for the Pdfcrowd API client.
+    * Constructor for the PDFCrowd API client.
     *
-    * @param user_name Your username at Pdfcrowd.
+    * @param user_name Your username at PDFCrowd.
     * @param api_key Your API key.
     */
     function __construct($user_name, $api_key) {
@@ -3543,7 +3543,7 @@ class HtmlToImageClient {
     }
 
     /**
-    * Set cookies that are sent in Pdfcrowd HTTP requests.
+    * Set HTTP cookies to be included in all requests made by the converter.
     *
     * @param cookies The cookie string.
     * @return The converter object.
@@ -3587,7 +3587,7 @@ class HtmlToImageClient {
     }
 
     /**
-    * Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.
+    * Do not send the X-Pdfcrowd HTTP header in PDFCrowd HTTP requests.
     *
     * @param value Set to <span class='field-value'>true</span> to disable sending X-Pdfcrowd HTTP header.
     * @return The converter object.
@@ -3640,7 +3640,7 @@ class HtmlToImageClient {
     }
 
     /**
-    * Set a custom HTTP header that is sent in Pdfcrowd HTTP requests.
+    * Set a custom HTTP header to be included in all requests made by the converter.
     *
     * @param header A string containing the header name and value separated by a colon.
     * @return The converter object.
@@ -3654,7 +3654,7 @@ class HtmlToImageClient {
     }
 
     /**
-    * Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter.
+    * Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your license defines the maximum wait time by "Max Delay" parameter.
     *
     * @param delay The number of milliseconds to wait. Must be a positive integer or 0.
     * @return The converter object.
@@ -3696,7 +3696,7 @@ class HtmlToImageClient {
     }
 
     /**
-    * Wait for the specified element in a source document. The element is specified by one or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a>. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your API license defines the maximum wait time by "Max Delay" parameter.
+    * Wait for the specified element in a source document. The element is specified by one or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a>. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your license defines the maximum wait time by "Max Delay" parameter.
     *
     * @param selectors One or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a> separated by commas. The string must not be empty.
     * @return The converter object.
@@ -3899,7 +3899,7 @@ class HtmlToImageClient {
     }
 
     /**
-    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    * A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
     *
     * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
     * @return The converter object.
@@ -3913,7 +3913,7 @@ class HtmlToImageClient {
     }
 
     /**
-    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    * A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
     *
     * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
     * @return The converter object.
@@ -3927,7 +3927,7 @@ class HtmlToImageClient {
     }
 
     /**
-    * A client certificate to authenticate Pdfcrowd converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security.
+    * A client certificate to authenticate the converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security.
     *
     * @param certificate The file must be in PKCS12 format. The file must exist and not be empty.
     * @return The converter object.
@@ -3997,7 +3997,7 @@ class HtmlToImageClient {
     }
 
     /**
-    * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+    * Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API.
     * Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
     *
     * @param value Set to <span class='field-value'>true</span> to use HTTP.
@@ -4079,9 +4079,9 @@ class ImageToImageClient {
     private $raw_data;
 
     /**
-    * Constructor for the Pdfcrowd API client.
+    * Constructor for the PDFCrowd API client.
     *
-    * @param user_name Your username at Pdfcrowd.
+    * @param user_name Your username at PDFCrowd.
     * @param api_key Your API key.
     */
     function __construct($user_name, $api_key) {
@@ -4685,7 +4685,7 @@ class ImageToImageClient {
     }
 
     /**
-    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    * A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
     *
     * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
     * @return The converter object.
@@ -4699,7 +4699,7 @@ class ImageToImageClient {
     }
 
     /**
-    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    * A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
     *
     * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
     * @return The converter object.
@@ -4727,7 +4727,7 @@ class ImageToImageClient {
     }
 
     /**
-    * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+    * Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API.
     * Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
     *
     * @param value Set to <span class='field-value'>true</span> to use HTTP.
@@ -4809,9 +4809,9 @@ class PdfToPdfClient {
     private $raw_data;
 
     /**
-    * Constructor for the Pdfcrowd API client.
+    * Constructor for the PDFCrowd API client.
     *
-    * @param user_name Your username at Pdfcrowd.
+    * @param user_name Your username at PDFCrowd.
     * @param api_key Your API key.
     */
     function __construct($user_name, $api_key) {
@@ -4883,7 +4883,7 @@ class PdfToPdfClient {
     }
 
     /**
-    * Add in-memory raw PDF data to the list of the input PDFs.<br>Typical usage is for adding PDF created by another Pdfcrowd converter.<br><br> Example in PHP:<br> <b>$clientPdf2Pdf</b>-&gt;addPdfRawData(<b>$clientHtml2Pdf</b>-&gt;convertUrl('http://www.example.com'));
+    * Add in-memory raw PDF data to the list of the input PDFs.<br>Typical usage is for adding PDF created by another PDFCrowd converter.<br><br> Example in PHP:<br> <b>$clientPdf2Pdf</b>-&gt;addPdfRawData(<b>$clientHtml2Pdf</b>-&gt;convertUrl('http://www.example.com'));
     *
     * @param data The raw PDF data. The input data must be PDF content.
     * @return The converter object.
@@ -5412,7 +5412,7 @@ class PdfToPdfClient {
     }
 
     /**
-    * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+    * Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API.
     * Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
     *
     * @param value Set to <span class='field-value'>true</span> to use HTTP.
@@ -5494,9 +5494,9 @@ class ImageToPdfClient {
     private $raw_data;
 
     /**
-    * Constructor for the Pdfcrowd API client.
+    * Constructor for the PDFCrowd API client.
     *
-    * @param user_name Your username at Pdfcrowd.
+    * @param user_name Your username at PDFCrowd.
     * @param api_key Your API key.
     */
     function __construct($user_name, $api_key) {
@@ -6455,7 +6455,7 @@ class ImageToPdfClient {
     }
 
     /**
-    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    * A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
     *
     * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
     * @return The converter object.
@@ -6469,7 +6469,7 @@ class ImageToPdfClient {
     }
 
     /**
-    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    * A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
     *
     * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
     * @return The converter object.
@@ -6497,7 +6497,7 @@ class ImageToPdfClient {
     }
 
     /**
-    * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+    * Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API.
     * Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
     *
     * @param value Set to <span class='field-value'>true</span> to use HTTP.
@@ -6579,9 +6579,9 @@ class PdfToHtmlClient {
     private $raw_data;
 
     /**
-    * Constructor for the Pdfcrowd API client.
+    * Constructor for the PDFCrowd API client.
     *
-    * @param user_name Your username at Pdfcrowd.
+    * @param user_name Your username at PDFCrowd.
     * @param api_key Your API key.
     */
     function __construct($user_name, $api_key) {
@@ -7112,7 +7112,7 @@ class PdfToHtmlClient {
     }
 
     /**
-    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    * A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
     *
     * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
     * @return The converter object.
@@ -7126,7 +7126,7 @@ class PdfToHtmlClient {
     }
 
     /**
-    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    * A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
     *
     * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
     * @return The converter object.
@@ -7154,7 +7154,7 @@ class PdfToHtmlClient {
     }
 
     /**
-    * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+    * Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API.
     * Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
     *
     * @param value Set to <span class='field-value'>true</span> to use HTTP.
@@ -7240,9 +7240,9 @@ class PdfToTextClient {
     private $raw_data;
 
     /**
-    * Constructor for the Pdfcrowd API client.
+    * Constructor for the PDFCrowd API client.
     *
-    * @param user_name Your username at Pdfcrowd.
+    * @param user_name Your username at PDFCrowd.
     * @param api_key Your API key.
     */
     function __construct($user_name, $api_key) {
@@ -7737,7 +7737,7 @@ class PdfToTextClient {
     }
 
     /**
-    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    * A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
     *
     * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
     * @return The converter object.
@@ -7751,7 +7751,7 @@ class PdfToTextClient {
     }
 
     /**
-    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    * A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
     *
     * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
     * @return The converter object.
@@ -7765,7 +7765,7 @@ class PdfToTextClient {
     }
 
     /**
-    * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+    * Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API.
     * Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
     *
     * @param value Set to <span class='field-value'>true</span> to use HTTP.
@@ -7847,9 +7847,9 @@ class PdfToImageClient {
     private $raw_data;
 
     /**
-    * Constructor for the Pdfcrowd API client.
+    * Constructor for the PDFCrowd API client.
     *
-    * @param user_name Your username at Pdfcrowd.
+    * @param user_name Your username at PDFCrowd.
     * @param api_key Your API key.
     */
     function __construct($user_name, $api_key) {
@@ -8310,7 +8310,7 @@ class PdfToImageClient {
     }
 
     /**
-    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    * A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
     *
     * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
     * @return The converter object.
@@ -8324,7 +8324,7 @@ class PdfToImageClient {
     }
 
     /**
-    * A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+    * A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
     *
     * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
     * @return The converter object.
@@ -8338,7 +8338,7 @@ class PdfToImageClient {
     }
 
     /**
-    * Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+    * Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API.
     * Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
     *
     * @param value Set to <span class='field-value'>true</span> to use HTTP.

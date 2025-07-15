@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+6.5.2
+-----
+
+- NEW: Renamed Pdfcrowd to PDFCrowd and other minor documentation changes.
+
 6.5.0
 -----
 
@@ -177,7 +182,7 @@ Change Log
 5.2.2
 -----
 
-- FIX: the hyperlinks to the Pdfcrowd API documentation have been updated
+- FIX: the hyperlinks to the PDFCrowd API documentation have been updated
 
 5.2.1
 -----
@@ -230,5 +235,5 @@ Change Log
 Older versions
 --------------
 
-- Details on the [Pdfcrowd blog](https://pdfcrowd.com/blog/).
+- Details on the [PDFCrowd blog](https://pdfcrowd.com/blog/).
 
