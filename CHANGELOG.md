@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+6.5.3
+-----
+
+- FIX: resolve deprecation warnings for PHP 8.3
+- DOCS: minor documentation updates
+
 6.5.2
 -----
 
@@ -103,12 +109,8 @@ Change Log
 5.12.1
 ------
 
-- FIX: replace deprecated string interpolation
-
-5.12.1
-------
-
 - FIX: retry conversion on error 503
+- FIX: replace deprecated string interpolation
 
 5.12.0
 ------
