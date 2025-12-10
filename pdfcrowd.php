@@ -396,7 +396,7 @@ Possible reasons:
     private $error;
     private $outstream;
 
-    public static $client_version = "6.5.3";
+    public static $client_version = "6.5.4";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -594,7 +594,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/6.5.3 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/6.5.4 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '24.04';
@@ -642,7 +642,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '6.5.3';
+    const CLIENT_VERSION = '6.5.4';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -976,8 +976,10 @@ You need to restart your web server after installation.';
 // generated code
 
 /**
-* Conversion from HTML to PDF.
-*/
+ * Conversion from HTML to PDF.
+ *
+ * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/">https://pdfcrowd.com/api/html-to-pdf-php/</a>
+ */
 class HtmlToPdfClient {
     private $helper;
     private $fields;
@@ -986,11 +988,8 @@ class HtmlToPdfClient {
     private $raw_data;
 
     /**
-    * Constructor for the PDFCrowd API client.
-    *
-    * @param user_name Your username at PDFCrowd.
-    * @param api_key Your API key.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#__construct">https://pdfcrowd.com/api/html-to-pdf-php/ref/#__construct</a>
+     */
     function __construct($user_name, $api_key) {
         $this->helper = new ConnectionHelper($user_name, $api_key);
         $this->fields = array('input_format'=>'html', 'output_format'=>'pdf');
@@ -1000,11 +999,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Convert a web page.
-    *
-    * @param url The address of the web page to convert. Supported protocols are http:// and https://.
-    * @return Byte array containing the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_url">https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_url</a>
+     */
     function convertUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrl", "html-to-pdf", "Supported protocols are http:// and https://.", "convert_url"), 470);
@@ -1014,11 +1010,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Convert a web page and write the result to an output stream.
-    *
-    * @param url The address of the web page to convert. Supported protocols are http:// and https://.
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_url_to_stream">https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_url_to_stream</a>
+     */
     function convertUrlToStream($url, $out_stream) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "html-to-pdf", "Supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
@@ -1028,11 +1021,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Convert a web page and write the result to a local file.
-    *
-    * @param url The address of the web page to convert. Supported protocols are http:// and https://.
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_url_to_file">https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_url_to_file</a>
+     */
     function convertUrlToFile($url, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertUrlToFile::file_path", "html-to-pdf", "The string must not be empty.", "convert_url_to_file"), 470);
@@ -1054,11 +1044,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Convert a local file.
-    *
-    * @param file The path to a local file to convert.<br> The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip).<br> If the HTML document refers to local external assets (images, style sheets, javascript), zip the document together with the assets. The file must exist and not be empty. The file name must have a valid extension.
-    * @return Byte array containing the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_file">https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_file</a>
+     */
     function convertFile($file) {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFile", "html-to-pdf", "The file must exist and not be empty.", "convert_file"), 470);
@@ -1068,11 +1055,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Convert a local file and write the result to an output stream.
-    *
-    * @param file The path to a local file to convert.<br> The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip).<br> If the HTML document refers to local external assets (images, style sheets, javascript), zip the document together with the assets. The file must exist and not be empty. The file name must have a valid extension.
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_file_to_stream">https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_file_to_stream</a>
+     */
     function convertFileToStream($file, $out_stream) {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFileToStream::file", "html-to-pdf", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
@@ -1082,11 +1066,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Convert a local file and write the result to a local file.
-    *
-    * @param file The path to a local file to convert.<br> The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip).<br> If the HTML document refers to local external assets (images, style sheets, javascript), zip the document together with the assets. The file must exist and not be empty. The file name must have a valid extension.
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_file_to_file">https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_file_to_file</a>
+     */
     function convertFileToFile($file, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertFileToFile::file_path", "html-to-pdf", "The string must not be empty.", "convert_file_to_file"), 470);
@@ -1108,11 +1089,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Convert a string.
-    *
-    * @param text The string content to convert. The string must not be empty.
-    * @return Byte array containing the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_string">https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_string</a>
+     */
     function convertString($text) {
         if (!($text != null && $text !== ''))
             throw new Error(create_invalid_value_message($text, "convertString", "html-to-pdf", "The string must not be empty.", "convert_string"), 470);
@@ -1122,11 +1100,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Convert a string and write the output to an output stream.
-    *
-    * @param text The string content to convert. The string must not be empty.
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_string_to_stream">https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_string_to_stream</a>
+     */
     function convertStringToStream($text, $out_stream) {
         if (!($text != null && $text !== ''))
             throw new Error(create_invalid_value_message($text, "convertStringToStream::text", "html-to-pdf", "The string must not be empty.", "convert_string_to_stream"), 470);
@@ -1136,11 +1111,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Convert a string and write the output to a file.
-    *
-    * @param text The string content to convert. The string must not be empty.
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_string_to_file">https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_string_to_file</a>
+     */
     function convertStringToFile($text, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertStringToFile::file_path", "html-to-pdf", "The string must not be empty.", "convert_string_to_file"), 470);
@@ -1162,33 +1134,24 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Convert the contents of an input stream.
-    *
-    * @param in_stream The input stream with source data.<br> The stream can contain either HTML code or an archive (.zip, .tar.gz, .tar.bz2).<br>The archive can contain HTML code and its external assets (images, style sheets, javascript).
-    * @return Byte array containing the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_stream">https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_stream</a>
+     */
     function convertStream($in_stream) {
         $this->raw_data['stream'] = stream_get_contents($in_stream);
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
 
     /**
-    * Convert the contents of an input stream and write the result to an output stream.
-    *
-    * @param in_stream The input stream with source data.<br> The stream can contain either HTML code or an archive (.zip, .tar.gz, .tar.bz2).<br>The archive can contain HTML code and its external assets (images, style sheets, javascript).
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_stream_to_stream">https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_stream_to_stream</a>
+     */
     function convertStreamToStream($in_stream, $out_stream) {
         $this->raw_data['stream'] = stream_get_contents($in_stream);
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
 
     /**
-    * Convert the contents of an input stream and write the result to a local file.
-    *
-    * @param in_stream The input stream with source data.<br> The stream can contain either HTML code or an archive (.zip, .tar.gz, .tar.bz2).<br>The archive can contain HTML code and its external assets (images, style sheets, javascript).
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_stream_to_file">https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_stream_to_file</a>
+     */
     function convertStreamToFile($in_stream, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertStreamToFile::file_path", "html-to-pdf", "The string must not be empty.", "convert_stream_to_file"), 470);
@@ -1210,22 +1173,16 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the file name of the main HTML document stored in the input archive. If not specified, the first HTML file in the archive is used for conversion. Use this method if the input archive contains multiple HTML documents.
-    *
-    * @param filename The file name.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_zip_main_filename">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_zip_main_filename</a>
+     */
     function setZipMainFilename($filename) {
         $this->fields['zip_main_filename'] = $filename;
         return $this;
     }
 
     /**
-    * Set the output page size.
-    *
-    * @param size Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_size">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_size</a>
+     */
     function setPageSize($size) {
         if (!preg_match("/(?i)^(A0|A1|A2|A3|A4|A5|A6|Letter)$/", $size))
             throw new Error(create_invalid_value_message($size, "setPageSize", "html-to-pdf", "Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.", "set_page_size"), 470);
@@ -1235,11 +1192,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the output page width. The safe maximum is <code>200in</code> otherwise some PDF viewers may be unable to open the PDF.
-    *
-    * @param width The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_width">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_width</a>
+     */
     function setPageWidth($width) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $width))
             throw new Error(create_invalid_value_message($width, "setPageWidth", "html-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_page_width"), 470);
@@ -1249,11 +1203,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the output page height. Use <code>-1</code> for a single page PDF. The safe maximum is <code>200in</code> otherwise some PDF viewers may be unable to open the PDF.
-    *
-    * @param height The value must be -1 or specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_height">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_height</a>
+     */
     function setPageHeight($height) {
         if (!preg_match("/(?i)^0$|^\-1$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
             throw new Error(create_invalid_value_message($height, "setPageHeight", "html-to-pdf", "The value must be -1 or specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_page_height"), 470);
@@ -1263,12 +1214,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the output page dimensions.
-    *
-    * @param width Set the output page width. The safe maximum is <code>200in</code> otherwise some PDF viewers may be unable to open the PDF. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @param height Set the output page height. Use <code>-1</code> for a single page PDF. The safe maximum is <code>200in</code> otherwise some PDF viewers may be unable to open the PDF. The value must be -1 or specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_dimensions">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_dimensions</a>
+     */
     function setPageDimensions($width, $height) {
         $this->setPageWidth($width);
         $this->setPageHeight($height);
@@ -1276,11 +1223,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the output page orientation.
-    *
-    * @param orientation Allowed values are landscape, portrait.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_orientation">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_orientation</a>
+     */
     function setOrientation($orientation) {
         if (!preg_match("/(?i)^(landscape|portrait)$/", $orientation))
             throw new Error(create_invalid_value_message($orientation, "setOrientation", "html-to-pdf", "Allowed values are landscape, portrait.", "set_orientation"), 470);
@@ -1290,11 +1234,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the output page top margin.
-    *
-    * @param top The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_margin_top">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_margin_top</a>
+     */
     function setMarginTop($top) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $top))
             throw new Error(create_invalid_value_message($top, "setMarginTop", "html-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_margin_top"), 470);
@@ -1304,11 +1245,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the output page right margin.
-    *
-    * @param right The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_margin_right">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_margin_right</a>
+     */
     function setMarginRight($right) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $right))
             throw new Error(create_invalid_value_message($right, "setMarginRight", "html-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_margin_right"), 470);
@@ -1318,11 +1256,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the output page bottom margin.
-    *
-    * @param bottom The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_margin_bottom">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_margin_bottom</a>
+     */
     function setMarginBottom($bottom) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $bottom))
             throw new Error(create_invalid_value_message($bottom, "setMarginBottom", "html-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_margin_bottom"), 470);
@@ -1332,11 +1267,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the output page left margin.
-    *
-    * @param left The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_margin_left">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_margin_left</a>
+     */
     function setMarginLeft($left) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $left))
             throw new Error(create_invalid_value_message($left, "setMarginLeft", "html-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_margin_left"), 470);
@@ -1346,25 +1278,16 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Disable page margins.
-    *
-    * @param value Set to <code>true</code> to disable margins.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_no_margins">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_no_margins</a>
+     */
     function setNoMargins($value) {
         $this->fields['no_margins'] = $value;
         return $this;
     }
 
     /**
-    * Set the output page margins.
-    *
-    * @param top Set the output page top margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @param right Set the output page right margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @param bottom Set the output page bottom margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @param left Set the output page left margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_margins">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_margins</a>
+     */
     function setPageMargins($top, $right, $bottom, $left) {
         $this->setMarginTop($top);
         $this->setMarginRight($right);
@@ -1374,11 +1297,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the page range to print.
-    *
-    * @param pages A comma separated list of page numbers or ranges. Special strings may be used, such as 'odd', 'even' and 'last'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_print_page_range">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_print_page_range</a>
+     */
     function setPrintPageRange($pages) {
         if (!preg_match("/^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*)|odd|even|last)\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*)|odd|even|last)\s*$/", $pages))
             throw new Error(create_invalid_value_message($pages, "setPrintPageRange", "html-to-pdf", "A comma separated list of page numbers or ranges. Special strings may be used, such as 'odd', 'even' and 'last'.", "set_print_page_range"), 470);
@@ -1388,11 +1308,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the viewport width for formatting the HTML content when generating a PDF. By specifying a viewport width, you can control how the content is rendered, ensuring it mimics the appearance on various devices or matches specific design requirements.
-    *
-    * @param width The width of the viewport. The value must be 'balanced', 'small', 'medium', 'large', 'extra-large', or a number in the range 96-65000px.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_content_viewport_width">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_content_viewport_width</a>
+     */
     function setContentViewportWidth($width) {
         if (!preg_match("/(?i)^(balanced|small|medium|large|extra-large|[0-9]+(px)?)$/", $width))
             throw new Error(create_invalid_value_message($width, "setContentViewportWidth", "html-to-pdf", "The value must be 'balanced', 'small', 'medium', 'large', 'extra-large', or a number in the range 96-65000px.", "set_content_viewport_width"), 470);
@@ -1402,11 +1319,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the viewport height for formatting the HTML content when generating a PDF. By specifying a viewport height, you can enforce loading of lazy-loaded images and also affect vertical positioning of absolutely positioned elements within the content.
-    *
-    * @param height The viewport height. The value must be 'auto', 'large', or a number.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_content_viewport_height">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_content_viewport_height</a>
+     */
     function setContentViewportHeight($height) {
         if (!preg_match("/(?i)^(auto|large|[0-9]+(px)?)$/", $height))
             throw new Error(create_invalid_value_message($height, "setContentViewportHeight", "html-to-pdf", "The value must be 'auto', 'large', or a number.", "set_content_viewport_height"), 470);
@@ -1416,11 +1330,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Specifies the mode for fitting the HTML content to the print area by upscaling or downscaling it.
-    *
-    * @param mode The fitting mode. Allowed values are auto, smart-scaling, no-scaling, viewport-width, content-width, single-page, single-page-ratio.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_content_fit_mode">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_content_fit_mode</a>
+     */
     function setContentFitMode($mode) {
         if (!preg_match("/(?i)^(auto|smart-scaling|no-scaling|viewport-width|content-width|single-page|single-page-ratio)$/", $mode))
             throw new Error(create_invalid_value_message($mode, "setContentFitMode", "html-to-pdf", "Allowed values are auto, smart-scaling, no-scaling, viewport-width, content-width, single-page, single-page-ratio.", "set_content_fit_mode"), 470);
@@ -1430,11 +1341,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Specifies which blank pages to exclude from the output document.
-    *
-    * @param pages The empty page behavior. Allowed values are trailing, all, none.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_remove_blank_pages">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_remove_blank_pages</a>
+     */
     function setRemoveBlankPages($pages) {
         if (!preg_match("/(?i)^(trailing|all|none)$/", $pages))
             throw new Error(create_invalid_value_message($pages, "setRemoveBlankPages", "html-to-pdf", "Allowed values are trailing, all, none.", "set_remove_blank_pages"), 470);
@@ -1444,11 +1352,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Load an HTML code from the specified URL and use it as the page header. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: <ul> <li><code>pdfcrowd-page-count</code> - the total page count of printed pages</li> <li><code>pdfcrowd-page-number</code> - the current page number</li> <li><code>pdfcrowd-source-url</code> - the source URL of the converted document</li> <li><code>pdfcrowd-source-title</code> - the title of the converted document</li> </ul> The following attributes can be used: <ul> <li><code>data-pdfcrowd-number-format</code> - specifies the type of the used numerals. Allowed values: <ul> <li><code>arabic</code> - Arabic numerals, they are used by default</li> <li><code>roman</code> - Roman numerals</li> <li><code>eastern-arabic</code> - Eastern Arabic numerals</li> <li><code>bengali</code> - Bengali numerals</li> <li><code>devanagari</code> - Devanagari numerals</li> <li><code>thai</code> - Thai numerals</li> <li><code>east-asia</code> - Chinese, Vietnamese, Japanese and Korean numerals</li> <li><code>chinese-formal</code> - Chinese formal numerals</li> </ul> Please contact us if you need another type of numerals.<br> Example:<br> <code>&lt;span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'&gt;&lt;/span&gt;</code> </li> <li><code>data-pdfcrowd-placement</code> - specifies where to place the source URL. Allowed values: <ul> <li>The URL is inserted to the content <ul> <li> Example: <code>&lt;span class='pdfcrowd-source-url'&gt;&lt;/span&gt;</code><br> will produce <code>&lt;span&gt;http://example.com&lt;/span&gt;</code> </li> </ul> </li> <li><code>href</code> - the URL is set to the href attribute <ul> <li> Example: <code>&lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'&gt;Link to source&lt;/a&gt;</code><br> will produce <code>&lt;a href='http://example.com'&gt;Link to source&lt;/a&gt;</code> </li> </ul> </li> <li><code>href-and-content</code> - the URL is set to the href attribute and to the content <ul> <li> Example: <code>&lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'&gt;&lt;/a&gt;</code><br> will produce <code>&lt;a href='http://example.com'&gt;http://example.com&lt;/a&gt;</code> </li> </ul> </li> </ul> </li> </ul>
-    *
-    * @param url Supported protocols are http:// and https://.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_header_url">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_header_url</a>
+     */
     function setHeaderUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "setHeaderUrl", "html-to-pdf", "Supported protocols are http:// and https://.", "set_header_url"), 470);
@@ -1458,11 +1363,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Use the specified HTML code as the page header. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: <ul> <li><code>pdfcrowd-page-count</code> - the total page count of printed pages</li> <li><code>pdfcrowd-page-number</code> - the current page number</li> <li><code>pdfcrowd-source-url</code> - the source URL of the converted document</li> <li><code>pdfcrowd-source-title</code> - the title of the converted document</li> </ul> The following attributes can be used: <ul> <li><code>data-pdfcrowd-number-format</code> - specifies the type of the used numerals. Allowed values: <ul> <li><code>arabic</code> - Arabic numerals, they are used by default</li> <li><code>roman</code> - Roman numerals</li> <li><code>eastern-arabic</code> - Eastern Arabic numerals</li> <li><code>bengali</code> - Bengali numerals</li> <li><code>devanagari</code> - Devanagari numerals</li> <li><code>thai</code> - Thai numerals</li> <li><code>east-asia</code> - Chinese, Vietnamese, Japanese and Korean numerals</li> <li><code>chinese-formal</code> - Chinese formal numerals</li> </ul> Please contact us if you need another type of numerals.<br> Example:<br> <code>&lt;span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'&gt;&lt;/span&gt;</code> </li> <li><code>data-pdfcrowd-placement</code> - specifies where to place the source URL. Allowed values: <ul> <li>The URL is inserted to the content <ul> <li> Example: <code>&lt;span class='pdfcrowd-source-url'&gt;&lt;/span&gt;</code><br> will produce <code>&lt;span&gt;http://example.com&lt;/span&gt;</code> </li> </ul> </li> <li><code>href</code> - the URL is set to the href attribute <ul> <li> Example: <code>&lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'&gt;Link to source&lt;/a&gt;</code><br> will produce <code>&lt;a href='http://example.com'&gt;Link to source&lt;/a&gt;</code> </li> </ul> </li> <li><code>href-and-content</code> - the URL is set to the href attribute and to the content <ul> <li> Example: <code>&lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'&gt;&lt;/a&gt;</code><br> will produce <code>&lt;a href='http://example.com'&gt;http://example.com&lt;/a&gt;</code> </li> </ul> </li> </ul> </li> </ul>
-    *
-    * @param html The string must not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_header_html">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_header_html</a>
+     */
     function setHeaderHtml($html) {
         if (!($html != null && $html !== ''))
             throw new Error(create_invalid_value_message($html, "setHeaderHtml", "html-to-pdf", "The string must not be empty.", "set_header_html"), 470);
@@ -1472,11 +1374,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the header height.
-    *
-    * @param height The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_header_height">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_header_height</a>
+     */
     function setHeaderHeight($height) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
             throw new Error(create_invalid_value_message($height, "setHeaderHeight", "html-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_header_height"), 470);
@@ -1486,22 +1385,16 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the file name of the header HTML document stored in the input archive. Use this method if the input archive contains multiple HTML documents.
-    *
-    * @param filename The file name.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_zip_header_filename">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_zip_header_filename</a>
+     */
     function setZipHeaderFilename($filename) {
         $this->fields['zip_header_filename'] = $filename;
         return $this;
     }
 
     /**
-    * Load an HTML code from the specified URL and use it as the page footer. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: <ul> <li><code>pdfcrowd-page-count</code> - the total page count of printed pages</li> <li><code>pdfcrowd-page-number</code> - the current page number</li> <li><code>pdfcrowd-source-url</code> - the source URL of the converted document</li> <li><code>pdfcrowd-source-title</code> - the title of the converted document</li> </ul> The following attributes can be used: <ul> <li><code>data-pdfcrowd-number-format</code> - specifies the type of the used numerals. Allowed values: <ul> <li><code>arabic</code> - Arabic numerals, they are used by default</li> <li><code>roman</code> - Roman numerals</li> <li><code>eastern-arabic</code> - Eastern Arabic numerals</li> <li><code>bengali</code> - Bengali numerals</li> <li><code>devanagari</code> - Devanagari numerals</li> <li><code>thai</code> - Thai numerals</li> <li><code>east-asia</code> - Chinese, Vietnamese, Japanese and Korean numerals</li> <li><code>chinese-formal</code> - Chinese formal numerals</li> </ul> Please contact us if you need another type of numerals.<br> Example:<br> <code>&lt;span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'&gt;&lt;/span&gt;</code> </li> <li><code>data-pdfcrowd-placement</code> - specifies where to place the source URL. Allowed values: <ul> <li>The URL is inserted to the content <ul> <li> Example: <code>&lt;span class='pdfcrowd-source-url'&gt;&lt;/span&gt;</code><br> will produce <code>&lt;span&gt;http://example.com&lt;/span&gt;</code> </li> </ul> </li> <li><code>href</code> - the URL is set to the href attribute <ul> <li> Example: <code>&lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'&gt;Link to source&lt;/a&gt;</code><br> will produce <code>&lt;a href='http://example.com'&gt;Link to source&lt;/a&gt;</code> </li> </ul> </li> <li><code>href-and-content</code> - the URL is set to the href attribute and to the content <ul> <li> Example: <code>&lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'&gt;&lt;/a&gt;</code><br> will produce <code>&lt;a href='http://example.com'&gt;http://example.com&lt;/a&gt;</code> </li> </ul> </li> </ul> </li> </ul>
-    *
-    * @param url Supported protocols are http:// and https://.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_footer_url">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_footer_url</a>
+     */
     function setFooterUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "setFooterUrl", "html-to-pdf", "Supported protocols are http:// and https://.", "set_footer_url"), 470);
@@ -1511,11 +1404,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Use the specified HTML as the page footer. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: <ul> <li><code>pdfcrowd-page-count</code> - the total page count of printed pages</li> <li><code>pdfcrowd-page-number</code> - the current page number</li> <li><code>pdfcrowd-source-url</code> - the source URL of the converted document</li> <li><code>pdfcrowd-source-title</code> - the title of the converted document</li> </ul> The following attributes can be used: <ul> <li><code>data-pdfcrowd-number-format</code> - specifies the type of the used numerals. Allowed values: <ul> <li><code>arabic</code> - Arabic numerals, they are used by default</li> <li><code>roman</code> - Roman numerals</li> <li><code>eastern-arabic</code> - Eastern Arabic numerals</li> <li><code>bengali</code> - Bengali numerals</li> <li><code>devanagari</code> - Devanagari numerals</li> <li><code>thai</code> - Thai numerals</li> <li><code>east-asia</code> - Chinese, Vietnamese, Japanese and Korean numerals</li> <li><code>chinese-formal</code> - Chinese formal numerals</li> </ul> Please contact us if you need another type of numerals.<br> Example:<br> <code>&lt;span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'&gt;&lt;/span&gt;</code> </li> <li><code>data-pdfcrowd-placement</code> - specifies where to place the source URL. Allowed values: <ul> <li>The URL is inserted to the content <ul> <li> Example: <code>&lt;span class='pdfcrowd-source-url'&gt;&lt;/span&gt;</code><br> will produce <code>&lt;span&gt;http://example.com&lt;/span&gt;</code> </li> </ul> </li> <li><code>href</code> - the URL is set to the href attribute <ul> <li> Example: <code>&lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'&gt;Link to source&lt;/a&gt;</code><br> will produce <code>&lt;a href='http://example.com'&gt;Link to source&lt;/a&gt;</code> </li> </ul> </li> <li><code>href-and-content</code> - the URL is set to the href attribute and to the content <ul> <li> Example: <code>&lt;a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'&gt;&lt;/a&gt;</code><br> will produce <code>&lt;a href='http://example.com'&gt;http://example.com&lt;/a&gt;</code> </li> </ul> </li> </ul> </li> </ul>
-    *
-    * @param html The string must not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_footer_html">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_footer_html</a>
+     */
     function setFooterHtml($html) {
         if (!($html != null && $html !== ''))
             throw new Error(create_invalid_value_message($html, "setFooterHtml", "html-to-pdf", "The string must not be empty.", "set_footer_html"), 470);
@@ -1525,11 +1415,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the footer height.
-    *
-    * @param height The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_footer_height">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_footer_height</a>
+     */
     function setFooterHeight($height) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
             throw new Error(create_invalid_value_message($height, "setFooterHeight", "html-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_footer_height"), 470);
@@ -1539,33 +1426,24 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the file name of the footer HTML document stored in the input archive. Use this method if the input archive contains multiple HTML documents.
-    *
-    * @param filename The file name.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_zip_footer_filename">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_zip_footer_filename</a>
+     */
     function setZipFooterFilename($filename) {
         $this->fields['zip_footer_filename'] = $filename;
         return $this;
     }
 
     /**
-    * Disable horizontal page margins for header and footer. The header/footer contents width will be equal to the physical page width.
-    *
-    * @param value Set to <code>true</code> to disable horizontal margins for header and footer.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_no_header_footer_horizontal_margins">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_no_header_footer_horizontal_margins</a>
+     */
     function setNoHeaderFooterHorizontalMargins($value) {
         $this->fields['no_header_footer_horizontal_margins'] = $value;
         return $this;
     }
 
     /**
-    * The page header content is not printed on the specified pages. To remove the entire header area, use the <a href="#set_conversion_config">conversion config</a>.
-    *
-    * @param pages List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma separated list of page numbers.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_exclude_header_on_pages">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_exclude_header_on_pages</a>
+     */
     function setExcludeHeaderOnPages($pages) {
         if (!preg_match("/^(?:\s*\-?\d+\s*,)*\s*\-?\d+\s*$/", $pages))
             throw new Error(create_invalid_value_message($pages, "setExcludeHeaderOnPages", "html-to-pdf", "A comma separated list of page numbers.", "set_exclude_header_on_pages"), 470);
@@ -1575,11 +1453,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * The page footer content is not printed on the specified pages. To remove the entire footer area, use the <a href="#set_conversion_config">conversion config</a>.
-    *
-    * @param pages List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma separated list of page numbers.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_exclude_footer_on_pages">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_exclude_footer_on_pages</a>
+     */
     function setExcludeFooterOnPages($pages) {
         if (!preg_match("/^(?:\s*\-?\d+\s*,)*\s*\-?\d+\s*$/", $pages))
             throw new Error(create_invalid_value_message($pages, "setExcludeFooterOnPages", "html-to-pdf", "A comma separated list of page numbers.", "set_exclude_footer_on_pages"), 470);
@@ -1589,11 +1464,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the scaling factor (zoom) for the header and footer.
-    *
-    * @param factor The percentage value. The accepted range is 10-500.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_header_footer_scale_factor">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_header_footer_scale_factor</a>
+     */
     function setHeaderFooterScaleFactor($factor) {
         if (!(intval($factor) >= 10 && intval($factor) <= 500))
             throw new Error(create_invalid_value_message($factor, "setHeaderFooterScaleFactor", "html-to-pdf", "The accepted range is 10-500.", "set_header_footer_scale_factor"), 470);
@@ -1603,22 +1475,16 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set an offset between physical and logical page numbers.
-    *
-    * @param offset Integer specifying page offset.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_numbering_offset">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_numbering_offset</a>
+     */
     function setPageNumberingOffset($offset) {
         $this->fields['page_numbering_offset'] = $offset;
         return $this;
     }
 
     /**
-    * Apply a watermark to each page of the output PDF file. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark.
-    *
-    * @param watermark The file path to a local file. The file must exist and not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_watermark">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_watermark</a>
+     */
     function setPageWatermark($watermark) {
         if (!(filesize($watermark) > 0))
             throw new Error(create_invalid_value_message($watermark, "setPageWatermark", "html-to-pdf", "The file must exist and not be empty.", "set_page_watermark"), 470);
@@ -1628,11 +1494,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark.
-    *
-    * @param url Supported protocols are http:// and https://.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_watermark_url">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_watermark_url</a>
+     */
     function setPageWatermarkUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "setPageWatermarkUrl", "html-to-pdf", "Supported protocols are http:// and https://.", "set_page_watermark_url"), 470);
@@ -1642,11 +1505,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Apply each page of a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image.
-    *
-    * @param watermark The file path to a local file. The file must exist and not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_multipage_watermark">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_multipage_watermark</a>
+     */
     function setMultipageWatermark($watermark) {
         if (!(filesize($watermark) > 0))
             throw new Error(create_invalid_value_message($watermark, "setMultipageWatermark", "html-to-pdf", "The file must exist and not be empty.", "set_multipage_watermark"), 470);
@@ -1656,11 +1516,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image.
-    *
-    * @param url Supported protocols are http:// and https://.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_multipage_watermark_url">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_multipage_watermark_url</a>
+     */
     function setMultipageWatermarkUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "setMultipageWatermarkUrl", "html-to-pdf", "Supported protocols are http:// and https://.", "set_multipage_watermark_url"), 470);
@@ -1670,11 +1527,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Apply a background to each page of the output PDF file. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background.
-    *
-    * @param background The file path to a local file. The file must exist and not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_background">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_background</a>
+     */
     function setPageBackground($background) {
         if (!(filesize($background) > 0))
             throw new Error(create_invalid_value_message($background, "setPageBackground", "html-to-pdf", "The file must exist and not be empty.", "set_page_background"), 470);
@@ -1684,11 +1538,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background.
-    *
-    * @param url Supported protocols are http:// and https://.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_background_url">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_background_url</a>
+     */
     function setPageBackgroundUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "setPageBackgroundUrl", "html-to-pdf", "Supported protocols are http:// and https://.", "set_page_background_url"), 470);
@@ -1698,11 +1549,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Apply each page of a background to the corresponding page of the output PDF. A background can be either a PDF or an image.
-    *
-    * @param background The file path to a local file. The file must exist and not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_multipage_background">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_multipage_background</a>
+     */
     function setMultipageBackground($background) {
         if (!(filesize($background) > 0))
             throw new Error(create_invalid_value_message($background, "setMultipageBackground", "html-to-pdf", "The file must exist and not be empty.", "set_multipage_background"), 470);
@@ -1712,11 +1560,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image.
-    *
-    * @param url Supported protocols are http:// and https://.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_multipage_background_url">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_multipage_background_url</a>
+     */
     function setMultipageBackgroundUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "setMultipageBackgroundUrl", "html-to-pdf", "Supported protocols are http:// and https://.", "set_multipage_background_url"), 470);
@@ -1726,11 +1571,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * The page background color in RGB or RGBA hexadecimal format. The color fills the entire page regardless of the margins.
-    *
-    * @param color The value must be in RRGGBB or RRGGBBAA hexadecimal format.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_background_color">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_background_color</a>
+     */
     function setPageBackgroundColor($color) {
         if (!preg_match("/^[0-9a-fA-F]{6,8}$/", $color))
             throw new Error(create_invalid_value_message($color, "setPageBackgroundColor", "html-to-pdf", "The value must be in RRGGBB or RRGGBBAA hexadecimal format.", "set_page_background_color"), 470);
@@ -1740,77 +1582,56 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Use the print version of the page if available (@media print).
-    *
-    * @param value Set to <code>true</code> to use the print version of the page.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_use_print_media">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_use_print_media</a>
+     */
     function setUsePrintMedia($value) {
         $this->fields['use_print_media'] = $value;
         return $this;
     }
 
     /**
-    * Do not print the background graphics.
-    *
-    * @param value Set to <code>true</code> to disable the background graphics.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_no_background">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_no_background</a>
+     */
     function setNoBackground($value) {
         $this->fields['no_background'] = $value;
         return $this;
     }
 
     /**
-    * Do not execute JavaScript.
-    *
-    * @param value Set to <code>true</code> to disable JavaScript in web pages.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_disable_javascript">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_disable_javascript</a>
+     */
     function setDisableJavascript($value) {
         $this->fields['disable_javascript'] = $value;
         return $this;
     }
 
     /**
-    * Do not load images.
-    *
-    * @param value Set to <code>true</code> to disable loading of images.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_disable_image_loading">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_disable_image_loading</a>
+     */
     function setDisableImageLoading($value) {
         $this->fields['disable_image_loading'] = $value;
         return $this;
     }
 
     /**
-    * Disable loading fonts from remote sources.
-    *
-    * @param value Set to <code>true</code> disable loading remote fonts.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_disable_remote_fonts">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_disable_remote_fonts</a>
+     */
     function setDisableRemoteFonts($value) {
         $this->fields['disable_remote_fonts'] = $value;
         return $this;
     }
 
     /**
-    * Use a mobile user agent.
-    *
-    * @param value Set to <code>true</code> to use a mobile user agent.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_use_mobile_user_agent">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_use_mobile_user_agent</a>
+     */
     function setUseMobileUserAgent($value) {
         $this->fields['use_mobile_user_agent'] = $value;
         return $this;
     }
 
     /**
-    * Specifies how iframes are handled.
-    *
-    * @param iframes Allowed values are all, same-origin, none.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_load_iframes">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_load_iframes</a>
+     */
     function setLoadIframes($iframes) {
         if (!preg_match("/(?i)^(all|same-origin|none)$/", $iframes))
             throw new Error(create_invalid_value_message($iframes, "setLoadIframes", "html-to-pdf", "Allowed values are all, same-origin, none.", "set_load_iframes"), 470);
@@ -1820,33 +1641,24 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Try to block ads. Enabling this option can produce smaller output and speed up the conversion.
-    *
-    * @param value Set to <code>true</code> to block ads in web pages.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_block_ads">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_block_ads</a>
+     */
     function setBlockAds($value) {
         $this->fields['block_ads'] = $value;
         return $this;
     }
 
     /**
-    * Set the default HTML content text encoding.
-    *
-    * @param encoding The text encoding of the HTML content.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_default_encoding">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_default_encoding</a>
+     */
     function setDefaultEncoding($encoding) {
         $this->fields['default_encoding'] = $encoding;
         return $this;
     }
 
     /**
-    * Set the locale for the conversion. This may affect the output format of dates, times and numbers.
-    *
-    * @param locale The locale code according to ISO 639.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_locale">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_locale</a>
+     */
     function setLocale($locale) {
         $this->fields['locale'] = $locale;
         return $this;
@@ -1865,12 +1677,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set credentials to access HTTP base authentication protected websites.
-    *
-    * @param user_name Set the HTTP authentication user name.
-    * @param password Set the HTTP authentication password.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_http_auth">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_http_auth</a>
+     */
     function setHttpAuth($user_name, $password) {
         $this->setHttpAuthUserName($user_name);
         $this->setHttpAuthPassword($password);
@@ -1878,66 +1686,48 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set HTTP cookies to be included in all requests made by the converter.
-    *
-    * @param cookies The cookie string.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_cookies">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_cookies</a>
+     */
     function setCookies($cookies) {
         $this->fields['cookies'] = $cookies;
         return $this;
     }
 
     /**
-    * Do not allow insecure HTTPS connections.
-    *
-    * @param value Set to <code>true</code> to enable SSL certificate verification.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_verify_ssl_certificates">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_verify_ssl_certificates</a>
+     */
     function setVerifySslCertificates($value) {
         $this->fields['verify_ssl_certificates'] = $value;
         return $this;
     }
 
     /**
-    * Abort the conversion if the main URL HTTP status code is greater than or equal to 400.
-    *
-    * @param fail_on_error Set to <code>true</code> to abort the conversion.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_fail_on_main_url_error">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_fail_on_main_url_error</a>
+     */
     function setFailOnMainUrlError($fail_on_error) {
         $this->fields['fail_on_main_url_error'] = $fail_on_error;
         return $this;
     }
 
     /**
-    * Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400 or if some sub-requests are still pending. See details in a debug log.
-    *
-    * @param fail_on_error Set to <code>true</code> to abort the conversion.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_fail_on_any_url_error">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_fail_on_any_url_error</a>
+     */
     function setFailOnAnyUrlError($fail_on_error) {
         $this->fields['fail_on_any_url_error'] = $fail_on_error;
         return $this;
     }
 
     /**
-    * Do not send the X-Pdfcrowd HTTP header in PDFCrowd HTTP requests.
-    *
-    * @param value Set to <code>true</code> to disable sending X-Pdfcrowd HTTP header.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_no_xpdfcrowd_header">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_no_xpdfcrowd_header</a>
+     */
     function setNoXpdfcrowdHeader($value) {
         $this->fields['no_xpdfcrowd_header'] = $value;
         return $this;
     }
 
     /**
-    * Specifies behavior in presence of CSS @page rules. It may affect the page size, margins and orientation.
-    *
-    * @param mode The page rule mode. Allowed values are default, mode1, mode2.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_css_page_rule_mode">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_css_page_rule_mode</a>
+     */
     function setCssPageRuleMode($mode) {
         if (!preg_match("/(?i)^(default|mode1|mode2)$/", $mode))
             throw new Error(create_invalid_value_message($mode, "setCssPageRuleMode", "html-to-pdf", "Allowed values are default, mode1, mode2.", "set_css_page_rule_mode"), 470);
@@ -1947,11 +1737,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Apply custom CSS to the input HTML document. It allows you to modify the visual appearance and layout of your HTML content dynamically. Tip: Using <code>!important</code> in custom CSS provides a way to prioritize and override conflicting styles.
-    *
-    * @param css A string containing valid CSS. The string must not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_custom_css">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_custom_css</a>
+     */
     function setCustomCss($css) {
         if (!($css != null && $css !== ''))
             throw new Error(create_invalid_value_message($css, "setCustomCss", "html-to-pdf", "The string must not be empty.", "set_custom_css"), 470);
@@ -1961,11 +1748,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/api/libpdfcrowd/'>JavaScript library</a>.
-    *
-    * @param javascript A string containing a JavaScript code. The string must not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_custom_javascript">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_custom_javascript</a>
+     */
     function setCustomJavascript($javascript) {
         if (!($javascript != null && $javascript !== ''))
             throw new Error(create_invalid_value_message($javascript, "setCustomJavascript", "html-to-pdf", "The string must not be empty.", "set_custom_javascript"), 470);
@@ -1975,11 +1759,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/api/libpdfcrowd/'>JavaScript library</a>.
-    *
-    * @param javascript A string containing a JavaScript code. The string must not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_on_load_javascript">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_on_load_javascript</a>
+     */
     function setOnLoadJavascript($javascript) {
         if (!($javascript != null && $javascript !== ''))
             throw new Error(create_invalid_value_message($javascript, "setOnLoadJavascript", "html-to-pdf", "The string must not be empty.", "set_on_load_javascript"), 470);
@@ -1989,11 +1770,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set a custom HTTP header to be included in all requests made by the converter.
-    *
-    * @param header A string containing the header name and value separated by a colon.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_custom_http_header">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_custom_http_header</a>
+     */
     function setCustomHttpHeader($header) {
         if (!preg_match("/^.+:.+$/", $header))
             throw new Error(create_invalid_value_message($header, "setCustomHttpHeader", "html-to-pdf", "A string containing the header name and value separated by a colon.", "set_custom_http_header"), 470);
@@ -2003,11 +1781,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your license defines the maximum wait time by "Max Delay" parameter.
-    *
-    * @param delay The number of milliseconds to wait. Must be a positive integer or 0.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_javascript_delay">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_javascript_delay</a>
+     */
     function setJavascriptDelay($delay) {
         if (!(intval($delay) >= 0))
             throw new Error(create_invalid_value_message($delay, "setJavascriptDelay", "html-to-pdf", "Must be a positive integer or 0.", "set_javascript_delay"), 470);
@@ -2017,11 +1792,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Convert only the specified element from the main document and its children. The element is specified by one or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a>. If the element is not found, the conversion fails. If multiple elements are found, the first one is used.
-    *
-    * @param selectors One or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a> separated by commas. The string must not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_element_to_convert">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_element_to_convert</a>
+     */
     function setElementToConvert($selectors) {
         if (!($selectors != null && $selectors !== ''))
             throw new Error(create_invalid_value_message($selectors, "setElementToConvert", "html-to-pdf", "The string must not be empty.", "set_element_to_convert"), 470);
@@ -2031,11 +1803,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Specify the DOM handling when only a part of the document is converted. This can affect the CSS rules used.
-    *
-    * @param mode Allowed values are cut-out, remove-siblings, hide-siblings.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_element_to_convert_mode">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_element_to_convert_mode</a>
+     */
     function setElementToConvertMode($mode) {
         if (!preg_match("/(?i)^(cut-out|remove-siblings|hide-siblings)$/", $mode))
             throw new Error(create_invalid_value_message($mode, "setElementToConvertMode", "html-to-pdf", "Allowed values are cut-out, remove-siblings, hide-siblings.", "set_element_to_convert_mode"), 470);
@@ -2045,11 +1814,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Wait for the specified element in a source document. The element is specified by one or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a>. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your license defines the maximum wait time by "Max Delay" parameter.
-    *
-    * @param selectors One or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a> separated by commas. The string must not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_wait_for_element">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_wait_for_element</a>
+     */
     function setWaitForElement($selectors) {
         if (!($selectors != null && $selectors !== ''))
             throw new Error(create_invalid_value_message($selectors, "setWaitForElement", "html-to-pdf", "The string must not be empty.", "set_wait_for_element"), 470);
@@ -2059,22 +1825,16 @@ class HtmlToPdfClient {
     }
 
     /**
-    * The main HTML element for conversion is detected automatically.
-    *
-    * @param value Set to <code>true</code> to detect the main element.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_auto_detect_element_to_convert">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_auto_detect_element_to_convert</a>
+     */
     function setAutoDetectElementToConvert($value) {
         $this->fields['auto_detect_element_to_convert'] = $value;
         return $this;
     }
 
     /**
-    * The input HTML is automatically enhanced to improve the readability.
-    *
-    * @param enhancements Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_readability_enhancements">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_readability_enhancements</a>
+     */
     function setReadabilityEnhancements($enhancements) {
         if (!preg_match("/(?i)^(none|readability-v1|readability-v2|readability-v3|readability-v4)$/", $enhancements))
             throw new Error(create_invalid_value_message($enhancements, "setReadabilityEnhancements", "html-to-pdf", "Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4.", "set_readability_enhancements"), 470);
@@ -2084,11 +1844,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the viewport width in pixels. The viewport is the user's visible area of the page.
-    *
-    * @param width The accepted range is 96-65000.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_viewport_width">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_viewport_width</a>
+     */
     function setViewportWidth($width) {
         if (!(intval($width) >= 96 && intval($width) <= 65000))
             throw new Error(create_invalid_value_message($width, "setViewportWidth", "html-to-pdf", "The accepted range is 96-65000.", "set_viewport_width"), 470);
@@ -2098,11 +1855,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the viewport height in pixels. The viewport is the user's visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000.
-    *
-    * @param height Must be a positive integer.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_viewport_height">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_viewport_height</a>
+     */
     function setViewportHeight($height) {
         if (!(intval($height) > 0))
             throw new Error(create_invalid_value_message($height, "setViewportHeight", "html-to-pdf", "Must be a positive integer.", "set_viewport_height"), 470);
@@ -2112,12 +1866,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the viewport size. The viewport is the user's visible area of the page.
-    *
-    * @param width Set the viewport width in pixels. The viewport is the user's visible area of the page. The accepted range is 96-65000.
-    * @param height Set the viewport height in pixels. The viewport is the user's visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000. Must be a positive integer.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_viewport">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_viewport</a>
+     */
     function setViewport($width, $height) {
         $this->setViewportWidth($width);
         $this->setViewportHeight($height);
@@ -2125,11 +1875,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the rendering mode of the page, allowing control over how content is displayed.
-    *
-    * @param mode The rendering mode. Allowed values are default, viewport.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_rendering_mode">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_rendering_mode</a>
+     */
     function setRenderingMode($mode) {
         if (!preg_match("/(?i)^(default|viewport)$/", $mode))
             throw new Error(create_invalid_value_message($mode, "setRenderingMode", "html-to-pdf", "Allowed values are default, viewport.", "set_rendering_mode"), 470);
@@ -2139,11 +1886,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Specifies the scaling mode used for fitting the HTML contents to the print area.
-    *
-    * @param mode The smart scaling mode. Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit, single-page-fit-ex, mode1.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_smart_scaling_mode">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_smart_scaling_mode</a>
+     */
     function setSmartScalingMode($mode) {
         if (!preg_match("/(?i)^(default|disabled|viewport-fit|content-fit|single-page-fit|single-page-fit-ex|mode1)$/", $mode))
             throw new Error(create_invalid_value_message($mode, "setSmartScalingMode", "html-to-pdf", "Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit, single-page-fit-ex, mode1.", "set_smart_scaling_mode"), 470);
@@ -2153,11 +1897,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the scaling factor (zoom) for the main page area.
-    *
-    * @param factor The percentage value. The accepted range is 10-500.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_scale_factor">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_scale_factor</a>
+     */
     function setScaleFactor($factor) {
         if (!(intval($factor) >= 10 && intval($factor) <= 500))
             throw new Error(create_invalid_value_message($factor, "setScaleFactor", "html-to-pdf", "The accepted range is 10-500.", "set_scale_factor"), 470);
@@ -2167,11 +1908,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the quality of embedded JPEG images. A lower quality results in a smaller PDF file but can lead to compression artifacts.
-    *
-    * @param quality The percentage value. The accepted range is 1-100.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_jpeg_quality">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_jpeg_quality</a>
+     */
     function setJpegQuality($quality) {
         if (!(intval($quality) >= 1 && intval($quality) <= 100))
             throw new Error(create_invalid_value_message($quality, "setJpegQuality", "html-to-pdf", "The accepted range is 1-100.", "set_jpeg_quality"), 470);
@@ -2181,11 +1919,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Specify which image types will be converted to JPEG. Converting lossless compression image formats (PNG, GIF, ...) to JPEG may result in a smaller PDF file.
-    *
-    * @param images The image category. Allowed values are none, opaque, all.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_convert_images_to_jpeg">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_convert_images_to_jpeg</a>
+     */
     function setConvertImagesToJpeg($images) {
         if (!preg_match("/(?i)^(none|opaque|all)$/", $images))
             throw new Error(create_invalid_value_message($images, "setConvertImagesToJpeg", "html-to-pdf", "Allowed values are none, opaque, all.", "set_convert_images_to_jpeg"), 470);
@@ -2195,11 +1930,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the DPI of images in PDF. A lower DPI may result in a smaller PDF file.  If the specified DPI is higher than the actual image DPI, the original image DPI is retained (no upscaling is performed). Use <code>0</code> to leave the images unaltered.
-    *
-    * @param dpi The DPI value. Must be a positive integer or 0.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_image_dpi">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_image_dpi</a>
+     */
     function setImageDpi($dpi) {
         if (!(intval($dpi) >= 0))
             throw new Error(create_invalid_value_message($dpi, "setImageDpi", "html-to-pdf", "Must be a positive integer or 0.", "set_image_dpi"), 470);
@@ -2209,154 +1941,112 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Convert HTML forms to fillable PDF forms. Details can be found in the <a href='https://pdfcrowd.com/blog/create-fillable-pdf-form/'>blog post</a>.
-    *
-    * @param value Set to <code>true</code> to make fillable PDF forms.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_enable_pdf_forms">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_enable_pdf_forms</a>
+     */
     function setEnablePdfForms($value) {
         $this->fields['enable_pdf_forms'] = $value;
         return $this;
     }
 
     /**
-    * Create linearized PDF. This is also known as Fast Web View.
-    *
-    * @param value Set to <code>true</code> to create linearized PDF.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_linearize">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_linearize</a>
+     */
     function setLinearize($value) {
         $this->fields['linearize'] = $value;
         return $this;
     }
 
     /**
-    * Encrypt the PDF. This prevents search engines from indexing the contents.
-    *
-    * @param value Set to <code>true</code> to enable PDF encryption.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_encrypt">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_encrypt</a>
+     */
     function setEncrypt($value) {
         $this->fields['encrypt'] = $value;
         return $this;
     }
 
     /**
-    * Protect the PDF with a user password. When a PDF has a user password, it must be supplied in order to view the document and to perform operations allowed by the access permissions.
-    *
-    * @param password The user password.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_user_password">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_user_password</a>
+     */
     function setUserPassword($password) {
         $this->fields['user_password'] = $password;
         return $this;
     }
 
     /**
-    * Protect the PDF with an owner password.  Supplying an owner password grants unlimited access to the PDF including changing the passwords and access permissions.
-    *
-    * @param password The owner password.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_owner_password">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_owner_password</a>
+     */
     function setOwnerPassword($password) {
         $this->fields['owner_password'] = $password;
         return $this;
     }
 
     /**
-    * Disallow printing of the output PDF.
-    *
-    * @param value Set to <code>true</code> to set the no-print flag in the output PDF.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_no_print">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_no_print</a>
+     */
     function setNoPrint($value) {
         $this->fields['no_print'] = $value;
         return $this;
     }
 
     /**
-    * Disallow modification of the output PDF.
-    *
-    * @param value Set to <code>true</code> to set the read-only only flag in the output PDF.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_no_modify">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_no_modify</a>
+     */
     function setNoModify($value) {
         $this->fields['no_modify'] = $value;
         return $this;
     }
 
     /**
-    * Disallow text and graphics extraction from the output PDF.
-    *
-    * @param value Set to <code>true</code> to set the no-copy flag in the output PDF.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_no_copy">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_no_copy</a>
+     */
     function setNoCopy($value) {
         $this->fields['no_copy'] = $value;
         return $this;
     }
 
     /**
-    * Set the title of the PDF.
-    *
-    * @param title The title.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_title">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_title</a>
+     */
     function setTitle($title) {
         $this->fields['title'] = $title;
         return $this;
     }
 
     /**
-    * Set the subject of the PDF.
-    *
-    * @param subject The subject.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_subject">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_subject</a>
+     */
     function setSubject($subject) {
         $this->fields['subject'] = $subject;
         return $this;
     }
 
     /**
-    * Set the author of the PDF.
-    *
-    * @param author The author.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_author">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_author</a>
+     */
     function setAuthor($author) {
         $this->fields['author'] = $author;
         return $this;
     }
 
     /**
-    * Associate keywords with the document.
-    *
-    * @param keywords The string with the keywords.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_keywords">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_keywords</a>
+     */
     function setKeywords($keywords) {
         $this->fields['keywords'] = $keywords;
         return $this;
     }
 
     /**
-    * Extract meta tags (author, keywords and description) from the input HTML and use them in the output PDF.
-    *
-    * @param value Set to <code>true</code> to extract meta tags.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_extract_meta_tags">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_extract_meta_tags</a>
+     */
     function setExtractMetaTags($value) {
         $this->fields['extract_meta_tags'] = $value;
         return $this;
     }
 
     /**
-    * Specify the page layout to be used when the document is opened.
-    *
-    * @param layout Allowed values are single-page, one-column, two-column-left, two-column-right.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_layout">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_layout</a>
+     */
     function setPageLayout($layout) {
         if (!preg_match("/(?i)^(single-page|one-column|two-column-left|two-column-right)$/", $layout))
             throw new Error(create_invalid_value_message($layout, "setPageLayout", "html-to-pdf", "Allowed values are single-page, one-column, two-column-left, two-column-right.", "set_page_layout"), 470);
@@ -2366,11 +2056,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Specify how the document should be displayed when opened.
-    *
-    * @param mode Allowed values are full-screen, thumbnails, outlines.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_mode">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_page_mode</a>
+     */
     function setPageMode($mode) {
         if (!preg_match("/(?i)^(full-screen|thumbnails|outlines)$/", $mode))
             throw new Error(create_invalid_value_message($mode, "setPageMode", "html-to-pdf", "Allowed values are full-screen, thumbnails, outlines.", "set_page_mode"), 470);
@@ -2380,11 +2067,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Specify how the page should be displayed when opened.
-    *
-    * @param zoom_type Allowed values are fit-width, fit-height, fit-page.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_initial_zoom_type">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_initial_zoom_type</a>
+     */
     function setInitialZoomType($zoom_type) {
         if (!preg_match("/(?i)^(fit-width|fit-height|fit-page)$/", $zoom_type))
             throw new Error(create_invalid_value_message($zoom_type, "setInitialZoomType", "html-to-pdf", "Allowed values are fit-width, fit-height, fit-page.", "set_initial_zoom_type"), 470);
@@ -2394,11 +2078,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Display the specified page when the document is opened.
-    *
-    * @param page Must be a positive integer.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_initial_page">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_initial_page</a>
+     */
     function setInitialPage($page) {
         if (!(intval($page) > 0))
             throw new Error(create_invalid_value_message($page, "setInitialPage", "html-to-pdf", "Must be a positive integer.", "set_initial_page"), 470);
@@ -2408,11 +2089,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Specify the initial page zoom in percents when the document is opened.
-    *
-    * @param zoom Must be a positive integer.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_initial_zoom">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_initial_zoom</a>
+     */
     function setInitialZoom($zoom) {
         if (!(intval($zoom) > 0))
             throw new Error(create_invalid_value_message($zoom, "setInitialZoom", "html-to-pdf", "Must be a positive integer.", "set_initial_zoom"), 470);
@@ -2422,110 +2100,80 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Specify whether to hide the viewer application's tool bars when the document is active.
-    *
-    * @param value Set to <code>true</code> to hide tool bars.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_hide_toolbar">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_hide_toolbar</a>
+     */
     function setHideToolbar($value) {
         $this->fields['hide_toolbar'] = $value;
         return $this;
     }
 
     /**
-    * Specify whether to hide the viewer application's menu bar when the document is active.
-    *
-    * @param value Set to <code>true</code> to hide the menu bar.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_hide_menubar">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_hide_menubar</a>
+     */
     function setHideMenubar($value) {
         $this->fields['hide_menubar'] = $value;
         return $this;
     }
 
     /**
-    * Specify whether to hide user interface elements in the document's window (such as scroll bars and navigation controls), leaving only the document's contents displayed.
-    *
-    * @param value Set to <code>true</code> to hide ui elements.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_hide_window_ui">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_hide_window_ui</a>
+     */
     function setHideWindowUi($value) {
         $this->fields['hide_window_ui'] = $value;
         return $this;
     }
 
     /**
-    * Specify whether to resize the document's window to fit the size of the first displayed page.
-    *
-    * @param value Set to <code>true</code> to resize the window.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_fit_window">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_fit_window</a>
+     */
     function setFitWindow($value) {
         $this->fields['fit_window'] = $value;
         return $this;
     }
 
     /**
-    * Specify whether to position the document's window in the center of the screen.
-    *
-    * @param value Set to <code>true</code> to center the window.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_center_window">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_center_window</a>
+     */
     function setCenterWindow($value) {
         $this->fields['center_window'] = $value;
         return $this;
     }
 
     /**
-    * Specify whether the window's title bar should display the document title. If false , the title bar should instead display the name of the PDF file containing the document.
-    *
-    * @param value Set to <code>true</code> to display the title.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_display_title">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_display_title</a>
+     */
     function setDisplayTitle($value) {
         $this->fields['display_title'] = $value;
         return $this;
     }
 
     /**
-    * Set the predominant reading order for text to right-to-left. This option has no direct effect on the document's contents or page numbering but can be used to determine the relative positioning of pages when displayed side by side or printed n-up
-    *
-    * @param value Set to <code>true</code> to set right-to-left reading order.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_right_to_left">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_right_to_left</a>
+     */
     function setRightToLeft($value) {
         $this->fields['right_to_left'] = $value;
         return $this;
     }
 
     /**
-    * Set the input data for template rendering. The data format can be JSON, XML, YAML or CSV.
-    *
-    * @param data_string The input data string.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_data_string">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_data_string</a>
+     */
     function setDataString($data_string) {
         $this->fields['data_string'] = $data_string;
         return $this;
     }
 
     /**
-    * Load the input data for template rendering from the specified file. The data format can be JSON, XML, YAML or CSV.
-    *
-    * @param data_file The file path to a local file containing the input data.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_data_file">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_data_file</a>
+     */
     function setDataFile($data_file) {
         $this->files['data_file'] = $data_file;
         return $this;
     }
 
     /**
-    * Specify the input data format.
-    *
-    * @param data_format The data format. Allowed values are auto, json, xml, yaml, csv.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_data_format">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_data_format</a>
+     */
     function setDataFormat($data_format) {
         if (!preg_match("/(?i)^(auto|json|xml|yaml|csv)$/", $data_format))
             throw new Error(create_invalid_value_message($data_format, "setDataFormat", "html-to-pdf", "Allowed values are auto, json, xml, yaml, csv.", "set_data_format"), 470);
@@ -2535,155 +2183,120 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the encoding of the data file set by <a href='#set_data_file'>setDataFile</a>.
-    *
-    * @param encoding The data file encoding.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_data_encoding">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_data_encoding</a>
+     */
     function setDataEncoding($encoding) {
         $this->fields['data_encoding'] = $encoding;
         return $this;
     }
 
     /**
-    * Ignore undefined variables in the HTML template. The default mode is strict so any undefined variable causes the conversion to fail. You can use <span class='field-value text-nowrap'>&#x007b;&#x0025; if variable is defined &#x0025;&#x007d;</span> to check if the variable is defined.
-    *
-    * @param value Set to <code>true</code> to ignore undefined variables.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_data_ignore_undefined">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_data_ignore_undefined</a>
+     */
     function setDataIgnoreUndefined($value) {
         $this->fields['data_ignore_undefined'] = $value;
         return $this;
     }
 
     /**
-    * Auto escape HTML symbols in the input data before placing them into the output.
-    *
-    * @param value Set to <code>true</code> to turn auto escaping on.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_data_auto_escape">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_data_auto_escape</a>
+     */
     function setDataAutoEscape($value) {
         $this->fields['data_auto_escape'] = $value;
         return $this;
     }
 
     /**
-    * Auto trim whitespace around each template command block.
-    *
-    * @param value Set to <code>true</code> to turn auto trimming on.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_data_trim_blocks">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_data_trim_blocks</a>
+     */
     function setDataTrimBlocks($value) {
         $this->fields['data_trim_blocks'] = $value;
         return $this;
     }
 
     /**
-    * Set the advanced data options:<ul><li><code>csv_delimiter</code> - The CSV data delimiter, the default is <code>,</code>.</li><li><code>xml_remove_root</code> - Remove the root XML element from the input data.</li><li><code>data_root</code> - The name of the root element inserted into the input data without a root node (e.g. CSV), the default is <code>data</code>.</li></ul>
-    *
-    * @param options Comma separated list of options.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_data_options">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_data_options</a>
+     */
     function setDataOptions($options) {
         $this->fields['data_options'] = $options;
         return $this;
     }
 
     /**
-    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method or available in <a href='/user/account/log/conversion/'>conversion statistics</a>.
-    *
-    * @param value Set to <code>true</code> to enable the debug logging.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_debug_log">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_debug_log</a>
+     */
     function setDebugLog($value) {
         $this->fields['debug_log'] = $value;
         return $this;
     }
 
     /**
-    * Get the URL of the debug log for the last conversion.
-    * @return The link to the debug log.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#get_debug_log_url">https://pdfcrowd.com/api/html-to-pdf-php/ref/#get_debug_log_url</a>
+     */
     function getDebugLogUrl() {
         return $this->helper->getDebugLogUrl();
     }
 
     /**
-    * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
-    * This method can only be called after a call to one of the convertXtoY methods.
-    * The returned value can differ from the actual count if you run parallel conversions.
-    * The special value <code>999999</code> is returned if the information is not available.
-    * @return The number of credits.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#get_remaining_credit_count">https://pdfcrowd.com/api/html-to-pdf-php/ref/#get_remaining_credit_count</a>
+     */
     function getRemainingCreditCount() {
         return $this->helper->getRemainingCreditCount();
     }
 
     /**
-    * Get the number of credits consumed by the last conversion.
-    * @return The number of credits.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#get_consumed_credit_count">https://pdfcrowd.com/api/html-to-pdf-php/ref/#get_consumed_credit_count</a>
+     */
     function getConsumedCreditCount() {
         return $this->helper->getConsumedCreditCount();
     }
 
     /**
-    * Get the job id.
-    * @return The unique job identifier.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#get_job_id">https://pdfcrowd.com/api/html-to-pdf-php/ref/#get_job_id</a>
+     */
     function getJobId() {
         return $this->helper->getJobId();
     }
 
     /**
-    * Get the number of pages in the output document.
-    * @return The page count.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#get_page_count">https://pdfcrowd.com/api/html-to-pdf-php/ref/#get_page_count</a>
+     */
     function getPageCount() {
         return $this->helper->getPageCount();
     }
 
     /**
-    * Get the total number of pages in the original output document, including the pages excluded by <a href='#set_print_page_range'>setPrintPageRange()</a>.
-    * @return The total page count.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#get_total_page_count">https://pdfcrowd.com/api/html-to-pdf-php/ref/#get_total_page_count</a>
+     */
     function getTotalPageCount() {
         return $this->helper->getTotalPageCount();
     }
 
     /**
-    * Get the size of the output in bytes.
-    * @return The count of bytes.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#get_output_size">https://pdfcrowd.com/api/html-to-pdf-php/ref/#get_output_size</a>
+     */
     function getOutputSize() {
         return $this->helper->getOutputSize();
     }
 
     /**
-    * Get the version details.
-    * @return API version, converter version, and client version.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#get_version">https://pdfcrowd.com/api/html-to-pdf-php/ref/#get_version</a>
+     */
     function getVersion() {
         return 'client '.ConnectionHelper::CLIENT_VERSION.', API v2, converter '.$this->helper->getConverterVersion();
     }
 
     /**
-    * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
-    *
-    * @param tag A string with the custom tag.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_tag">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_tag</a>
+     */
     function setTag($tag) {
         $this->fields['tag'] = $tag;
         return $this;
     }
 
     /**
-    * A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
-    *
-    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_http_proxy">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_http_proxy</a>
+     */
     function setHttpProxy($proxy) {
         if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
             throw new Error(create_invalid_value_message($proxy, "setHttpProxy", "html-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
@@ -2693,11 +2306,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
-    *
-    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_https_proxy">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_https_proxy</a>
+     */
     function setHttpsProxy($proxy) {
         if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
             throw new Error(create_invalid_value_message($proxy, "setHttpsProxy", "html-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
@@ -2707,11 +2317,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * A client certificate to authenticate the converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security.
-    *
-    * @param certificate The file must be in PKCS12 format. The file must exist and not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_client_certificate">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_client_certificate</a>
+     */
     function setClientCertificate($certificate) {
         if (!(filesize($certificate) > 0))
             throw new Error(create_invalid_value_message($certificate, "setClientCertificate", "html-to-pdf", "The file must exist and not be empty.", "set_client_certificate"), 470);
@@ -2721,22 +2328,16 @@ class HtmlToPdfClient {
     }
 
     /**
-    * A password for PKCS12 file with a client certificate if it is needed.
-    *
-    * @param password
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_client_certificate_password">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_client_certificate_password</a>
+     */
     function setClientCertificatePassword($password) {
         $this->fields['client_certificate_password'] = $password;
         return $this;
     }
 
     /**
-    * Set the internal DPI resolution used for positioning of PDF contents. It can help in situations when there are small inaccuracies in the PDF. It is recommended to use values that are a multiple of 72, such as 288 or 360.
-    *
-    * @param dpi The DPI value. The accepted range is 72-600.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_layout_dpi">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_layout_dpi</a>
+     */
     function setLayoutDpi($dpi) {
         if (!(intval($dpi) >= 72 && intval($dpi) <= 600))
             throw new Error(create_invalid_value_message($dpi, "setLayoutDpi", "html-to-pdf", "The accepted range is 72-600.", "set_layout_dpi"), 470);
@@ -2746,11 +2347,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
-    *
-    * @param x The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'. It may contain a negative value.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_content_area_x">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_content_area_x</a>
+     */
     function setContentAreaX($x) {
         if (!preg_match("/(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $x))
             throw new Error(create_invalid_value_message($x, "setContentAreaX", "html-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'. It may contain a negative value.", "set_content_area_x"), 470);
@@ -2760,11 +2358,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area.
-    *
-    * @param y The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'. It may contain a negative value.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_content_area_y">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_content_area_y</a>
+     */
     function setContentAreaY($y) {
         if (!preg_match("/(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $y))
             throw new Error(create_invalid_value_message($y, "setContentAreaY", "html-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'. It may contain a negative value.", "set_content_area_y"), 470);
@@ -2774,11 +2369,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the width of the content area. It should be at least 1 inch.
-    *
-    * @param width The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_content_area_width">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_content_area_width</a>
+     */
     function setContentAreaWidth($width) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $width))
             throw new Error(create_invalid_value_message($width, "setContentAreaWidth", "html-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_content_area_width"), 470);
@@ -2788,11 +2380,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the height of the content area. It should be at least 1 inch.
-    *
-    * @param height The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_content_area_height">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_content_area_height</a>
+     */
     function setContentAreaHeight($height) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
             throw new Error(create_invalid_value_message($height, "setContentAreaHeight", "html-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_content_area_height"), 470);
@@ -2802,14 +2391,8 @@ class HtmlToPdfClient {
     }
 
     /**
-    * Set the content area position and size. The content area enables to specify a web page area to be converted.
-    *
-    * @param x Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'. It may contain a negative value.
-    * @param y Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'. It may contain a negative value.
-    * @param width Set the width of the content area. It should be at least 1 inch. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @param height Set the height of the content area. It should be at least 1 inch. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_content_area">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_content_area</a>
+     */
     function setContentArea($x, $y, $width, $height) {
         $this->setContentAreaX($x);
         $this->setContentAreaY($y);
@@ -2819,91 +2402,56 @@ class HtmlToPdfClient {
     }
 
     /**
-    * A 2D transformation matrix applied to the main contents on each page. The origin [0,0] is located at the top-left corner of the contents. The resolution is 72 dpi.
-    *
-    * @param matrix A comma separated string of matrix elements: "scaleX,skewX,transX,skewY,scaleY,transY"
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_contents_matrix">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_contents_matrix</a>
+     */
     function setContentsMatrix($matrix) {
         $this->fields['contents_matrix'] = $matrix;
         return $this;
     }
 
     /**
-    * A 2D transformation matrix applied to the page header contents. The origin [0,0] is located at the top-left corner of the header. The resolution is 72 dpi.
-    *
-    * @param matrix A comma separated string of matrix elements: "scaleX,skewX,transX,skewY,scaleY,transY"
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_header_matrix">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_header_matrix</a>
+     */
     function setHeaderMatrix($matrix) {
         $this->fields['header_matrix'] = $matrix;
         return $this;
     }
 
     /**
-    * A 2D transformation matrix applied to the page footer contents. The origin [0,0] is located at the top-left corner of the footer. The resolution is 72 dpi.
-    *
-    * @param matrix A comma separated string of matrix elements: "scaleX,skewX,transX,skewY,scaleY,transY"
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_footer_matrix">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_footer_matrix</a>
+     */
     function setFooterMatrix($matrix) {
         $this->fields['footer_matrix'] = $matrix;
         return $this;
     }
 
     /**
-    * Disable automatic height adjustment that compensates for pixel to point rounding errors.
-    *
-    * @param value Set to <code>true</code> to disable automatic height scale.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_disable_page_height_optimization">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_disable_page_height_optimization</a>
+     */
     function setDisablePageHeightOptimization($value) {
         $this->fields['disable_page_height_optimization'] = $value;
         return $this;
     }
 
     /**
-    * Add special CSS classes to the main document's body element. This allows applying custom styling based on these classes:
-  <ul>
-    <li><code>pdfcrowd-page-X</code> - where X is the current page number</li>
-    <li><code>pdfcrowd-page-odd</code> - odd page</li>
-    <li><code>pdfcrowd-page-even</code> - even page</li>
-  </ul>
-    * Warning: If your custom styling affects the contents area size (e.g. by using different margins, padding, border width), the resulting PDF may contain duplicit contents or some contents may be missing.
-    *
-    * @param value Set to <code>true</code> to add the special CSS classes.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_main_document_css_annotation">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_main_document_css_annotation</a>
+     */
     function setMainDocumentCssAnnotation($value) {
         $this->fields['main_document_css_annotation'] = $value;
         return $this;
     }
 
     /**
-    * Add special CSS classes to the header/footer's body element. This allows applying custom styling based on these classes:
-  <ul>
-    <li><code>pdfcrowd-page-X</code> - where X is the current page number</li>
-    <li><code>pdfcrowd-page-count-X</code> - where X is the total page count</li>
-    <li><code>pdfcrowd-page-first</code> - the first page</li>
-    <li><code>pdfcrowd-page-last</code> - the last page</li>
-    <li><code>pdfcrowd-page-odd</code> - odd page</li>
-    <li><code>pdfcrowd-page-even</code> - even page</li>
-  </ul>
-    *
-    * @param value Set to <code>true</code> to add the special CSS classes.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_header_footer_css_annotation">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_header_footer_css_annotation</a>
+     */
     function setHeaderFooterCssAnnotation($value) {
         $this->fields['header_footer_css_annotation'] = $value;
         return $this;
     }
 
     /**
-    * Set the maximum time to load the page and its resources. After this time, all requests will be considered successful. This can be useful to ensure that the conversion does not timeout. Use this method if there is no other way to fix page loading.
-    *
-    * @param max_time The number of seconds to wait. The accepted range is 10-30.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_max_loading_time">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_max_loading_time</a>
+     */
     function setMaxLoadingTime($max_time) {
         if (!(intval($max_time) >= 10 && intval($max_time) <= 30))
             throw new Error(create_invalid_value_message($max_time, "setMaxLoadingTime", "html-to-pdf", "The accepted range is 10-30.", "set_max_loading_time"), 470);
@@ -2913,80 +2461,16 @@ class HtmlToPdfClient {
     }
 
     /**
-    * <p id="json-format">
-Allows to configure conversion via JSON. The configuration defines various page settings for individual PDF pages or ranges of pages. It provides flexibility in designing each page of the PDF, giving control over each page's size, header, footer etc. If a page or parameter is not explicitly specified, the system will use the default settings for that page or attribute. If a JSON configuration is provided, the settings in the JSON will take precedence over the global options.
-</p>
-
-<p>
-The structure of the JSON must be:
-</p>
-<ul>
-  <li><em>pageSetup</em>: An array of objects where each object defines the configuration for a specific page or range of pages. The following properties can be set for each page object:
-    <ul>
-      <li>
-      <em>pages</em>:
-        A comma-separated list of page numbers or ranges.
-        Special strings may be used, such as `odd`, `even` and `last`.
-        For example:
-      <ul>
-      <li><em>1-</em>: from page 1 to the end of the document</li>
-      <li><em>2</em>: only the 2nd page</li>
-      <li><em>2,4,6</em>: pages 2, 4, and 6</li>
-      <li><em>2-5</em>: pages 2 through 5</li>
-      <li><em>odd,2</em>: the 2nd page and all odd pages</li>
-      </ul>
-      </li>
-      <li><em>pageSize</em>: The page size (optional).
-      Possible values: A0, A1, A2, A3, A4, A5, A6, Letter.
-      </li>
-      <li><em>pageWidth</em>: The width of the page (optional).</li>
-      <li><em>pageHeight</em>: The height of the page (optional).</li>
-      <li><em>marginLeft</em>: Left margin (optional).</li>
-      <li><em>marginRight</em>: Right margin (optional).</li>
-      <li><em>marginTop</em>: Top margin (optional).</li>
-      <li><em>marginBottom</em>: Bottom margin (optional).</li>
-      <li>
-      <em>displayHeader</em>: Header appearance (optional). Possible values:
-      <ul>
-      <li><em>none</em>: completely excluded</li>
-      <li><em>space</em>: only the content is excluded, the space is used</li>
-      <li><em>content</em>: the content is printed (default)</li>
-      </ul>
-      </li>
-      <li>
-      <em>displayFooter</em>: Footer appearance (optional). Possible values:
-      <ul>
-      <li><em>none</em>: completely excluded</li>
-      <li><em>space</em>: only the content is excluded, the space is used</li>
-      <li><em>content</em>: the content is printed (default)</li>
-      </ul>
-      </li>
-      <li><em>headerHeight</em>: Height of the header (optional).</li>
-      <li><em>footerHeight</em>: Height of the footer (optional).</li>
-      <li><em>orientation</em>: Page orientation, such as "portrait" or "landscape" (optional).</li>
-      <li><em>backgroundColor</em>: Page background color in RRGGBB or RRGGBBAA hexadecimal format (optional).</li>
-    </ul>
-  </li>
-</ul>
-
-<p>
-Dimensions may be empty, 0 or specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-</p>
-    *
-    * @param json_string The JSON string.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_conversion_config">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_conversion_config</a>
+     */
     function setConversionConfig($json_string) {
         $this->fields['conversion_config'] = $json_string;
         return $this;
     }
 
     /**
-    * Allows to configure the conversion process via JSON file. See details of the <a href="#json-format">JSON string</a>.
-    *
-    * @param filepath The file path to a local file. The file must exist and not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_conversion_config_file">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_conversion_config_file</a>
+     */
     function setConversionConfigFile($filepath) {
         if (!(filesize($filepath) > 0))
             throw new Error(create_invalid_value_message($filepath, "setConversionConfigFile", "html-to-pdf", "The file must exist and not be empty.", "set_conversion_config_file"), 470);
@@ -3002,22 +2486,16 @@ Dimensions may be empty, 0 or specified in inches 'in', millimeters 'mm', centim
     }
 
     /**
-    * Specifies the User-Agent HTTP header that will be used by the converter when a request is made to the converted web page.
-    *
-    * @param agent The user agent.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_converter_user_agent">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_converter_user_agent</a>
+     */
     function setConverterUserAgent($agent) {
         $this->fields['converter_user_agent'] = $agent;
         return $this;
     }
 
     /**
-    * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
-    *
-    * @param version The version identifier. Allowed values are 24.04, 20.10, 18.10, latest.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_converter_version">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_converter_version</a>
+     */
     function setConverterVersion($version) {
         if (!preg_match("/(?i)^(24.04|20.10|18.10|latest)$/", $version))
             throw new Error(create_invalid_value_message($version, "setConverterVersion", "html-to-pdf", "Allowed values are 24.04, 20.10, 18.10, latest.", "set_converter_version"), 470);
@@ -3027,70 +2505,48 @@ Dimensions may be empty, 0 or specified in inches 'in', millimeters 'mm', centim
     }
 
     /**
-    * Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API.
-    * Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
-    *
-    * @param value Set to <code>true</code> to use HTTP.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_use_http">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_use_http</a>
+     */
     function setUseHttp($value) {
         $this->helper->setUseHttp($value);
         return $this;
     }
 
     /**
-    * Specifies the User-Agent HTTP header that the client library will use when interacting with the API.
-    *
-    * @param agent The user agent string.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_client_user_agent">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_client_user_agent</a>
+     */
     function setClientUserAgent($agent) {
         $this->helper->setUserAgent($agent);
         return $this;
     }
 
     /**
-    * Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
-    *
-    * @param agent The user agent string.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_user_agent">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_user_agent</a>
+     */
     function setUserAgent($agent) {
         $this->helper->setUserAgent($agent);
         return $this;
     }
 
     /**
-    * Specifies an HTTP proxy that the API client library will use to connect to the internet.
-    *
-    * @param host The proxy hostname.
-    * @param port The proxy port.
-    * @param user_name The username.
-    * @param password The password.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_proxy">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_proxy</a>
+     */
     function setProxy($host, $port, $user_name, $password) {
         $this->helper->setProxy($host, $port, $user_name, $password);
         return $this;
     }
 
     /**
-    * Use cURL for the conversion request instead of the file_get_contents() PHP function.
-    *
-    * @param value Set to <code>true</code> to use PHP's cURL.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_use_curl">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_use_curl</a>
+     */
     function setUseCurl($value) {
         $this->helper->setUseCurl($value);
         return $this;
     }
 
     /**
-    * Specifies the number of automatic retries when the 502 or 503 HTTP status code is received. The status code indicates a temporary network issue. This feature can be disabled by setting to 0.
-    *
-    * @param count Number of retries.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_retry_count">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_retry_count</a>
+     */
     function setRetryCount($count) {
         $this->helper->setRetryCount($count);
         return $this;
@@ -3099,8 +2555,10 @@ Dimensions may be empty, 0 or specified in inches 'in', millimeters 'mm', centim
 }
 
 /**
-* Conversion from HTML to image.
-*/
+ * Conversion from HTML to image.
+ *
+ * @see <a href="https://pdfcrowd.com/api/html-to-image-php/">https://pdfcrowd.com/api/html-to-image-php/</a>
+ */
 class HtmlToImageClient {
     private $helper;
     private $fields;
@@ -3109,11 +2567,8 @@ class HtmlToImageClient {
     private $raw_data;
 
     /**
-    * Constructor for the PDFCrowd API client.
-    *
-    * @param user_name Your username at PDFCrowd.
-    * @param api_key Your API key.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#__construct">https://pdfcrowd.com/api/html-to-image-php/ref/#__construct</a>
+     */
     function __construct($user_name, $api_key) {
         $this->helper = new ConnectionHelper($user_name, $api_key);
         $this->fields = array('input_format'=>'html', 'output_format'=>'png');
@@ -3123,11 +2578,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * The format of the output file.
-    *
-    * @param output_format Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_output_format">https://pdfcrowd.com/api/html-to-image-php/ref/#set_output_format</a>
+     */
     function setOutputFormat($output_format) {
         if (!preg_match("/(?i)^(png|jpg|gif|tiff|bmp|ico|ppm|pgm|pbm|pnm|psb|pct|ras|tga|sgi|sun|webp)$/", $output_format))
             throw new Error(create_invalid_value_message($output_format, "setOutputFormat", "html-to-image", "Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.", "set_output_format"), 470);
@@ -3137,11 +2589,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * Convert a web page.
-    *
-    * @param url The address of the web page to convert. Supported protocols are http:// and https://.
-    * @return Byte array containing the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#convert_url">https://pdfcrowd.com/api/html-to-image-php/ref/#convert_url</a>
+     */
     function convertUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrl", "html-to-image", "Supported protocols are http:// and https://.", "convert_url"), 470);
@@ -3151,11 +2600,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * Convert a web page and write the result to an output stream.
-    *
-    * @param url The address of the web page to convert. Supported protocols are http:// and https://.
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#convert_url_to_stream">https://pdfcrowd.com/api/html-to-image-php/ref/#convert_url_to_stream</a>
+     */
     function convertUrlToStream($url, $out_stream) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "html-to-image", "Supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
@@ -3165,11 +2611,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * Convert a web page and write the result to a local file.
-    *
-    * @param url The address of the web page to convert. Supported protocols are http:// and https://.
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#convert_url_to_file">https://pdfcrowd.com/api/html-to-image-php/ref/#convert_url_to_file</a>
+     */
     function convertUrlToFile($url, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertUrlToFile::file_path", "html-to-image", "The string must not be empty.", "convert_url_to_file"), 470);
@@ -3191,11 +2634,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * Convert a local file.
-    *
-    * @param file The path to a local file to convert.<br> The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip).<br> If the HTML document refers to local external assets (images, style sheets, javascript), zip the document together with the assets. The file must exist and not be empty. The file name must have a valid extension.
-    * @return Byte array containing the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#convert_file">https://pdfcrowd.com/api/html-to-image-php/ref/#convert_file</a>
+     */
     function convertFile($file) {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFile", "html-to-image", "The file must exist and not be empty.", "convert_file"), 470);
@@ -3205,11 +2645,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * Convert a local file and write the result to an output stream.
-    *
-    * @param file The path to a local file to convert.<br> The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip).<br> If the HTML document refers to local external assets (images, style sheets, javascript), zip the document together with the assets. The file must exist and not be empty. The file name must have a valid extension.
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#convert_file_to_stream">https://pdfcrowd.com/api/html-to-image-php/ref/#convert_file_to_stream</a>
+     */
     function convertFileToStream($file, $out_stream) {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFileToStream::file", "html-to-image", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
@@ -3219,11 +2656,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * Convert a local file and write the result to a local file.
-    *
-    * @param file The path to a local file to convert.<br> The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip).<br> If the HTML document refers to local external assets (images, style sheets, javascript), zip the document together with the assets. The file must exist and not be empty. The file name must have a valid extension.
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#convert_file_to_file">https://pdfcrowd.com/api/html-to-image-php/ref/#convert_file_to_file</a>
+     */
     function convertFileToFile($file, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertFileToFile::file_path", "html-to-image", "The string must not be empty.", "convert_file_to_file"), 470);
@@ -3245,11 +2679,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * Convert a string.
-    *
-    * @param text The string content to convert. The string must not be empty.
-    * @return Byte array containing the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#convert_string">https://pdfcrowd.com/api/html-to-image-php/ref/#convert_string</a>
+     */
     function convertString($text) {
         if (!($text != null && $text !== ''))
             throw new Error(create_invalid_value_message($text, "convertString", "html-to-image", "The string must not be empty.", "convert_string"), 470);
@@ -3259,11 +2690,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * Convert a string and write the output to an output stream.
-    *
-    * @param text The string content to convert. The string must not be empty.
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#convert_string_to_stream">https://pdfcrowd.com/api/html-to-image-php/ref/#convert_string_to_stream</a>
+     */
     function convertStringToStream($text, $out_stream) {
         if (!($text != null && $text !== ''))
             throw new Error(create_invalid_value_message($text, "convertStringToStream::text", "html-to-image", "The string must not be empty.", "convert_string_to_stream"), 470);
@@ -3273,11 +2701,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * Convert a string and write the output to a file.
-    *
-    * @param text The string content to convert. The string must not be empty.
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#convert_string_to_file">https://pdfcrowd.com/api/html-to-image-php/ref/#convert_string_to_file</a>
+     */
     function convertStringToFile($text, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertStringToFile::file_path", "html-to-image", "The string must not be empty.", "convert_string_to_file"), 470);
@@ -3299,33 +2724,24 @@ class HtmlToImageClient {
     }
 
     /**
-    * Convert the contents of an input stream.
-    *
-    * @param in_stream The input stream with source data.<br> The stream can contain either HTML code or an archive (.zip, .tar.gz, .tar.bz2).<br>The archive can contain HTML code and its external assets (images, style sheets, javascript).
-    * @return Byte array containing the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#convert_stream">https://pdfcrowd.com/api/html-to-image-php/ref/#convert_stream</a>
+     */
     function convertStream($in_stream) {
         $this->raw_data['stream'] = stream_get_contents($in_stream);
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
 
     /**
-    * Convert the contents of an input stream and write the result to an output stream.
-    *
-    * @param in_stream The input stream with source data.<br> The stream can contain either HTML code or an archive (.zip, .tar.gz, .tar.bz2).<br>The archive can contain HTML code and its external assets (images, style sheets, javascript).
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#convert_stream_to_stream">https://pdfcrowd.com/api/html-to-image-php/ref/#convert_stream_to_stream</a>
+     */
     function convertStreamToStream($in_stream, $out_stream) {
         $this->raw_data['stream'] = stream_get_contents($in_stream);
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
 
     /**
-    * Convert the contents of an input stream and write the result to a local file.
-    *
-    * @param in_stream The input stream with source data.<br> The stream can contain either HTML code or an archive (.zip, .tar.gz, .tar.bz2).<br>The archive can contain HTML code and its external assets (images, style sheets, javascript).
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#convert_stream_to_file">https://pdfcrowd.com/api/html-to-image-php/ref/#convert_stream_to_file</a>
+     */
     function convertStreamToFile($in_stream, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertStreamToFile::file_path", "html-to-image", "The string must not be empty.", "convert_stream_to_file"), 470);
@@ -3347,22 +2763,16 @@ class HtmlToImageClient {
     }
 
     /**
-    * Set the file name of the main HTML document stored in the input archive. If not specified, the first HTML file in the archive is used for conversion. Use this method if the input archive contains multiple HTML documents.
-    *
-    * @param filename The file name.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_zip_main_filename">https://pdfcrowd.com/api/html-to-image-php/ref/#set_zip_main_filename</a>
+     */
     function setZipMainFilename($filename) {
         $this->fields['zip_main_filename'] = $filename;
         return $this;
     }
 
     /**
-    * Set the output image width in pixels.
-    *
-    * @param width The accepted range is 96-65000.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_screenshot_width">https://pdfcrowd.com/api/html-to-image-php/ref/#set_screenshot_width</a>
+     */
     function setScreenshotWidth($width) {
         if (!(intval($width) >= 96 && intval($width) <= 65000))
             throw new Error(create_invalid_value_message($width, "setScreenshotWidth", "html-to-image", "The accepted range is 96-65000.", "set_screenshot_width"), 470);
@@ -3372,11 +2782,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * Set the output image height in pixels. If it is not specified, actual document height is used.
-    *
-    * @param height Must be a positive integer.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_screenshot_height">https://pdfcrowd.com/api/html-to-image-php/ref/#set_screenshot_height</a>
+     */
     function setScreenshotHeight($height) {
         if (!(intval($height) > 0))
             throw new Error(create_invalid_value_message($height, "setScreenshotHeight", "html-to-image", "Must be a positive integer.", "set_screenshot_height"), 470);
@@ -3386,11 +2793,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * Set the scaling factor (zoom) for the output image.
-    *
-    * @param factor The percentage value. Must be a positive integer.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_scale_factor">https://pdfcrowd.com/api/html-to-image-php/ref/#set_scale_factor</a>
+     */
     function setScaleFactor($factor) {
         if (!(intval($factor) > 0))
             throw new Error(create_invalid_value_message($factor, "setScaleFactor", "html-to-image", "Must be a positive integer.", "set_scale_factor"), 470);
@@ -3400,11 +2804,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * The output image background color.
-    *
-    * @param color The value must be in RRGGBB or RRGGBBAA hexadecimal format.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_background_color">https://pdfcrowd.com/api/html-to-image-php/ref/#set_background_color</a>
+     */
     function setBackgroundColor($color) {
         if (!preg_match("/^[0-9a-fA-F]{6,8}$/", $color))
             throw new Error(create_invalid_value_message($color, "setBackgroundColor", "html-to-image", "The value must be in RRGGBB or RRGGBBAA hexadecimal format.", "set_background_color"), 470);
@@ -3414,77 +2815,56 @@ class HtmlToImageClient {
     }
 
     /**
-    * Use the print version of the page if available (@media print).
-    *
-    * @param value Set to <code>true</code> to use the print version of the page.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_use_print_media">https://pdfcrowd.com/api/html-to-image-php/ref/#set_use_print_media</a>
+     */
     function setUsePrintMedia($value) {
         $this->fields['use_print_media'] = $value;
         return $this;
     }
 
     /**
-    * Do not print the background graphics.
-    *
-    * @param value Set to <code>true</code> to disable the background graphics.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_no_background">https://pdfcrowd.com/api/html-to-image-php/ref/#set_no_background</a>
+     */
     function setNoBackground($value) {
         $this->fields['no_background'] = $value;
         return $this;
     }
 
     /**
-    * Do not execute JavaScript.
-    *
-    * @param value Set to <code>true</code> to disable JavaScript in web pages.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_disable_javascript">https://pdfcrowd.com/api/html-to-image-php/ref/#set_disable_javascript</a>
+     */
     function setDisableJavascript($value) {
         $this->fields['disable_javascript'] = $value;
         return $this;
     }
 
     /**
-    * Do not load images.
-    *
-    * @param value Set to <code>true</code> to disable loading of images.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_disable_image_loading">https://pdfcrowd.com/api/html-to-image-php/ref/#set_disable_image_loading</a>
+     */
     function setDisableImageLoading($value) {
         $this->fields['disable_image_loading'] = $value;
         return $this;
     }
 
     /**
-    * Disable loading fonts from remote sources.
-    *
-    * @param value Set to <code>true</code> disable loading remote fonts.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_disable_remote_fonts">https://pdfcrowd.com/api/html-to-image-php/ref/#set_disable_remote_fonts</a>
+     */
     function setDisableRemoteFonts($value) {
         $this->fields['disable_remote_fonts'] = $value;
         return $this;
     }
 
     /**
-    * Use a mobile user agent.
-    *
-    * @param value Set to <code>true</code> to use a mobile user agent.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_use_mobile_user_agent">https://pdfcrowd.com/api/html-to-image-php/ref/#set_use_mobile_user_agent</a>
+     */
     function setUseMobileUserAgent($value) {
         $this->fields['use_mobile_user_agent'] = $value;
         return $this;
     }
 
     /**
-    * Specifies how iframes are handled.
-    *
-    * @param iframes Allowed values are all, same-origin, none.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_load_iframes">https://pdfcrowd.com/api/html-to-image-php/ref/#set_load_iframes</a>
+     */
     function setLoadIframes($iframes) {
         if (!preg_match("/(?i)^(all|same-origin|none)$/", $iframes))
             throw new Error(create_invalid_value_message($iframes, "setLoadIframes", "html-to-image", "Allowed values are all, same-origin, none.", "set_load_iframes"), 470);
@@ -3494,33 +2874,24 @@ class HtmlToImageClient {
     }
 
     /**
-    * Try to block ads. Enabling this option can produce smaller output and speed up the conversion.
-    *
-    * @param value Set to <code>true</code> to block ads in web pages.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_block_ads">https://pdfcrowd.com/api/html-to-image-php/ref/#set_block_ads</a>
+     */
     function setBlockAds($value) {
         $this->fields['block_ads'] = $value;
         return $this;
     }
 
     /**
-    * Set the default HTML content text encoding.
-    *
-    * @param encoding The text encoding of the HTML content.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_default_encoding">https://pdfcrowd.com/api/html-to-image-php/ref/#set_default_encoding</a>
+     */
     function setDefaultEncoding($encoding) {
         $this->fields['default_encoding'] = $encoding;
         return $this;
     }
 
     /**
-    * Set the locale for the conversion. This may affect the output format of dates, times and numbers.
-    *
-    * @param locale The locale code according to ISO 639.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_locale">https://pdfcrowd.com/api/html-to-image-php/ref/#set_locale</a>
+     */
     function setLocale($locale) {
         $this->fields['locale'] = $locale;
         return $this;
@@ -3539,12 +2910,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * Set credentials to access HTTP base authentication protected websites.
-    *
-    * @param user_name Set the HTTP authentication user name.
-    * @param password Set the HTTP authentication password.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_http_auth">https://pdfcrowd.com/api/html-to-image-php/ref/#set_http_auth</a>
+     */
     function setHttpAuth($user_name, $password) {
         $this->setHttpAuthUserName($user_name);
         $this->setHttpAuthPassword($password);
@@ -3552,66 +2919,48 @@ class HtmlToImageClient {
     }
 
     /**
-    * Set HTTP cookies to be included in all requests made by the converter.
-    *
-    * @param cookies The cookie string.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_cookies">https://pdfcrowd.com/api/html-to-image-php/ref/#set_cookies</a>
+     */
     function setCookies($cookies) {
         $this->fields['cookies'] = $cookies;
         return $this;
     }
 
     /**
-    * Do not allow insecure HTTPS connections.
-    *
-    * @param value Set to <code>true</code> to enable SSL certificate verification.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_verify_ssl_certificates">https://pdfcrowd.com/api/html-to-image-php/ref/#set_verify_ssl_certificates</a>
+     */
     function setVerifySslCertificates($value) {
         $this->fields['verify_ssl_certificates'] = $value;
         return $this;
     }
 
     /**
-    * Abort the conversion if the main URL HTTP status code is greater than or equal to 400.
-    *
-    * @param fail_on_error Set to <code>true</code> to abort the conversion.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_fail_on_main_url_error">https://pdfcrowd.com/api/html-to-image-php/ref/#set_fail_on_main_url_error</a>
+     */
     function setFailOnMainUrlError($fail_on_error) {
         $this->fields['fail_on_main_url_error'] = $fail_on_error;
         return $this;
     }
 
     /**
-    * Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400 or if some sub-requests are still pending. See details in a debug log.
-    *
-    * @param fail_on_error Set to <code>true</code> to abort the conversion.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_fail_on_any_url_error">https://pdfcrowd.com/api/html-to-image-php/ref/#set_fail_on_any_url_error</a>
+     */
     function setFailOnAnyUrlError($fail_on_error) {
         $this->fields['fail_on_any_url_error'] = $fail_on_error;
         return $this;
     }
 
     /**
-    * Do not send the X-Pdfcrowd HTTP header in PDFCrowd HTTP requests.
-    *
-    * @param value Set to <code>true</code> to disable sending X-Pdfcrowd HTTP header.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_no_xpdfcrowd_header">https://pdfcrowd.com/api/html-to-image-php/ref/#set_no_xpdfcrowd_header</a>
+     */
     function setNoXpdfcrowdHeader($value) {
         $this->fields['no_xpdfcrowd_header'] = $value;
         return $this;
     }
 
     /**
-    * Apply custom CSS to the input HTML document. It allows you to modify the visual appearance and layout of your HTML content dynamically. Tip: Using <code>!important</code> in custom CSS provides a way to prioritize and override conflicting styles.
-    *
-    * @param css A string containing valid CSS. The string must not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_custom_css">https://pdfcrowd.com/api/html-to-image-php/ref/#set_custom_css</a>
+     */
     function setCustomCss($css) {
         if (!($css != null && $css !== ''))
             throw new Error(create_invalid_value_message($css, "setCustomCss", "html-to-image", "The string must not be empty.", "set_custom_css"), 470);
@@ -3621,11 +2970,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/api/libpdfcrowd/'>JavaScript library</a>.
-    *
-    * @param javascript A string containing a JavaScript code. The string must not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_custom_javascript">https://pdfcrowd.com/api/html-to-image-php/ref/#set_custom_javascript</a>
+     */
     function setCustomJavascript($javascript) {
         if (!($javascript != null && $javascript !== ''))
             throw new Error(create_invalid_value_message($javascript, "setCustomJavascript", "html-to-image", "The string must not be empty.", "set_custom_javascript"), 470);
@@ -3635,11 +2981,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our <a href='/api/libpdfcrowd/'>JavaScript library</a>.
-    *
-    * @param javascript A string containing a JavaScript code. The string must not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_on_load_javascript">https://pdfcrowd.com/api/html-to-image-php/ref/#set_on_load_javascript</a>
+     */
     function setOnLoadJavascript($javascript) {
         if (!($javascript != null && $javascript !== ''))
             throw new Error(create_invalid_value_message($javascript, "setOnLoadJavascript", "html-to-image", "The string must not be empty.", "set_on_load_javascript"), 470);
@@ -3649,11 +2992,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * Set a custom HTTP header to be included in all requests made by the converter.
-    *
-    * @param header A string containing the header name and value separated by a colon.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_custom_http_header">https://pdfcrowd.com/api/html-to-image-php/ref/#set_custom_http_header</a>
+     */
     function setCustomHttpHeader($header) {
         if (!preg_match("/^.+:.+$/", $header))
             throw new Error(create_invalid_value_message($header, "setCustomHttpHeader", "html-to-image", "A string containing the header name and value separated by a colon.", "set_custom_http_header"), 470);
@@ -3663,11 +3003,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your license defines the maximum wait time by "Max Delay" parameter.
-    *
-    * @param delay The number of milliseconds to wait. Must be a positive integer or 0.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_javascript_delay">https://pdfcrowd.com/api/html-to-image-php/ref/#set_javascript_delay</a>
+     */
     function setJavascriptDelay($delay) {
         if (!(intval($delay) >= 0))
             throw new Error(create_invalid_value_message($delay, "setJavascriptDelay", "html-to-image", "Must be a positive integer or 0.", "set_javascript_delay"), 470);
@@ -3677,11 +3014,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * Convert only the specified element from the main document and its children. The element is specified by one or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a>. If the element is not found, the conversion fails. If multiple elements are found, the first one is used.
-    *
-    * @param selectors One or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a> separated by commas. The string must not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_element_to_convert">https://pdfcrowd.com/api/html-to-image-php/ref/#set_element_to_convert</a>
+     */
     function setElementToConvert($selectors) {
         if (!($selectors != null && $selectors !== ''))
             throw new Error(create_invalid_value_message($selectors, "setElementToConvert", "html-to-image", "The string must not be empty.", "set_element_to_convert"), 470);
@@ -3691,11 +3025,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * Specify the DOM handling when only a part of the document is converted. This can affect the CSS rules used.
-    *
-    * @param mode Allowed values are cut-out, remove-siblings, hide-siblings.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_element_to_convert_mode">https://pdfcrowd.com/api/html-to-image-php/ref/#set_element_to_convert_mode</a>
+     */
     function setElementToConvertMode($mode) {
         if (!preg_match("/(?i)^(cut-out|remove-siblings|hide-siblings)$/", $mode))
             throw new Error(create_invalid_value_message($mode, "setElementToConvertMode", "html-to-image", "Allowed values are cut-out, remove-siblings, hide-siblings.", "set_element_to_convert_mode"), 470);
@@ -3705,11 +3036,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * Wait for the specified element in a source document. The element is specified by one or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a>. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your license defines the maximum wait time by "Max Delay" parameter.
-    *
-    * @param selectors One or more <a href='https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors'>CSS selectors</a> separated by commas. The string must not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_wait_for_element">https://pdfcrowd.com/api/html-to-image-php/ref/#set_wait_for_element</a>
+     */
     function setWaitForElement($selectors) {
         if (!($selectors != null && $selectors !== ''))
             throw new Error(create_invalid_value_message($selectors, "setWaitForElement", "html-to-image", "The string must not be empty.", "set_wait_for_element"), 470);
@@ -3719,22 +3047,16 @@ class HtmlToImageClient {
     }
 
     /**
-    * The main HTML element for conversion is detected automatically.
-    *
-    * @param value Set to <code>true</code> to detect the main element.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_auto_detect_element_to_convert">https://pdfcrowd.com/api/html-to-image-php/ref/#set_auto_detect_element_to_convert</a>
+     */
     function setAutoDetectElementToConvert($value) {
         $this->fields['auto_detect_element_to_convert'] = $value;
         return $this;
     }
 
     /**
-    * The input HTML is automatically enhanced to improve the readability.
-    *
-    * @param enhancements Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_readability_enhancements">https://pdfcrowd.com/api/html-to-image-php/ref/#set_readability_enhancements</a>
+     */
     function setReadabilityEnhancements($enhancements) {
         if (!preg_match("/(?i)^(none|readability-v1|readability-v2|readability-v3|readability-v4)$/", $enhancements))
             throw new Error(create_invalid_value_message($enhancements, "setReadabilityEnhancements", "html-to-image", "Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4.", "set_readability_enhancements"), 470);
@@ -3744,33 +3066,24 @@ class HtmlToImageClient {
     }
 
     /**
-    * Set the input data for template rendering. The data format can be JSON, XML, YAML or CSV.
-    *
-    * @param data_string The input data string.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_data_string">https://pdfcrowd.com/api/html-to-image-php/ref/#set_data_string</a>
+     */
     function setDataString($data_string) {
         $this->fields['data_string'] = $data_string;
         return $this;
     }
 
     /**
-    * Load the input data for template rendering from the specified file. The data format can be JSON, XML, YAML or CSV.
-    *
-    * @param data_file The file path to a local file containing the input data.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_data_file">https://pdfcrowd.com/api/html-to-image-php/ref/#set_data_file</a>
+     */
     function setDataFile($data_file) {
         $this->files['data_file'] = $data_file;
         return $this;
     }
 
     /**
-    * Specify the input data format.
-    *
-    * @param data_format The data format. Allowed values are auto, json, xml, yaml, csv.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_data_format">https://pdfcrowd.com/api/html-to-image-php/ref/#set_data_format</a>
+     */
     function setDataFormat($data_format) {
         if (!preg_match("/(?i)^(auto|json|xml|yaml|csv)$/", $data_format))
             throw new Error(create_invalid_value_message($data_format, "setDataFormat", "html-to-image", "Allowed values are auto, json, xml, yaml, csv.", "set_data_format"), 470);
@@ -3780,139 +3093,106 @@ class HtmlToImageClient {
     }
 
     /**
-    * Set the encoding of the data file set by <a href='#set_data_file'>setDataFile</a>.
-    *
-    * @param encoding The data file encoding.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_data_encoding">https://pdfcrowd.com/api/html-to-image-php/ref/#set_data_encoding</a>
+     */
     function setDataEncoding($encoding) {
         $this->fields['data_encoding'] = $encoding;
         return $this;
     }
 
     /**
-    * Ignore undefined variables in the HTML template. The default mode is strict so any undefined variable causes the conversion to fail. You can use <span class='field-value text-nowrap'>&#x007b;&#x0025; if variable is defined &#x0025;&#x007d;</span> to check if the variable is defined.
-    *
-    * @param value Set to <code>true</code> to ignore undefined variables.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_data_ignore_undefined">https://pdfcrowd.com/api/html-to-image-php/ref/#set_data_ignore_undefined</a>
+     */
     function setDataIgnoreUndefined($value) {
         $this->fields['data_ignore_undefined'] = $value;
         return $this;
     }
 
     /**
-    * Auto escape HTML symbols in the input data before placing them into the output.
-    *
-    * @param value Set to <code>true</code> to turn auto escaping on.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_data_auto_escape">https://pdfcrowd.com/api/html-to-image-php/ref/#set_data_auto_escape</a>
+     */
     function setDataAutoEscape($value) {
         $this->fields['data_auto_escape'] = $value;
         return $this;
     }
 
     /**
-    * Auto trim whitespace around each template command block.
-    *
-    * @param value Set to <code>true</code> to turn auto trimming on.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_data_trim_blocks">https://pdfcrowd.com/api/html-to-image-php/ref/#set_data_trim_blocks</a>
+     */
     function setDataTrimBlocks($value) {
         $this->fields['data_trim_blocks'] = $value;
         return $this;
     }
 
     /**
-    * Set the advanced data options:<ul><li><code>csv_delimiter</code> - The CSV data delimiter, the default is <code>,</code>.</li><li><code>xml_remove_root</code> - Remove the root XML element from the input data.</li><li><code>data_root</code> - The name of the root element inserted into the input data without a root node (e.g. CSV), the default is <code>data</code>.</li></ul>
-    *
-    * @param options Comma separated list of options.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_data_options">https://pdfcrowd.com/api/html-to-image-php/ref/#set_data_options</a>
+     */
     function setDataOptions($options) {
         $this->fields['data_options'] = $options;
         return $this;
     }
 
     /**
-    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method or available in <a href='/user/account/log/conversion/'>conversion statistics</a>.
-    *
-    * @param value Set to <code>true</code> to enable the debug logging.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_debug_log">https://pdfcrowd.com/api/html-to-image-php/ref/#set_debug_log</a>
+     */
     function setDebugLog($value) {
         $this->fields['debug_log'] = $value;
         return $this;
     }
 
     /**
-    * Get the URL of the debug log for the last conversion.
-    * @return The link to the debug log.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#get_debug_log_url">https://pdfcrowd.com/api/html-to-image-php/ref/#get_debug_log_url</a>
+     */
     function getDebugLogUrl() {
         return $this->helper->getDebugLogUrl();
     }
 
     /**
-    * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
-    * This method can only be called after a call to one of the convertXtoY methods.
-    * The returned value can differ from the actual count if you run parallel conversions.
-    * The special value <code>999999</code> is returned if the information is not available.
-    * @return The number of credits.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#get_remaining_credit_count">https://pdfcrowd.com/api/html-to-image-php/ref/#get_remaining_credit_count</a>
+     */
     function getRemainingCreditCount() {
         return $this->helper->getRemainingCreditCount();
     }
 
     /**
-    * Get the number of credits consumed by the last conversion.
-    * @return The number of credits.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#get_consumed_credit_count">https://pdfcrowd.com/api/html-to-image-php/ref/#get_consumed_credit_count</a>
+     */
     function getConsumedCreditCount() {
         return $this->helper->getConsumedCreditCount();
     }
 
     /**
-    * Get the job id.
-    * @return The unique job identifier.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#get_job_id">https://pdfcrowd.com/api/html-to-image-php/ref/#get_job_id</a>
+     */
     function getJobId() {
         return $this->helper->getJobId();
     }
 
     /**
-    * Get the size of the output in bytes.
-    * @return The count of bytes.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#get_output_size">https://pdfcrowd.com/api/html-to-image-php/ref/#get_output_size</a>
+     */
     function getOutputSize() {
         return $this->helper->getOutputSize();
     }
 
     /**
-    * Get the version details.
-    * @return API version, converter version, and client version.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#get_version">https://pdfcrowd.com/api/html-to-image-php/ref/#get_version</a>
+     */
     function getVersion() {
         return 'client '.ConnectionHelper::CLIENT_VERSION.', API v2, converter '.$this->helper->getConverterVersion();
     }
 
     /**
-    * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
-    *
-    * @param tag A string with the custom tag.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_tag">https://pdfcrowd.com/api/html-to-image-php/ref/#set_tag</a>
+     */
     function setTag($tag) {
         $this->fields['tag'] = $tag;
         return $this;
     }
 
     /**
-    * A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
-    *
-    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_http_proxy">https://pdfcrowd.com/api/html-to-image-php/ref/#set_http_proxy</a>
+     */
     function setHttpProxy($proxy) {
         if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
             throw new Error(create_invalid_value_message($proxy, "setHttpProxy", "html-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
@@ -3922,11 +3202,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
-    *
-    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_https_proxy">https://pdfcrowd.com/api/html-to-image-php/ref/#set_https_proxy</a>
+     */
     function setHttpsProxy($proxy) {
         if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
             throw new Error(create_invalid_value_message($proxy, "setHttpsProxy", "html-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
@@ -3936,11 +3213,8 @@ class HtmlToImageClient {
     }
 
     /**
-    * A client certificate to authenticate the converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security.
-    *
-    * @param certificate The file must be in PKCS12 format. The file must exist and not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_client_certificate">https://pdfcrowd.com/api/html-to-image-php/ref/#set_client_certificate</a>
+     */
     function setClientCertificate($certificate) {
         if (!(filesize($certificate) > 0))
             throw new Error(create_invalid_value_message($certificate, "setClientCertificate", "html-to-image", "The file must exist and not be empty.", "set_client_certificate"), 470);
@@ -3950,22 +3224,16 @@ class HtmlToImageClient {
     }
 
     /**
-    * A password for PKCS12 file with a client certificate if it is needed.
-    *
-    * @param password
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_client_certificate_password">https://pdfcrowd.com/api/html-to-image-php/ref/#set_client_certificate_password</a>
+     */
     function setClientCertificatePassword($password) {
         $this->fields['client_certificate_password'] = $password;
         return $this;
     }
 
     /**
-    * Set the maximum time to load the page and its resources. After this time, all requests will be considered successful. This can be useful to ensure that the conversion does not timeout. Use this method if there is no other way to fix page loading.
-    *
-    * @param max_time The number of seconds to wait. The accepted range is 10-30.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_max_loading_time">https://pdfcrowd.com/api/html-to-image-php/ref/#set_max_loading_time</a>
+     */
     function setMaxLoadingTime($max_time) {
         if (!(intval($max_time) >= 10 && intval($max_time) <= 30))
             throw new Error(create_invalid_value_message($max_time, "setMaxLoadingTime", "html-to-image", "The accepted range is 10-30.", "set_max_loading_time"), 470);
@@ -3981,22 +3249,16 @@ class HtmlToImageClient {
     }
 
     /**
-    * Specifies the User-Agent HTTP header that will be used by the converter when a request is made to the converted web page.
-    *
-    * @param agent The user agent.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_converter_user_agent">https://pdfcrowd.com/api/html-to-image-php/ref/#set_converter_user_agent</a>
+     */
     function setConverterUserAgent($agent) {
         $this->fields['converter_user_agent'] = $agent;
         return $this;
     }
 
     /**
-    * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
-    *
-    * @param version The version identifier. Allowed values are 24.04, 20.10, 18.10, latest.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_converter_version">https://pdfcrowd.com/api/html-to-image-php/ref/#set_converter_version</a>
+     */
     function setConverterVersion($version) {
         if (!preg_match("/(?i)^(24.04|20.10|18.10|latest)$/", $version))
             throw new Error(create_invalid_value_message($version, "setConverterVersion", "html-to-image", "Allowed values are 24.04, 20.10, 18.10, latest.", "set_converter_version"), 470);
@@ -4006,70 +3268,48 @@ class HtmlToImageClient {
     }
 
     /**
-    * Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API.
-    * Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
-    *
-    * @param value Set to <code>true</code> to use HTTP.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_use_http">https://pdfcrowd.com/api/html-to-image-php/ref/#set_use_http</a>
+     */
     function setUseHttp($value) {
         $this->helper->setUseHttp($value);
         return $this;
     }
 
     /**
-    * Specifies the User-Agent HTTP header that the client library will use when interacting with the API.
-    *
-    * @param agent The user agent string.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_client_user_agent">https://pdfcrowd.com/api/html-to-image-php/ref/#set_client_user_agent</a>
+     */
     function setClientUserAgent($agent) {
         $this->helper->setUserAgent($agent);
         return $this;
     }
 
     /**
-    * Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
-    *
-    * @param agent The user agent string.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_user_agent">https://pdfcrowd.com/api/html-to-image-php/ref/#set_user_agent</a>
+     */
     function setUserAgent($agent) {
         $this->helper->setUserAgent($agent);
         return $this;
     }
 
     /**
-    * Specifies an HTTP proxy that the API client library will use to connect to the internet.
-    *
-    * @param host The proxy hostname.
-    * @param port The proxy port.
-    * @param user_name The username.
-    * @param password The password.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_proxy">https://pdfcrowd.com/api/html-to-image-php/ref/#set_proxy</a>
+     */
     function setProxy($host, $port, $user_name, $password) {
         $this->helper->setProxy($host, $port, $user_name, $password);
         return $this;
     }
 
     /**
-    * Use cURL for the conversion request instead of the file_get_contents() PHP function.
-    *
-    * @param value Set to <code>true</code> to use PHP's cURL.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_use_curl">https://pdfcrowd.com/api/html-to-image-php/ref/#set_use_curl</a>
+     */
     function setUseCurl($value) {
         $this->helper->setUseCurl($value);
         return $this;
     }
 
     /**
-    * Specifies the number of automatic retries when the 502 or 503 HTTP status code is received. The status code indicates a temporary network issue. This feature can be disabled by setting to 0.
-    *
-    * @param count Number of retries.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_retry_count">https://pdfcrowd.com/api/html-to-image-php/ref/#set_retry_count</a>
+     */
     function setRetryCount($count) {
         $this->helper->setRetryCount($count);
         return $this;
@@ -4078,8 +3318,10 @@ class HtmlToImageClient {
 }
 
 /**
-* Conversion from one image format to another image format.
-*/
+ * Conversion from one image format to another image format.
+ *
+ * @see <a href="https://pdfcrowd.com/api/image-to-image-php/">https://pdfcrowd.com/api/image-to-image-php/</a>
+ */
 class ImageToImageClient {
     private $helper;
     private $fields;
@@ -4088,11 +3330,8 @@ class ImageToImageClient {
     private $raw_data;
 
     /**
-    * Constructor for the PDFCrowd API client.
-    *
-    * @param user_name Your username at PDFCrowd.
-    * @param api_key Your API key.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#__construct">https://pdfcrowd.com/api/image-to-image-php/ref/#__construct</a>
+     */
     function __construct($user_name, $api_key) {
         $this->helper = new ConnectionHelper($user_name, $api_key);
         $this->fields = array('input_format'=>'image', 'output_format'=>'png');
@@ -4102,11 +3341,8 @@ class ImageToImageClient {
     }
 
     /**
-    * Convert an image.
-    *
-    * @param url The address of the image to convert. Supported protocols are http:// and https://.
-    * @return Byte array containing the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#convert_url">https://pdfcrowd.com/api/image-to-image-php/ref/#convert_url</a>
+     */
     function convertUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrl", "image-to-image", "Supported protocols are http:// and https://.", "convert_url"), 470);
@@ -4116,11 +3352,8 @@ class ImageToImageClient {
     }
 
     /**
-    * Convert an image and write the result to an output stream.
-    *
-    * @param url The address of the image to convert. Supported protocols are http:// and https://.
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#convert_url_to_stream">https://pdfcrowd.com/api/image-to-image-php/ref/#convert_url_to_stream</a>
+     */
     function convertUrlToStream($url, $out_stream) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "image-to-image", "Supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
@@ -4130,11 +3363,8 @@ class ImageToImageClient {
     }
 
     /**
-    * Convert an image and write the result to a local file.
-    *
-    * @param url The address of the image to convert. Supported protocols are http:// and https://.
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#convert_url_to_file">https://pdfcrowd.com/api/image-to-image-php/ref/#convert_url_to_file</a>
+     */
     function convertUrlToFile($url, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertUrlToFile::file_path", "image-to-image", "The string must not be empty.", "convert_url_to_file"), 470);
@@ -4156,11 +3386,8 @@ class ImageToImageClient {
     }
 
     /**
-    * Convert a local file.
-    *
-    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
-    * @return Byte array containing the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#convert_file">https://pdfcrowd.com/api/image-to-image-php/ref/#convert_file</a>
+     */
     function convertFile($file) {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFile", "image-to-image", "The file must exist and not be empty.", "convert_file"), 470);
@@ -4170,11 +3397,8 @@ class ImageToImageClient {
     }
 
     /**
-    * Convert a local file and write the result to an output stream.
-    *
-    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#convert_file_to_stream">https://pdfcrowd.com/api/image-to-image-php/ref/#convert_file_to_stream</a>
+     */
     function convertFileToStream($file, $out_stream) {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFileToStream::file", "image-to-image", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
@@ -4184,11 +3408,8 @@ class ImageToImageClient {
     }
 
     /**
-    * Convert a local file and write the result to a local file.
-    *
-    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#convert_file_to_file">https://pdfcrowd.com/api/image-to-image-php/ref/#convert_file_to_file</a>
+     */
     function convertFileToFile($file, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertFileToFile::file_path", "image-to-image", "The string must not be empty.", "convert_file_to_file"), 470);
@@ -4210,33 +3431,24 @@ class ImageToImageClient {
     }
 
     /**
-    * Convert raw data.
-    *
-    * @param data The raw content to be converted.
-    * @return Byte array with the output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#convert_raw_data">https://pdfcrowd.com/api/image-to-image-php/ref/#convert_raw_data</a>
+     */
     function convertRawData($data) {
         $this->raw_data['file'] = $data;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
 
     /**
-    * Convert raw data and write the result to an output stream.
-    *
-    * @param data The raw content to be converted.
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#convert_raw_data_to_stream">https://pdfcrowd.com/api/image-to-image-php/ref/#convert_raw_data_to_stream</a>
+     */
     function convertRawDataToStream($data, $out_stream) {
         $this->raw_data['file'] = $data;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
 
     /**
-    * Convert raw data to a file.
-    *
-    * @param data The raw content to be converted.
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#convert_raw_data_to_file">https://pdfcrowd.com/api/image-to-image-php/ref/#convert_raw_data_to_file</a>
+     */
     function convertRawDataToFile($data, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertRawDataToFile::file_path", "image-to-image", "The string must not be empty.", "convert_raw_data_to_file"), 470);
@@ -4258,33 +3470,24 @@ class ImageToImageClient {
     }
 
     /**
-    * Convert the contents of an input stream.
-    *
-    * @param in_stream The input stream with source data.<br>
-    * @return Byte array containing the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#convert_stream">https://pdfcrowd.com/api/image-to-image-php/ref/#convert_stream</a>
+     */
     function convertStream($in_stream) {
         $this->raw_data['stream'] = stream_get_contents($in_stream);
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
 
     /**
-    * Convert the contents of an input stream and write the result to an output stream.
-    *
-    * @param in_stream The input stream with source data.<br>
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#convert_stream_to_stream">https://pdfcrowd.com/api/image-to-image-php/ref/#convert_stream_to_stream</a>
+     */
     function convertStreamToStream($in_stream, $out_stream) {
         $this->raw_data['stream'] = stream_get_contents($in_stream);
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
 
     /**
-    * Convert the contents of an input stream and write the result to a local file.
-    *
-    * @param in_stream The input stream with source data.<br>
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#convert_stream_to_file">https://pdfcrowd.com/api/image-to-image-php/ref/#convert_stream_to_file</a>
+     */
     function convertStreamToFile($in_stream, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertStreamToFile::file_path", "image-to-image", "The string must not be empty.", "convert_stream_to_file"), 470);
@@ -4306,11 +3509,8 @@ class ImageToImageClient {
     }
 
     /**
-    * The format of the output file.
-    *
-    * @param output_format Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_output_format">https://pdfcrowd.com/api/image-to-image-php/ref/#set_output_format</a>
+     */
     function setOutputFormat($output_format) {
         if (!preg_match("/(?i)^(png|jpg|gif|tiff|bmp|ico|ppm|pgm|pbm|pnm|psb|pct|ras|tga|sgi|sun|webp)$/", $output_format))
             throw new Error(create_invalid_value_message($output_format, "setOutputFormat", "image-to-image", "Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.", "set_output_format"), 470);
@@ -4320,33 +3520,24 @@ class ImageToImageClient {
     }
 
     /**
-    * Resize the image.
-    *
-    * @param resize The resize percentage or new image dimensions.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_resize">https://pdfcrowd.com/api/image-to-image-php/ref/#set_resize</a>
+     */
     function setResize($resize) {
         $this->fields['resize'] = $resize;
         return $this;
     }
 
     /**
-    * Rotate the image.
-    *
-    * @param rotate The rotation specified in degrees.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_rotate">https://pdfcrowd.com/api/image-to-image-php/ref/#set_rotate</a>
+     */
     function setRotate($rotate) {
         $this->fields['rotate'] = $rotate;
         return $this;
     }
 
     /**
-    * Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
-    *
-    * @param x The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_crop_area_x">https://pdfcrowd.com/api/image-to-image-php/ref/#set_crop_area_x</a>
+     */
     function setCropAreaX($x) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $x))
             throw new Error(create_invalid_value_message($x, "setCropAreaX", "image-to-image", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_crop_area_x"), 470);
@@ -4356,11 +3547,8 @@ class ImageToImageClient {
     }
 
     /**
-    * Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area.
-    *
-    * @param y The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_crop_area_y">https://pdfcrowd.com/api/image-to-image-php/ref/#set_crop_area_y</a>
+     */
     function setCropAreaY($y) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $y))
             throw new Error(create_invalid_value_message($y, "setCropAreaY", "image-to-image", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_crop_area_y"), 470);
@@ -4370,11 +3558,8 @@ class ImageToImageClient {
     }
 
     /**
-    * Set the width of the content area. It should be at least 1 inch.
-    *
-    * @param width The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_crop_area_width">https://pdfcrowd.com/api/image-to-image-php/ref/#set_crop_area_width</a>
+     */
     function setCropAreaWidth($width) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $width))
             throw new Error(create_invalid_value_message($width, "setCropAreaWidth", "image-to-image", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_crop_area_width"), 470);
@@ -4384,11 +3569,8 @@ class ImageToImageClient {
     }
 
     /**
-    * Set the height of the content area. It should be at least 1 inch.
-    *
-    * @param height The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_crop_area_height">https://pdfcrowd.com/api/image-to-image-php/ref/#set_crop_area_height</a>
+     */
     function setCropAreaHeight($height) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
             throw new Error(create_invalid_value_message($height, "setCropAreaHeight", "image-to-image", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_crop_area_height"), 470);
@@ -4398,14 +3580,8 @@ class ImageToImageClient {
     }
 
     /**
-    * Set the content area position and size. The content area enables to specify the part to be converted.
-    *
-    * @param x Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @param y Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @param width Set the width of the content area. It should be at least 1 inch. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @param height Set the height of the content area. It should be at least 1 inch. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_crop_area">https://pdfcrowd.com/api/image-to-image-php/ref/#set_crop_area</a>
+     */
     function setCropArea($x, $y, $width, $height) {
         $this->setCropAreaX($x);
         $this->setCropAreaY($y);
@@ -4415,22 +3591,16 @@ class ImageToImageClient {
     }
 
     /**
-    * Remove borders of an image which does not change in color.
-    *
-    * @param value Set to <code>true</code> to remove borders.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_remove_borders">https://pdfcrowd.com/api/image-to-image-php/ref/#set_remove_borders</a>
+     */
     function setRemoveBorders($value) {
         $this->fields['remove_borders'] = $value;
         return $this;
     }
 
     /**
-    * Set the output canvas size.
-    *
-    * @param size Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_canvas_size">https://pdfcrowd.com/api/image-to-image-php/ref/#set_canvas_size</a>
+     */
     function setCanvasSize($size) {
         if (!preg_match("/(?i)^(A0|A1|A2|A3|A4|A5|A6|Letter)$/", $size))
             throw new Error(create_invalid_value_message($size, "setCanvasSize", "image-to-image", "Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.", "set_canvas_size"), 470);
@@ -4440,11 +3610,8 @@ class ImageToImageClient {
     }
 
     /**
-    * Set the output canvas width.
-    *
-    * @param width The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_canvas_width">https://pdfcrowd.com/api/image-to-image-php/ref/#set_canvas_width</a>
+     */
     function setCanvasWidth($width) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $width))
             throw new Error(create_invalid_value_message($width, "setCanvasWidth", "image-to-image", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_canvas_width"), 470);
@@ -4454,11 +3621,8 @@ class ImageToImageClient {
     }
 
     /**
-    * Set the output canvas height.
-    *
-    * @param height The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_canvas_height">https://pdfcrowd.com/api/image-to-image-php/ref/#set_canvas_height</a>
+     */
     function setCanvasHeight($height) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
             throw new Error(create_invalid_value_message($height, "setCanvasHeight", "image-to-image", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_canvas_height"), 470);
@@ -4468,12 +3632,8 @@ class ImageToImageClient {
     }
 
     /**
-    * Set the output canvas dimensions. If no canvas size is specified, margins are applied as a border around the image.
-    *
-    * @param width Set the output canvas width. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @param height Set the output canvas height. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_canvas_dimensions">https://pdfcrowd.com/api/image-to-image-php/ref/#set_canvas_dimensions</a>
+     */
     function setCanvasDimensions($width, $height) {
         $this->setCanvasWidth($width);
         $this->setCanvasHeight($height);
@@ -4481,11 +3641,8 @@ class ImageToImageClient {
     }
 
     /**
-    * Set the output canvas orientation.
-    *
-    * @param orientation Allowed values are landscape, portrait.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_orientation">https://pdfcrowd.com/api/image-to-image-php/ref/#set_orientation</a>
+     */
     function setOrientation($orientation) {
         if (!preg_match("/(?i)^(landscape|portrait)$/", $orientation))
             throw new Error(create_invalid_value_message($orientation, "setOrientation", "image-to-image", "Allowed values are landscape, portrait.", "set_orientation"), 470);
@@ -4495,11 +3652,8 @@ class ImageToImageClient {
     }
 
     /**
-    * Set the image position on the canvas.
-    *
-    * @param position Allowed values are center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_position">https://pdfcrowd.com/api/image-to-image-php/ref/#set_position</a>
+     */
     function setPosition($position) {
         if (!preg_match("/(?i)^(center|top|bottom|left|right|top-left|top-right|bottom-left|bottom-right)$/", $position))
             throw new Error(create_invalid_value_message($position, "setPosition", "image-to-image", "Allowed values are center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right.", "set_position"), 470);
@@ -4509,11 +3663,8 @@ class ImageToImageClient {
     }
 
     /**
-    * Set the mode to print the image on the canvas.
-    *
-    * @param mode Allowed values are default, fit, stretch.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_print_canvas_mode">https://pdfcrowd.com/api/image-to-image-php/ref/#set_print_canvas_mode</a>
+     */
     function setPrintCanvasMode($mode) {
         if (!preg_match("/(?i)^(default|fit|stretch)$/", $mode))
             throw new Error(create_invalid_value_message($mode, "setPrintCanvasMode", "image-to-image", "Allowed values are default, fit, stretch.", "set_print_canvas_mode"), 470);
@@ -4523,11 +3674,8 @@ class ImageToImageClient {
     }
 
     /**
-    * Set the output canvas top margin.
-    *
-    * @param top The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_margin_top">https://pdfcrowd.com/api/image-to-image-php/ref/#set_margin_top</a>
+     */
     function setMarginTop($top) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $top))
             throw new Error(create_invalid_value_message($top, "setMarginTop", "image-to-image", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_margin_top"), 470);
@@ -4537,11 +3685,8 @@ class ImageToImageClient {
     }
 
     /**
-    * Set the output canvas right margin.
-    *
-    * @param right The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_margin_right">https://pdfcrowd.com/api/image-to-image-php/ref/#set_margin_right</a>
+     */
     function setMarginRight($right) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $right))
             throw new Error(create_invalid_value_message($right, "setMarginRight", "image-to-image", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_margin_right"), 470);
@@ -4551,11 +3696,8 @@ class ImageToImageClient {
     }
 
     /**
-    * Set the output canvas bottom margin.
-    *
-    * @param bottom The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_margin_bottom">https://pdfcrowd.com/api/image-to-image-php/ref/#set_margin_bottom</a>
+     */
     function setMarginBottom($bottom) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $bottom))
             throw new Error(create_invalid_value_message($bottom, "setMarginBottom", "image-to-image", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_margin_bottom"), 470);
@@ -4565,11 +3707,8 @@ class ImageToImageClient {
     }
 
     /**
-    * Set the output canvas left margin.
-    *
-    * @param left The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_margin_left">https://pdfcrowd.com/api/image-to-image-php/ref/#set_margin_left</a>
+     */
     function setMarginLeft($left) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $left))
             throw new Error(create_invalid_value_message($left, "setMarginLeft", "image-to-image", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_margin_left"), 470);
@@ -4579,14 +3718,8 @@ class ImageToImageClient {
     }
 
     /**
-    * Set the output canvas margins.
-    *
-    * @param top Set the output canvas top margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @param right Set the output canvas right margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @param bottom Set the output canvas bottom margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @param left Set the output canvas left margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_margins">https://pdfcrowd.com/api/image-to-image-php/ref/#set_margins</a>
+     */
     function setMargins($top, $right, $bottom, $left) {
         $this->setMarginTop($top);
         $this->setMarginRight($right);
@@ -4596,11 +3729,8 @@ class ImageToImageClient {
     }
 
     /**
-    * The canvas background color in RGB or RGBA hexadecimal format. The color fills the entire canvas regardless of margins. If no canvas size is specified and the image format supports background (e.g. PDF, PNG), the background color is applied too.
-    *
-    * @param color The value must be in RRGGBB or RRGGBBAA hexadecimal format.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_canvas_background_color">https://pdfcrowd.com/api/image-to-image-php/ref/#set_canvas_background_color</a>
+     */
     function setCanvasBackgroundColor($color) {
         if (!preg_match("/^[0-9a-fA-F]{6,8}$/", $color))
             throw new Error(create_invalid_value_message($color, "setCanvasBackgroundColor", "image-to-image", "The value must be in RRGGBB or RRGGBBAA hexadecimal format.", "set_canvas_background_color"), 470);
@@ -4610,95 +3740,74 @@ class ImageToImageClient {
     }
 
     /**
-    * Set the DPI resolution of the input image. The DPI affects margin options specified in points too (e.g. 1 point is equal to 1 pixel in 96 DPI).
-    *
-    * @param dpi The DPI value.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_dpi">https://pdfcrowd.com/api/image-to-image-php/ref/#set_dpi</a>
+     */
     function setDpi($dpi) {
         $this->fields['dpi'] = $dpi;
         return $this;
     }
 
     /**
-    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method or available in <a href='/user/account/log/conversion/'>conversion statistics</a>.
-    *
-    * @param value Set to <code>true</code> to enable the debug logging.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_debug_log">https://pdfcrowd.com/api/image-to-image-php/ref/#set_debug_log</a>
+     */
     function setDebugLog($value) {
         $this->fields['debug_log'] = $value;
         return $this;
     }
 
     /**
-    * Get the URL of the debug log for the last conversion.
-    * @return The link to the debug log.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#get_debug_log_url">https://pdfcrowd.com/api/image-to-image-php/ref/#get_debug_log_url</a>
+     */
     function getDebugLogUrl() {
         return $this->helper->getDebugLogUrl();
     }
 
     /**
-    * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
-    * This method can only be called after a call to one of the convertXtoY methods.
-    * The returned value can differ from the actual count if you run parallel conversions.
-    * The special value <code>999999</code> is returned if the information is not available.
-    * @return The number of credits.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#get_remaining_credit_count">https://pdfcrowd.com/api/image-to-image-php/ref/#get_remaining_credit_count</a>
+     */
     function getRemainingCreditCount() {
         return $this->helper->getRemainingCreditCount();
     }
 
     /**
-    * Get the number of credits consumed by the last conversion.
-    * @return The number of credits.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#get_consumed_credit_count">https://pdfcrowd.com/api/image-to-image-php/ref/#get_consumed_credit_count</a>
+     */
     function getConsumedCreditCount() {
         return $this->helper->getConsumedCreditCount();
     }
 
     /**
-    * Get the job id.
-    * @return The unique job identifier.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#get_job_id">https://pdfcrowd.com/api/image-to-image-php/ref/#get_job_id</a>
+     */
     function getJobId() {
         return $this->helper->getJobId();
     }
 
     /**
-    * Get the size of the output in bytes.
-    * @return The count of bytes.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#get_output_size">https://pdfcrowd.com/api/image-to-image-php/ref/#get_output_size</a>
+     */
     function getOutputSize() {
         return $this->helper->getOutputSize();
     }
 
     /**
-    * Get the version details.
-    * @return API version, converter version, and client version.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#get_version">https://pdfcrowd.com/api/image-to-image-php/ref/#get_version</a>
+     */
     function getVersion() {
         return 'client '.ConnectionHelper::CLIENT_VERSION.', API v2, converter '.$this->helper->getConverterVersion();
     }
 
     /**
-    * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
-    *
-    * @param tag A string with the custom tag.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_tag">https://pdfcrowd.com/api/image-to-image-php/ref/#set_tag</a>
+     */
     function setTag($tag) {
         $this->fields['tag'] = $tag;
         return $this;
     }
 
     /**
-    * A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
-    *
-    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_http_proxy">https://pdfcrowd.com/api/image-to-image-php/ref/#set_http_proxy</a>
+     */
     function setHttpProxy($proxy) {
         if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
             throw new Error(create_invalid_value_message($proxy, "setHttpProxy", "image-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
@@ -4708,11 +3817,8 @@ class ImageToImageClient {
     }
 
     /**
-    * A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
-    *
-    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_https_proxy">https://pdfcrowd.com/api/image-to-image-php/ref/#set_https_proxy</a>
+     */
     function setHttpsProxy($proxy) {
         if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
             throw new Error(create_invalid_value_message($proxy, "setHttpsProxy", "image-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
@@ -4722,11 +3828,8 @@ class ImageToImageClient {
     }
 
     /**
-    * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
-    *
-    * @param version The version identifier. Allowed values are 24.04, 20.10, 18.10, latest.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_converter_version">https://pdfcrowd.com/api/image-to-image-php/ref/#set_converter_version</a>
+     */
     function setConverterVersion($version) {
         if (!preg_match("/(?i)^(24.04|20.10|18.10|latest)$/", $version))
             throw new Error(create_invalid_value_message($version, "setConverterVersion", "image-to-image", "Allowed values are 24.04, 20.10, 18.10, latest.", "set_converter_version"), 470);
@@ -4736,70 +3839,48 @@ class ImageToImageClient {
     }
 
     /**
-    * Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API.
-    * Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
-    *
-    * @param value Set to <code>true</code> to use HTTP.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_use_http">https://pdfcrowd.com/api/image-to-image-php/ref/#set_use_http</a>
+     */
     function setUseHttp($value) {
         $this->helper->setUseHttp($value);
         return $this;
     }
 
     /**
-    * Specifies the User-Agent HTTP header that the client library will use when interacting with the API.
-    *
-    * @param agent The user agent string.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_client_user_agent">https://pdfcrowd.com/api/image-to-image-php/ref/#set_client_user_agent</a>
+     */
     function setClientUserAgent($agent) {
         $this->helper->setUserAgent($agent);
         return $this;
     }
 
     /**
-    * Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
-    *
-    * @param agent The user agent string.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_user_agent">https://pdfcrowd.com/api/image-to-image-php/ref/#set_user_agent</a>
+     */
     function setUserAgent($agent) {
         $this->helper->setUserAgent($agent);
         return $this;
     }
 
     /**
-    * Specifies an HTTP proxy that the API client library will use to connect to the internet.
-    *
-    * @param host The proxy hostname.
-    * @param port The proxy port.
-    * @param user_name The username.
-    * @param password The password.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_proxy">https://pdfcrowd.com/api/image-to-image-php/ref/#set_proxy</a>
+     */
     function setProxy($host, $port, $user_name, $password) {
         $this->helper->setProxy($host, $port, $user_name, $password);
         return $this;
     }
 
     /**
-    * Use cURL for the conversion request instead of the file_get_contents() PHP function.
-    *
-    * @param value Set to <code>true</code> to use PHP's cURL.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_use_curl">https://pdfcrowd.com/api/image-to-image-php/ref/#set_use_curl</a>
+     */
     function setUseCurl($value) {
         $this->helper->setUseCurl($value);
         return $this;
     }
 
     /**
-    * Specifies the number of automatic retries when the 502 or 503 HTTP status code is received. The status code indicates a temporary network issue. This feature can be disabled by setting to 0.
-    *
-    * @param count Number of retries.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#set_retry_count">https://pdfcrowd.com/api/image-to-image-php/ref/#set_retry_count</a>
+     */
     function setRetryCount($count) {
         $this->helper->setRetryCount($count);
         return $this;
@@ -4808,8 +3889,10 @@ class ImageToImageClient {
 }
 
 /**
-* Conversion from PDF to PDF.
-*/
+ * Conversion from PDF to PDF.
+ *
+ * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/">https://pdfcrowd.com/api/pdf-to-pdf-php/</a>
+ */
 class PdfToPdfClient {
     private $helper;
     private $fields;
@@ -4818,11 +3901,8 @@ class PdfToPdfClient {
     private $raw_data;
 
     /**
-    * Constructor for the PDFCrowd API client.
-    *
-    * @param user_name Your username at PDFCrowd.
-    * @param api_key Your API key.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#__construct">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#__construct</a>
+     */
     function __construct($user_name, $api_key) {
         $this->helper = new ConnectionHelper($user_name, $api_key);
         $this->fields = array('input_format'=>'pdf', 'output_format'=>'pdf');
@@ -4832,11 +3912,8 @@ class PdfToPdfClient {
     }
 
     /**
-    * Specifies the action to be performed on the input PDFs.
-    *
-    * @param action Allowed values are join, shuffle, extract, delete.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_action">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_action</a>
+     */
     function setAction($action) {
         if (!preg_match("/(?i)^(join|shuffle|extract|delete)$/", $action))
             throw new Error(create_invalid_value_message($action, "setAction", "pdf-to-pdf", "Allowed values are join, shuffle, extract, delete.", "set_action"), 470);
@@ -4846,27 +3923,22 @@ class PdfToPdfClient {
     }
 
     /**
-    * Perform an action on the input files.
-    * @return Byte array containing the output PDF.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#convert">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#convert</a>
+     */
     function convert() {
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
 
     /**
-    * Perform an action on the input files and write the output PDF to an output stream.
-    *
-    * @param out_stream The output stream that will contain the output PDF.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#convert_to_stream">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#convert_to_stream</a>
+     */
     function convertToStream($out_stream) {
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
 
     /**
-    * Perform an action on the input files and write the output PDF to a file.
-    *
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#convert_to_file">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#convert_to_file</a>
+     */
     function convertToFile($file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertToFile", "pdf-to-pdf", "The string must not be empty.", "convert_to_file"), 470);
@@ -4877,11 +3949,8 @@ class PdfToPdfClient {
     }
 
     /**
-    * Add a PDF file to the list of the input PDFs.
-    *
-    * @param file_path The file path to a local PDF file. The file must exist and not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#add_pdf_file">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#add_pdf_file</a>
+     */
     function addPdfFile($file_path) {
         if (!(filesize($file_path) > 0))
             throw new Error(create_invalid_value_message($file_path, "addPdfFile", "pdf-to-pdf", "The file must exist and not be empty.", "add_pdf_file"), 470);
@@ -4892,11 +3961,8 @@ class PdfToPdfClient {
     }
 
     /**
-    * Add in-memory raw PDF data to the list of the input PDFs.<br>Typical usage is for adding PDF created by another PDFCrowd converter.<br><br> Example in PHP:<br> <b>$clientPdf2Pdf</b>-&gt;addPdfRawData(<b>$clientHtml2Pdf</b>-&gt;convertUrl('http://www.example.com'));
-    *
-    * @param data The raw PDF data. The input data must be PDF content.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#add_pdf_raw_data">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#add_pdf_raw_data</a>
+     */
     function addPdfRawData($data) {
         if (!($data != null && strlen($data) > 300 && substr($data, 0, 4) == '%PDF'))
             throw new Error(create_invalid_value_message("raw PDF data", "addPdfRawData", "pdf-to-pdf", "The input data must be PDF content.", "add_pdf_raw_data"), 470);
@@ -4907,22 +3973,16 @@ class PdfToPdfClient {
     }
 
     /**
-    * Password to open the encrypted PDF file.
-    *
-    * @param password The input PDF password.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_input_pdf_password">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_input_pdf_password</a>
+     */
     function setInputPdfPassword($password) {
         $this->fields['input_pdf_password'] = $password;
         return $this;
     }
 
     /**
-    * Set the page range for <code>extract</code> or <code>delete</code> action.
-    *
-    * @param pages A comma separated list of page numbers or ranges.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_page_range">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_page_range</a>
+     */
     function setPageRange($pages) {
         if (!preg_match("/^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$/", $pages))
             throw new Error(create_invalid_value_message($pages, "setPageRange", "pdf-to-pdf", "A comma separated list of page numbers or ranges.", "set_page_range"), 470);
@@ -4932,11 +3992,8 @@ class PdfToPdfClient {
     }
 
     /**
-    * Apply a watermark to each page of the output PDF file. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark.
-    *
-    * @param watermark The file path to a local file. The file must exist and not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_page_watermark">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_page_watermark</a>
+     */
     function setPageWatermark($watermark) {
         if (!(filesize($watermark) > 0))
             throw new Error(create_invalid_value_message($watermark, "setPageWatermark", "pdf-to-pdf", "The file must exist and not be empty.", "set_page_watermark"), 470);
@@ -4946,11 +4003,8 @@ class PdfToPdfClient {
     }
 
     /**
-    * Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark.
-    *
-    * @param url Supported protocols are http:// and https://.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_page_watermark_url">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_page_watermark_url</a>
+     */
     function setPageWatermarkUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "setPageWatermarkUrl", "pdf-to-pdf", "Supported protocols are http:// and https://.", "set_page_watermark_url"), 470);
@@ -4960,11 +4014,8 @@ class PdfToPdfClient {
     }
 
     /**
-    * Apply each page of a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image.
-    *
-    * @param watermark The file path to a local file. The file must exist and not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_multipage_watermark">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_multipage_watermark</a>
+     */
     function setMultipageWatermark($watermark) {
         if (!(filesize($watermark) > 0))
             throw new Error(create_invalid_value_message($watermark, "setMultipageWatermark", "pdf-to-pdf", "The file must exist and not be empty.", "set_multipage_watermark"), 470);
@@ -4974,11 +4025,8 @@ class PdfToPdfClient {
     }
 
     /**
-    * Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image.
-    *
-    * @param url Supported protocols are http:// and https://.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_multipage_watermark_url">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_multipage_watermark_url</a>
+     */
     function setMultipageWatermarkUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "setMultipageWatermarkUrl", "pdf-to-pdf", "Supported protocols are http:// and https://.", "set_multipage_watermark_url"), 470);
@@ -4988,11 +4036,8 @@ class PdfToPdfClient {
     }
 
     /**
-    * Apply a background to each page of the output PDF file. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background.
-    *
-    * @param background The file path to a local file. The file must exist and not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_page_background">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_page_background</a>
+     */
     function setPageBackground($background) {
         if (!(filesize($background) > 0))
             throw new Error(create_invalid_value_message($background, "setPageBackground", "pdf-to-pdf", "The file must exist and not be empty.", "set_page_background"), 470);
@@ -5002,11 +4047,8 @@ class PdfToPdfClient {
     }
 
     /**
-    * Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background.
-    *
-    * @param url Supported protocols are http:// and https://.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_page_background_url">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_page_background_url</a>
+     */
     function setPageBackgroundUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "setPageBackgroundUrl", "pdf-to-pdf", "Supported protocols are http:// and https://.", "set_page_background_url"), 470);
@@ -5016,11 +4058,8 @@ class PdfToPdfClient {
     }
 
     /**
-    * Apply each page of a background to the corresponding page of the output PDF. A background can be either a PDF or an image.
-    *
-    * @param background The file path to a local file. The file must exist and not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_multipage_background">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_multipage_background</a>
+     */
     function setMultipageBackground($background) {
         if (!(filesize($background) > 0))
             throw new Error(create_invalid_value_message($background, "setMultipageBackground", "pdf-to-pdf", "The file must exist and not be empty.", "set_multipage_background"), 470);
@@ -5030,11 +4069,8 @@ class PdfToPdfClient {
     }
 
     /**
-    * Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image.
-    *
-    * @param url Supported protocols are http:// and https://.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_multipage_background_url">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_multipage_background_url</a>
+     */
     function setMultipageBackgroundUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "setMultipageBackgroundUrl", "pdf-to-pdf", "Supported protocols are http:// and https://.", "set_multipage_background_url"), 470);
@@ -5044,132 +4080,96 @@ class PdfToPdfClient {
     }
 
     /**
-    * Create linearized PDF. This is also known as Fast Web View.
-    *
-    * @param value Set to <code>true</code> to create linearized PDF.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_linearize">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_linearize</a>
+     */
     function setLinearize($value) {
         $this->fields['linearize'] = $value;
         return $this;
     }
 
     /**
-    * Encrypt the PDF. This prevents search engines from indexing the contents.
-    *
-    * @param value Set to <code>true</code> to enable PDF encryption.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_encrypt">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_encrypt</a>
+     */
     function setEncrypt($value) {
         $this->fields['encrypt'] = $value;
         return $this;
     }
 
     /**
-    * Protect the PDF with a user password. When a PDF has a user password, it must be supplied in order to view the document and to perform operations allowed by the access permissions.
-    *
-    * @param password The user password.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_user_password">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_user_password</a>
+     */
     function setUserPassword($password) {
         $this->fields['user_password'] = $password;
         return $this;
     }
 
     /**
-    * Protect the PDF with an owner password.  Supplying an owner password grants unlimited access to the PDF including changing the passwords and access permissions.
-    *
-    * @param password The owner password.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_owner_password">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_owner_password</a>
+     */
     function setOwnerPassword($password) {
         $this->fields['owner_password'] = $password;
         return $this;
     }
 
     /**
-    * Disallow printing of the output PDF.
-    *
-    * @param value Set to <code>true</code> to set the no-print flag in the output PDF.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_no_print">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_no_print</a>
+     */
     function setNoPrint($value) {
         $this->fields['no_print'] = $value;
         return $this;
     }
 
     /**
-    * Disallow modification of the output PDF.
-    *
-    * @param value Set to <code>true</code> to set the read-only only flag in the output PDF.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_no_modify">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_no_modify</a>
+     */
     function setNoModify($value) {
         $this->fields['no_modify'] = $value;
         return $this;
     }
 
     /**
-    * Disallow text and graphics extraction from the output PDF.
-    *
-    * @param value Set to <code>true</code> to set the no-copy flag in the output PDF.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_no_copy">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_no_copy</a>
+     */
     function setNoCopy($value) {
         $this->fields['no_copy'] = $value;
         return $this;
     }
 
     /**
-    * Set the title of the PDF.
-    *
-    * @param title The title.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_title">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_title</a>
+     */
     function setTitle($title) {
         $this->fields['title'] = $title;
         return $this;
     }
 
     /**
-    * Set the subject of the PDF.
-    *
-    * @param subject The subject.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_subject">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_subject</a>
+     */
     function setSubject($subject) {
         $this->fields['subject'] = $subject;
         return $this;
     }
 
     /**
-    * Set the author of the PDF.
-    *
-    * @param author The author.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_author">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_author</a>
+     */
     function setAuthor($author) {
         $this->fields['author'] = $author;
         return $this;
     }
 
     /**
-    * Associate keywords with the document.
-    *
-    * @param keywords The string with the keywords.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_keywords">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_keywords</a>
+     */
     function setKeywords($keywords) {
         $this->fields['keywords'] = $keywords;
         return $this;
     }
 
     /**
-    * Use metadata (title, subject, author and keywords) from the n-th input PDF.
-    *
-    * @param index Set the index of the input PDF file from which to use the metadata. 0 means no metadata. Must be a positive integer or 0.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_use_metadata_from">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_use_metadata_from</a>
+     */
     function setUseMetadataFrom($index) {
         if (!(intval($index) >= 0))
             throw new Error(create_invalid_value_message($index, "setUseMetadataFrom", "pdf-to-pdf", "Must be a positive integer or 0.", "set_use_metadata_from"), 470);
@@ -5179,11 +4179,8 @@ class PdfToPdfClient {
     }
 
     /**
-    * Specify the page layout to be used when the document is opened.
-    *
-    * @param layout Allowed values are single-page, one-column, two-column-left, two-column-right.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_page_layout">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_page_layout</a>
+     */
     function setPageLayout($layout) {
         if (!preg_match("/(?i)^(single-page|one-column|two-column-left|two-column-right)$/", $layout))
             throw new Error(create_invalid_value_message($layout, "setPageLayout", "pdf-to-pdf", "Allowed values are single-page, one-column, two-column-left, two-column-right.", "set_page_layout"), 470);
@@ -5193,11 +4190,8 @@ class PdfToPdfClient {
     }
 
     /**
-    * Specify how the document should be displayed when opened.
-    *
-    * @param mode Allowed values are full-screen, thumbnails, outlines.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_page_mode">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_page_mode</a>
+     */
     function setPageMode($mode) {
         if (!preg_match("/(?i)^(full-screen|thumbnails|outlines)$/", $mode))
             throw new Error(create_invalid_value_message($mode, "setPageMode", "pdf-to-pdf", "Allowed values are full-screen, thumbnails, outlines.", "set_page_mode"), 470);
@@ -5207,11 +4201,8 @@ class PdfToPdfClient {
     }
 
     /**
-    * Specify how the page should be displayed when opened.
-    *
-    * @param zoom_type Allowed values are fit-width, fit-height, fit-page.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_initial_zoom_type">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_initial_zoom_type</a>
+     */
     function setInitialZoomType($zoom_type) {
         if (!preg_match("/(?i)^(fit-width|fit-height|fit-page)$/", $zoom_type))
             throw new Error(create_invalid_value_message($zoom_type, "setInitialZoomType", "pdf-to-pdf", "Allowed values are fit-width, fit-height, fit-page.", "set_initial_zoom_type"), 470);
@@ -5221,11 +4212,8 @@ class PdfToPdfClient {
     }
 
     /**
-    * Display the specified page when the document is opened.
-    *
-    * @param page Must be a positive integer.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_initial_page">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_initial_page</a>
+     */
     function setInitialPage($page) {
         if (!(intval($page) > 0))
             throw new Error(create_invalid_value_message($page, "setInitialPage", "pdf-to-pdf", "Must be a positive integer.", "set_initial_page"), 470);
@@ -5235,11 +4223,8 @@ class PdfToPdfClient {
     }
 
     /**
-    * Specify the initial page zoom in percents when the document is opened.
-    *
-    * @param zoom Must be a positive integer.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_initial_zoom">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_initial_zoom</a>
+     */
     function setInitialZoom($zoom) {
         if (!(intval($zoom) > 0))
             throw new Error(create_invalid_value_message($zoom, "setInitialZoom", "pdf-to-pdf", "Must be a positive integer.", "set_initial_zoom"), 470);
@@ -5249,169 +4234,129 @@ class PdfToPdfClient {
     }
 
     /**
-    * Specify whether to hide the viewer application's tool bars when the document is active.
-    *
-    * @param value Set to <code>true</code> to hide tool bars.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_hide_toolbar">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_hide_toolbar</a>
+     */
     function setHideToolbar($value) {
         $this->fields['hide_toolbar'] = $value;
         return $this;
     }
 
     /**
-    * Specify whether to hide the viewer application's menu bar when the document is active.
-    *
-    * @param value Set to <code>true</code> to hide the menu bar.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_hide_menubar">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_hide_menubar</a>
+     */
     function setHideMenubar($value) {
         $this->fields['hide_menubar'] = $value;
         return $this;
     }
 
     /**
-    * Specify whether to hide user interface elements in the document's window (such as scroll bars and navigation controls), leaving only the document's contents displayed.
-    *
-    * @param value Set to <code>true</code> to hide ui elements.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_hide_window_ui">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_hide_window_ui</a>
+     */
     function setHideWindowUi($value) {
         $this->fields['hide_window_ui'] = $value;
         return $this;
     }
 
     /**
-    * Specify whether to resize the document's window to fit the size of the first displayed page.
-    *
-    * @param value Set to <code>true</code> to resize the window.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_fit_window">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_fit_window</a>
+     */
     function setFitWindow($value) {
         $this->fields['fit_window'] = $value;
         return $this;
     }
 
     /**
-    * Specify whether to position the document's window in the center of the screen.
-    *
-    * @param value Set to <code>true</code> to center the window.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_center_window">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_center_window</a>
+     */
     function setCenterWindow($value) {
         $this->fields['center_window'] = $value;
         return $this;
     }
 
     /**
-    * Specify whether the window's title bar should display the document title. If false , the title bar should instead display the name of the PDF file containing the document.
-    *
-    * @param value Set to <code>true</code> to display the title.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_display_title">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_display_title</a>
+     */
     function setDisplayTitle($value) {
         $this->fields['display_title'] = $value;
         return $this;
     }
 
     /**
-    * Set the predominant reading order for text to right-to-left. This option has no direct effect on the document's contents or page numbering but can be used to determine the relative positioning of pages when displayed side by side or printed n-up
-    *
-    * @param value Set to <code>true</code> to set right-to-left reading order.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_right_to_left">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_right_to_left</a>
+     */
     function setRightToLeft($value) {
         $this->fields['right_to_left'] = $value;
         return $this;
     }
 
     /**
-    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method or available in <a href='/user/account/log/conversion/'>conversion statistics</a>.
-    *
-    * @param value Set to <code>true</code> to enable the debug logging.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_debug_log">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_debug_log</a>
+     */
     function setDebugLog($value) {
         $this->fields['debug_log'] = $value;
         return $this;
     }
 
     /**
-    * Get the URL of the debug log for the last conversion.
-    * @return The link to the debug log.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#get_debug_log_url">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#get_debug_log_url</a>
+     */
     function getDebugLogUrl() {
         return $this->helper->getDebugLogUrl();
     }
 
     /**
-    * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
-    * This method can only be called after a call to one of the convertXtoY methods.
-    * The returned value can differ from the actual count if you run parallel conversions.
-    * The special value <code>999999</code> is returned if the information is not available.
-    * @return The number of credits.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#get_remaining_credit_count">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#get_remaining_credit_count</a>
+     */
     function getRemainingCreditCount() {
         return $this->helper->getRemainingCreditCount();
     }
 
     /**
-    * Get the number of credits consumed by the last conversion.
-    * @return The number of credits.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#get_consumed_credit_count">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#get_consumed_credit_count</a>
+     */
     function getConsumedCreditCount() {
         return $this->helper->getConsumedCreditCount();
     }
 
     /**
-    * Get the job id.
-    * @return The unique job identifier.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#get_job_id">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#get_job_id</a>
+     */
     function getJobId() {
         return $this->helper->getJobId();
     }
 
     /**
-    * Get the number of pages in the output document.
-    * @return The page count.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#get_page_count">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#get_page_count</a>
+     */
     function getPageCount() {
         return $this->helper->getPageCount();
     }
 
     /**
-    * Get the size of the output in bytes.
-    * @return The count of bytes.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#get_output_size">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#get_output_size</a>
+     */
     function getOutputSize() {
         return $this->helper->getOutputSize();
     }
 
     /**
-    * Get the version details.
-    * @return API version, converter version, and client version.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#get_version">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#get_version</a>
+     */
     function getVersion() {
         return 'client '.ConnectionHelper::CLIENT_VERSION.', API v2, converter '.$this->helper->getConverterVersion();
     }
 
     /**
-    * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
-    *
-    * @param tag A string with the custom tag.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_tag">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_tag</a>
+     */
     function setTag($tag) {
         $this->fields['tag'] = $tag;
         return $this;
     }
 
     /**
-    * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
-    *
-    * @param version The version identifier. Allowed values are 24.04, 20.10, 18.10, latest.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_converter_version">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_converter_version</a>
+     */
     function setConverterVersion($version) {
         if (!preg_match("/(?i)^(24.04|20.10|18.10|latest)$/", $version))
             throw new Error(create_invalid_value_message($version, "setConverterVersion", "pdf-to-pdf", "Allowed values are 24.04, 20.10, 18.10, latest.", "set_converter_version"), 470);
@@ -5421,70 +4366,48 @@ class PdfToPdfClient {
     }
 
     /**
-    * Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API.
-    * Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
-    *
-    * @param value Set to <code>true</code> to use HTTP.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_use_http">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_use_http</a>
+     */
     function setUseHttp($value) {
         $this->helper->setUseHttp($value);
         return $this;
     }
 
     /**
-    * Specifies the User-Agent HTTP header that the client library will use when interacting with the API.
-    *
-    * @param agent The user agent string.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_client_user_agent">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_client_user_agent</a>
+     */
     function setClientUserAgent($agent) {
         $this->helper->setUserAgent($agent);
         return $this;
     }
 
     /**
-    * Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
-    *
-    * @param agent The user agent string.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_user_agent">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_user_agent</a>
+     */
     function setUserAgent($agent) {
         $this->helper->setUserAgent($agent);
         return $this;
     }
 
     /**
-    * Specifies an HTTP proxy that the API client library will use to connect to the internet.
-    *
-    * @param host The proxy hostname.
-    * @param port The proxy port.
-    * @param user_name The username.
-    * @param password The password.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_proxy">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_proxy</a>
+     */
     function setProxy($host, $port, $user_name, $password) {
         $this->helper->setProxy($host, $port, $user_name, $password);
         return $this;
     }
 
     /**
-    * Use cURL for the conversion request instead of the file_get_contents() PHP function.
-    *
-    * @param value Set to <code>true</code> to use PHP's cURL.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_use_curl">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_use_curl</a>
+     */
     function setUseCurl($value) {
         $this->helper->setUseCurl($value);
         return $this;
     }
 
     /**
-    * Specifies the number of automatic retries when the 502 or 503 HTTP status code is received. The status code indicates a temporary network issue. This feature can be disabled by setting to 0.
-    *
-    * @param count Number of retries.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_retry_count">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_retry_count</a>
+     */
     function setRetryCount($count) {
         $this->helper->setRetryCount($count);
         return $this;
@@ -5493,8 +4416,10 @@ class PdfToPdfClient {
 }
 
 /**
-* Conversion from an image to PDF.
-*/
+ * Conversion from an image to PDF.
+ *
+ * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/">https://pdfcrowd.com/api/image-to-pdf-php/</a>
+ */
 class ImageToPdfClient {
     private $helper;
     private $fields;
@@ -5503,11 +4428,8 @@ class ImageToPdfClient {
     private $raw_data;
 
     /**
-    * Constructor for the PDFCrowd API client.
-    *
-    * @param user_name Your username at PDFCrowd.
-    * @param api_key Your API key.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#__construct">https://pdfcrowd.com/api/image-to-pdf-php/ref/#__construct</a>
+     */
     function __construct($user_name, $api_key) {
         $this->helper = new ConnectionHelper($user_name, $api_key);
         $this->fields = array('input_format'=>'image', 'output_format'=>'pdf');
@@ -5517,11 +4439,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Convert an image.
-    *
-    * @param url The address of the image to convert. Supported protocols are http:// and https://.
-    * @return Byte array containing the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_url">https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_url</a>
+     */
     function convertUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrl", "image-to-pdf", "Supported protocols are http:// and https://.", "convert_url"), 470);
@@ -5531,11 +4450,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Convert an image and write the result to an output stream.
-    *
-    * @param url The address of the image to convert. Supported protocols are http:// and https://.
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_url_to_stream">https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_url_to_stream</a>
+     */
     function convertUrlToStream($url, $out_stream) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "image-to-pdf", "Supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
@@ -5545,11 +4461,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Convert an image and write the result to a local file.
-    *
-    * @param url The address of the image to convert. Supported protocols are http:// and https://.
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_url_to_file">https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_url_to_file</a>
+     */
     function convertUrlToFile($url, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertUrlToFile::file_path", "image-to-pdf", "The string must not be empty.", "convert_url_to_file"), 470);
@@ -5571,11 +4484,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Convert a local file.
-    *
-    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
-    * @return Byte array containing the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_file">https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_file</a>
+     */
     function convertFile($file) {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFile", "image-to-pdf", "The file must exist and not be empty.", "convert_file"), 470);
@@ -5585,11 +4495,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Convert a local file and write the result to an output stream.
-    *
-    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_file_to_stream">https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_file_to_stream</a>
+     */
     function convertFileToStream($file, $out_stream) {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFileToStream::file", "image-to-pdf", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
@@ -5599,11 +4506,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Convert a local file and write the result to a local file.
-    *
-    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_file_to_file">https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_file_to_file</a>
+     */
     function convertFileToFile($file, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertFileToFile::file_path", "image-to-pdf", "The string must not be empty.", "convert_file_to_file"), 470);
@@ -5625,33 +4529,24 @@ class ImageToPdfClient {
     }
 
     /**
-    * Convert raw data.
-    *
-    * @param data The raw content to be converted.
-    * @return Byte array with the output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_raw_data">https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_raw_data</a>
+     */
     function convertRawData($data) {
         $this->raw_data['file'] = $data;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
 
     /**
-    * Convert raw data and write the result to an output stream.
-    *
-    * @param data The raw content to be converted.
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_raw_data_to_stream">https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_raw_data_to_stream</a>
+     */
     function convertRawDataToStream($data, $out_stream) {
         $this->raw_data['file'] = $data;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
 
     /**
-    * Convert raw data to a file.
-    *
-    * @param data The raw content to be converted.
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_raw_data_to_file">https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_raw_data_to_file</a>
+     */
     function convertRawDataToFile($data, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertRawDataToFile::file_path", "image-to-pdf", "The string must not be empty.", "convert_raw_data_to_file"), 470);
@@ -5673,33 +4568,24 @@ class ImageToPdfClient {
     }
 
     /**
-    * Convert the contents of an input stream.
-    *
-    * @param in_stream The input stream with source data.<br>
-    * @return Byte array containing the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_stream">https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_stream</a>
+     */
     function convertStream($in_stream) {
         $this->raw_data['stream'] = stream_get_contents($in_stream);
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
 
     /**
-    * Convert the contents of an input stream and write the result to an output stream.
-    *
-    * @param in_stream The input stream with source data.<br>
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_stream_to_stream">https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_stream_to_stream</a>
+     */
     function convertStreamToStream($in_stream, $out_stream) {
         $this->raw_data['stream'] = stream_get_contents($in_stream);
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
 
     /**
-    * Convert the contents of an input stream and write the result to a local file.
-    *
-    * @param in_stream The input stream with source data.<br>
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_stream_to_file">https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_stream_to_file</a>
+     */
     function convertStreamToFile($in_stream, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertStreamToFile::file_path", "image-to-pdf", "The string must not be empty.", "convert_stream_to_file"), 470);
@@ -5721,33 +4607,24 @@ class ImageToPdfClient {
     }
 
     /**
-    * Resize the image.
-    *
-    * @param resize The resize percentage or new image dimensions.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_resize">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_resize</a>
+     */
     function setResize($resize) {
         $this->fields['resize'] = $resize;
         return $this;
     }
 
     /**
-    * Rotate the image.
-    *
-    * @param rotate The rotation specified in degrees.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_rotate">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_rotate</a>
+     */
     function setRotate($rotate) {
         $this->fields['rotate'] = $rotate;
         return $this;
     }
 
     /**
-    * Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
-    *
-    * @param x The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_crop_area_x">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_crop_area_x</a>
+     */
     function setCropAreaX($x) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $x))
             throw new Error(create_invalid_value_message($x, "setCropAreaX", "image-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_crop_area_x"), 470);
@@ -5757,11 +4634,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area.
-    *
-    * @param y The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_crop_area_y">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_crop_area_y</a>
+     */
     function setCropAreaY($y) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $y))
             throw new Error(create_invalid_value_message($y, "setCropAreaY", "image-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_crop_area_y"), 470);
@@ -5771,11 +4645,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Set the width of the content area. It should be at least 1 inch.
-    *
-    * @param width The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_crop_area_width">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_crop_area_width</a>
+     */
     function setCropAreaWidth($width) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $width))
             throw new Error(create_invalid_value_message($width, "setCropAreaWidth", "image-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_crop_area_width"), 470);
@@ -5785,11 +4656,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Set the height of the content area. It should be at least 1 inch.
-    *
-    * @param height The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_crop_area_height">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_crop_area_height</a>
+     */
     function setCropAreaHeight($height) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
             throw new Error(create_invalid_value_message($height, "setCropAreaHeight", "image-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_crop_area_height"), 470);
@@ -5799,14 +4667,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Set the content area position and size. The content area enables to specify the part to be converted.
-    *
-    * @param x Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @param y Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @param width Set the width of the content area. It should be at least 1 inch. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @param height Set the height of the content area. It should be at least 1 inch. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_crop_area">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_crop_area</a>
+     */
     function setCropArea($x, $y, $width, $height) {
         $this->setCropAreaX($x);
         $this->setCropAreaY($y);
@@ -5816,22 +4678,16 @@ class ImageToPdfClient {
     }
 
     /**
-    * Remove borders of an image which does not change in color.
-    *
-    * @param value Set to <code>true</code> to remove borders.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_remove_borders">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_remove_borders</a>
+     */
     function setRemoveBorders($value) {
         $this->fields['remove_borders'] = $value;
         return $this;
     }
 
     /**
-    * Set the output page size.
-    *
-    * @param size Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_page_size">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_page_size</a>
+     */
     function setPageSize($size) {
         if (!preg_match("/(?i)^(A0|A1|A2|A3|A4|A5|A6|Letter)$/", $size))
             throw new Error(create_invalid_value_message($size, "setPageSize", "image-to-pdf", "Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.", "set_page_size"), 470);
@@ -5841,11 +4697,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Set the output page width.
-    *
-    * @param width The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_page_width">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_page_width</a>
+     */
     function setPageWidth($width) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $width))
             throw new Error(create_invalid_value_message($width, "setPageWidth", "image-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_page_width"), 470);
@@ -5855,11 +4708,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Set the output page height.
-    *
-    * @param height The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_page_height">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_page_height</a>
+     */
     function setPageHeight($height) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $height))
             throw new Error(create_invalid_value_message($height, "setPageHeight", "image-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_page_height"), 470);
@@ -5869,12 +4719,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Set the output page dimensions. If no page size is specified, margins are applied as a border around the image.
-    *
-    * @param width Set the output page width. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @param height Set the output page height. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_page_dimensions">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_page_dimensions</a>
+     */
     function setPageDimensions($width, $height) {
         $this->setPageWidth($width);
         $this->setPageHeight($height);
@@ -5882,11 +4728,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Set the output page orientation.
-    *
-    * @param orientation Allowed values are landscape, portrait.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_orientation">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_orientation</a>
+     */
     function setOrientation($orientation) {
         if (!preg_match("/(?i)^(landscape|portrait)$/", $orientation))
             throw new Error(create_invalid_value_message($orientation, "setOrientation", "image-to-pdf", "Allowed values are landscape, portrait.", "set_orientation"), 470);
@@ -5896,11 +4739,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Set the image position on the page.
-    *
-    * @param position Allowed values are center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_position">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_position</a>
+     */
     function setPosition($position) {
         if (!preg_match("/(?i)^(center|top|bottom|left|right|top-left|top-right|bottom-left|bottom-right)$/", $position))
             throw new Error(create_invalid_value_message($position, "setPosition", "image-to-pdf", "Allowed values are center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right.", "set_position"), 470);
@@ -5910,11 +4750,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Set the mode to print the image on the content area of the page.
-    *
-    * @param mode Allowed values are default, fit, stretch.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_print_page_mode">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_print_page_mode</a>
+     */
     function setPrintPageMode($mode) {
         if (!preg_match("/(?i)^(default|fit|stretch)$/", $mode))
             throw new Error(create_invalid_value_message($mode, "setPrintPageMode", "image-to-pdf", "Allowed values are default, fit, stretch.", "set_print_page_mode"), 470);
@@ -5924,11 +4761,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Set the output page top margin.
-    *
-    * @param top The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_margin_top">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_margin_top</a>
+     */
     function setMarginTop($top) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $top))
             throw new Error(create_invalid_value_message($top, "setMarginTop", "image-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_margin_top"), 470);
@@ -5938,11 +4772,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Set the output page right margin.
-    *
-    * @param right The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_margin_right">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_margin_right</a>
+     */
     function setMarginRight($right) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $right))
             throw new Error(create_invalid_value_message($right, "setMarginRight", "image-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_margin_right"), 470);
@@ -5952,11 +4783,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Set the output page bottom margin.
-    *
-    * @param bottom The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_margin_bottom">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_margin_bottom</a>
+     */
     function setMarginBottom($bottom) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $bottom))
             throw new Error(create_invalid_value_message($bottom, "setMarginBottom", "image-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_margin_bottom"), 470);
@@ -5966,11 +4794,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Set the output page left margin.
-    *
-    * @param left The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_margin_left">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_margin_left</a>
+     */
     function setMarginLeft($left) {
         if (!preg_match("/(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$/", $left))
             throw new Error(create_invalid_value_message($left, "setMarginLeft", "image-to-pdf", "The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.", "set_margin_left"), 470);
@@ -5980,14 +4805,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Set the output page margins.
-    *
-    * @param top Set the output page top margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @param right Set the output page right margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @param bottom Set the output page bottom margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @param left Set the output page left margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_page_margins">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_page_margins</a>
+     */
     function setPageMargins($top, $right, $bottom, $left) {
         $this->setMarginTop($top);
         $this->setMarginRight($right);
@@ -5997,11 +4816,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * The page background color in RGB or RGBA hexadecimal format. The color fills the entire page regardless of the margins. If not page size is specified and the image format supports background (e.g. PDF, PNG), the background color is applied too.
-    *
-    * @param color The value must be in RRGGBB or RRGGBBAA hexadecimal format.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_page_background_color">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_page_background_color</a>
+     */
     function setPageBackgroundColor($color) {
         if (!preg_match("/^[0-9a-fA-F]{6,8}$/", $color))
             throw new Error(create_invalid_value_message($color, "setPageBackgroundColor", "image-to-pdf", "The value must be in RRGGBB or RRGGBBAA hexadecimal format.", "set_page_background_color"), 470);
@@ -6011,22 +4827,16 @@ class ImageToPdfClient {
     }
 
     /**
-    * Set the DPI resolution of the input image. The DPI affects margin options specified in points too (e.g. 1 point is equal to 1 pixel in 96 DPI).
-    *
-    * @param dpi The DPI value.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_dpi">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_dpi</a>
+     */
     function setDpi($dpi) {
         $this->fields['dpi'] = $dpi;
         return $this;
     }
 
     /**
-    * Apply a watermark to each page of the output PDF file. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark.
-    *
-    * @param watermark The file path to a local file. The file must exist and not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_page_watermark">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_page_watermark</a>
+     */
     function setPageWatermark($watermark) {
         if (!(filesize($watermark) > 0))
             throw new Error(create_invalid_value_message($watermark, "setPageWatermark", "image-to-pdf", "The file must exist and not be empty.", "set_page_watermark"), 470);
@@ -6036,11 +4846,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark.
-    *
-    * @param url Supported protocols are http:// and https://.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_page_watermark_url">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_page_watermark_url</a>
+     */
     function setPageWatermarkUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "setPageWatermarkUrl", "image-to-pdf", "Supported protocols are http:// and https://.", "set_page_watermark_url"), 470);
@@ -6050,11 +4857,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Apply each page of a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image.
-    *
-    * @param watermark The file path to a local file. The file must exist and not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_multipage_watermark">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_multipage_watermark</a>
+     */
     function setMultipageWatermark($watermark) {
         if (!(filesize($watermark) > 0))
             throw new Error(create_invalid_value_message($watermark, "setMultipageWatermark", "image-to-pdf", "The file must exist and not be empty.", "set_multipage_watermark"), 470);
@@ -6064,11 +4868,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image.
-    *
-    * @param url Supported protocols are http:// and https://.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_multipage_watermark_url">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_multipage_watermark_url</a>
+     */
     function setMultipageWatermarkUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "setMultipageWatermarkUrl", "image-to-pdf", "Supported protocols are http:// and https://.", "set_multipage_watermark_url"), 470);
@@ -6078,11 +4879,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Apply a background to each page of the output PDF file. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background.
-    *
-    * @param background The file path to a local file. The file must exist and not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_page_background">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_page_background</a>
+     */
     function setPageBackground($background) {
         if (!(filesize($background) > 0))
             throw new Error(create_invalid_value_message($background, "setPageBackground", "image-to-pdf", "The file must exist and not be empty.", "set_page_background"), 470);
@@ -6092,11 +4890,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background.
-    *
-    * @param url Supported protocols are http:// and https://.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_page_background_url">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_page_background_url</a>
+     */
     function setPageBackgroundUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "setPageBackgroundUrl", "image-to-pdf", "Supported protocols are http:// and https://.", "set_page_background_url"), 470);
@@ -6106,11 +4901,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Apply each page of a background to the corresponding page of the output PDF. A background can be either a PDF or an image.
-    *
-    * @param background The file path to a local file. The file must exist and not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_multipage_background">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_multipage_background</a>
+     */
     function setMultipageBackground($background) {
         if (!(filesize($background) > 0))
             throw new Error(create_invalid_value_message($background, "setMultipageBackground", "image-to-pdf", "The file must exist and not be empty.", "set_multipage_background"), 470);
@@ -6120,11 +4912,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image.
-    *
-    * @param url Supported protocols are http:// and https://.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_multipage_background_url">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_multipage_background_url</a>
+     */
     function setMultipageBackgroundUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "setMultipageBackgroundUrl", "image-to-pdf", "Supported protocols are http:// and https://.", "set_multipage_background_url"), 470);
@@ -6134,132 +4923,96 @@ class ImageToPdfClient {
     }
 
     /**
-    * Create linearized PDF. This is also known as Fast Web View.
-    *
-    * @param value Set to <code>true</code> to create linearized PDF.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_linearize">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_linearize</a>
+     */
     function setLinearize($value) {
         $this->fields['linearize'] = $value;
         return $this;
     }
 
     /**
-    * Encrypt the PDF. This prevents search engines from indexing the contents.
-    *
-    * @param value Set to <code>true</code> to enable PDF encryption.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_encrypt">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_encrypt</a>
+     */
     function setEncrypt($value) {
         $this->fields['encrypt'] = $value;
         return $this;
     }
 
     /**
-    * Protect the PDF with a user password. When a PDF has a user password, it must be supplied in order to view the document and to perform operations allowed by the access permissions.
-    *
-    * @param password The user password.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_user_password">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_user_password</a>
+     */
     function setUserPassword($password) {
         $this->fields['user_password'] = $password;
         return $this;
     }
 
     /**
-    * Protect the PDF with an owner password.  Supplying an owner password grants unlimited access to the PDF including changing the passwords and access permissions.
-    *
-    * @param password The owner password.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_owner_password">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_owner_password</a>
+     */
     function setOwnerPassword($password) {
         $this->fields['owner_password'] = $password;
         return $this;
     }
 
     /**
-    * Disallow printing of the output PDF.
-    *
-    * @param value Set to <code>true</code> to set the no-print flag in the output PDF.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_no_print">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_no_print</a>
+     */
     function setNoPrint($value) {
         $this->fields['no_print'] = $value;
         return $this;
     }
 
     /**
-    * Disallow modification of the output PDF.
-    *
-    * @param value Set to <code>true</code> to set the read-only only flag in the output PDF.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_no_modify">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_no_modify</a>
+     */
     function setNoModify($value) {
         $this->fields['no_modify'] = $value;
         return $this;
     }
 
     /**
-    * Disallow text and graphics extraction from the output PDF.
-    *
-    * @param value Set to <code>true</code> to set the no-copy flag in the output PDF.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_no_copy">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_no_copy</a>
+     */
     function setNoCopy($value) {
         $this->fields['no_copy'] = $value;
         return $this;
     }
 
     /**
-    * Set the title of the PDF.
-    *
-    * @param title The title.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_title">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_title</a>
+     */
     function setTitle($title) {
         $this->fields['title'] = $title;
         return $this;
     }
 
     /**
-    * Set the subject of the PDF.
-    *
-    * @param subject The subject.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_subject">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_subject</a>
+     */
     function setSubject($subject) {
         $this->fields['subject'] = $subject;
         return $this;
     }
 
     /**
-    * Set the author of the PDF.
-    *
-    * @param author The author.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_author">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_author</a>
+     */
     function setAuthor($author) {
         $this->fields['author'] = $author;
         return $this;
     }
 
     /**
-    * Associate keywords with the document.
-    *
-    * @param keywords The string with the keywords.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_keywords">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_keywords</a>
+     */
     function setKeywords($keywords) {
         $this->fields['keywords'] = $keywords;
         return $this;
     }
 
     /**
-    * Specify the page layout to be used when the document is opened.
-    *
-    * @param layout Allowed values are single-page, one-column, two-column-left, two-column-right.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_page_layout">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_page_layout</a>
+     */
     function setPageLayout($layout) {
         if (!preg_match("/(?i)^(single-page|one-column|two-column-left|two-column-right)$/", $layout))
             throw new Error(create_invalid_value_message($layout, "setPageLayout", "image-to-pdf", "Allowed values are single-page, one-column, two-column-left, two-column-right.", "set_page_layout"), 470);
@@ -6269,11 +5022,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Specify how the document should be displayed when opened.
-    *
-    * @param mode Allowed values are full-screen, thumbnails, outlines.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_page_mode">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_page_mode</a>
+     */
     function setPageMode($mode) {
         if (!preg_match("/(?i)^(full-screen|thumbnails|outlines)$/", $mode))
             throw new Error(create_invalid_value_message($mode, "setPageMode", "image-to-pdf", "Allowed values are full-screen, thumbnails, outlines.", "set_page_mode"), 470);
@@ -6283,11 +5033,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Specify how the page should be displayed when opened.
-    *
-    * @param zoom_type Allowed values are fit-width, fit-height, fit-page.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_initial_zoom_type">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_initial_zoom_type</a>
+     */
     function setInitialZoomType($zoom_type) {
         if (!preg_match("/(?i)^(fit-width|fit-height|fit-page)$/", $zoom_type))
             throw new Error(create_invalid_value_message($zoom_type, "setInitialZoomType", "image-to-pdf", "Allowed values are fit-width, fit-height, fit-page.", "set_initial_zoom_type"), 470);
@@ -6297,11 +5044,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Display the specified page when the document is opened.
-    *
-    * @param page Must be a positive integer.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_initial_page">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_initial_page</a>
+     */
     function setInitialPage($page) {
         if (!(intval($page) > 0))
             throw new Error(create_invalid_value_message($page, "setInitialPage", "image-to-pdf", "Must be a positive integer.", "set_initial_page"), 470);
@@ -6311,11 +5055,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Specify the initial page zoom in percents when the document is opened.
-    *
-    * @param zoom Must be a positive integer.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_initial_zoom">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_initial_zoom</a>
+     */
     function setInitialZoom($zoom) {
         if (!(intval($zoom) > 0))
             throw new Error(create_invalid_value_message($zoom, "setInitialZoom", "image-to-pdf", "Must be a positive integer.", "set_initial_zoom"), 470);
@@ -6325,150 +5066,114 @@ class ImageToPdfClient {
     }
 
     /**
-    * Specify whether to hide the viewer application's tool bars when the document is active.
-    *
-    * @param value Set to <code>true</code> to hide tool bars.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_hide_toolbar">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_hide_toolbar</a>
+     */
     function setHideToolbar($value) {
         $this->fields['hide_toolbar'] = $value;
         return $this;
     }
 
     /**
-    * Specify whether to hide the viewer application's menu bar when the document is active.
-    *
-    * @param value Set to <code>true</code> to hide the menu bar.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_hide_menubar">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_hide_menubar</a>
+     */
     function setHideMenubar($value) {
         $this->fields['hide_menubar'] = $value;
         return $this;
     }
 
     /**
-    * Specify whether to hide user interface elements in the document's window (such as scroll bars and navigation controls), leaving only the document's contents displayed.
-    *
-    * @param value Set to <code>true</code> to hide ui elements.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_hide_window_ui">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_hide_window_ui</a>
+     */
     function setHideWindowUi($value) {
         $this->fields['hide_window_ui'] = $value;
         return $this;
     }
 
     /**
-    * Specify whether to resize the document's window to fit the size of the first displayed page.
-    *
-    * @param value Set to <code>true</code> to resize the window.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_fit_window">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_fit_window</a>
+     */
     function setFitWindow($value) {
         $this->fields['fit_window'] = $value;
         return $this;
     }
 
     /**
-    * Specify whether to position the document's window in the center of the screen.
-    *
-    * @param value Set to <code>true</code> to center the window.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_center_window">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_center_window</a>
+     */
     function setCenterWindow($value) {
         $this->fields['center_window'] = $value;
         return $this;
     }
 
     /**
-    * Specify whether the window's title bar should display the document title. If false , the title bar should instead display the name of the PDF file containing the document.
-    *
-    * @param value Set to <code>true</code> to display the title.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_display_title">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_display_title</a>
+     */
     function setDisplayTitle($value) {
         $this->fields['display_title'] = $value;
         return $this;
     }
 
     /**
-    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method or available in <a href='/user/account/log/conversion/'>conversion statistics</a>.
-    *
-    * @param value Set to <code>true</code> to enable the debug logging.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_debug_log">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_debug_log</a>
+     */
     function setDebugLog($value) {
         $this->fields['debug_log'] = $value;
         return $this;
     }
 
     /**
-    * Get the URL of the debug log for the last conversion.
-    * @return The link to the debug log.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#get_debug_log_url">https://pdfcrowd.com/api/image-to-pdf-php/ref/#get_debug_log_url</a>
+     */
     function getDebugLogUrl() {
         return $this->helper->getDebugLogUrl();
     }
 
     /**
-    * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
-    * This method can only be called after a call to one of the convertXtoY methods.
-    * The returned value can differ from the actual count if you run parallel conversions.
-    * The special value <code>999999</code> is returned if the information is not available.
-    * @return The number of credits.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#get_remaining_credit_count">https://pdfcrowd.com/api/image-to-pdf-php/ref/#get_remaining_credit_count</a>
+     */
     function getRemainingCreditCount() {
         return $this->helper->getRemainingCreditCount();
     }
 
     /**
-    * Get the number of credits consumed by the last conversion.
-    * @return The number of credits.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#get_consumed_credit_count">https://pdfcrowd.com/api/image-to-pdf-php/ref/#get_consumed_credit_count</a>
+     */
     function getConsumedCreditCount() {
         return $this->helper->getConsumedCreditCount();
     }
 
     /**
-    * Get the job id.
-    * @return The unique job identifier.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#get_job_id">https://pdfcrowd.com/api/image-to-pdf-php/ref/#get_job_id</a>
+     */
     function getJobId() {
         return $this->helper->getJobId();
     }
 
     /**
-    * Get the size of the output in bytes.
-    * @return The count of bytes.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#get_output_size">https://pdfcrowd.com/api/image-to-pdf-php/ref/#get_output_size</a>
+     */
     function getOutputSize() {
         return $this->helper->getOutputSize();
     }
 
     /**
-    * Get the version details.
-    * @return API version, converter version, and client version.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#get_version">https://pdfcrowd.com/api/image-to-pdf-php/ref/#get_version</a>
+     */
     function getVersion() {
         return 'client '.ConnectionHelper::CLIENT_VERSION.', API v2, converter '.$this->helper->getConverterVersion();
     }
 
     /**
-    * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
-    *
-    * @param tag A string with the custom tag.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_tag">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_tag</a>
+     */
     function setTag($tag) {
         $this->fields['tag'] = $tag;
         return $this;
     }
 
     /**
-    * A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
-    *
-    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_http_proxy">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_http_proxy</a>
+     */
     function setHttpProxy($proxy) {
         if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
             throw new Error(create_invalid_value_message($proxy, "setHttpProxy", "image-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
@@ -6478,11 +5183,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
-    *
-    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_https_proxy">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_https_proxy</a>
+     */
     function setHttpsProxy($proxy) {
         if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
             throw new Error(create_invalid_value_message($proxy, "setHttpsProxy", "image-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
@@ -6492,11 +5194,8 @@ class ImageToPdfClient {
     }
 
     /**
-    * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
-    *
-    * @param version The version identifier. Allowed values are 24.04, 20.10, 18.10, latest.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_converter_version">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_converter_version</a>
+     */
     function setConverterVersion($version) {
         if (!preg_match("/(?i)^(24.04|20.10|18.10|latest)$/", $version))
             throw new Error(create_invalid_value_message($version, "setConverterVersion", "image-to-pdf", "Allowed values are 24.04, 20.10, 18.10, latest.", "set_converter_version"), 470);
@@ -6506,70 +5205,48 @@ class ImageToPdfClient {
     }
 
     /**
-    * Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API.
-    * Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
-    *
-    * @param value Set to <code>true</code> to use HTTP.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_use_http">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_use_http</a>
+     */
     function setUseHttp($value) {
         $this->helper->setUseHttp($value);
         return $this;
     }
 
     /**
-    * Specifies the User-Agent HTTP header that the client library will use when interacting with the API.
-    *
-    * @param agent The user agent string.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_client_user_agent">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_client_user_agent</a>
+     */
     function setClientUserAgent($agent) {
         $this->helper->setUserAgent($agent);
         return $this;
     }
 
     /**
-    * Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
-    *
-    * @param agent The user agent string.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_user_agent">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_user_agent</a>
+     */
     function setUserAgent($agent) {
         $this->helper->setUserAgent($agent);
         return $this;
     }
 
     /**
-    * Specifies an HTTP proxy that the API client library will use to connect to the internet.
-    *
-    * @param host The proxy hostname.
-    * @param port The proxy port.
-    * @param user_name The username.
-    * @param password The password.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_proxy">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_proxy</a>
+     */
     function setProxy($host, $port, $user_name, $password) {
         $this->helper->setProxy($host, $port, $user_name, $password);
         return $this;
     }
 
     /**
-    * Use cURL for the conversion request instead of the file_get_contents() PHP function.
-    *
-    * @param value Set to <code>true</code> to use PHP's cURL.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_use_curl">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_use_curl</a>
+     */
     function setUseCurl($value) {
         $this->helper->setUseCurl($value);
         return $this;
     }
 
     /**
-    * Specifies the number of automatic retries when the 502 or 503 HTTP status code is received. The status code indicates a temporary network issue. This feature can be disabled by setting to 0.
-    *
-    * @param count Number of retries.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_retry_count">https://pdfcrowd.com/api/image-to-pdf-php/ref/#set_retry_count</a>
+     */
     function setRetryCount($count) {
         $this->helper->setRetryCount($count);
         return $this;
@@ -6578,8 +5255,10 @@ class ImageToPdfClient {
 }
 
 /**
-* Conversion from PDF to HTML.
-*/
+ * Conversion from PDF to HTML.
+ *
+ * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/">https://pdfcrowd.com/api/pdf-to-html-php/</a>
+ */
 class PdfToHtmlClient {
     private $helper;
     private $fields;
@@ -6588,11 +5267,8 @@ class PdfToHtmlClient {
     private $raw_data;
 
     /**
-    * Constructor for the PDFCrowd API client.
-    *
-    * @param user_name Your username at PDFCrowd.
-    * @param api_key Your API key.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#__construct">https://pdfcrowd.com/api/pdf-to-html-php/ref/#__construct</a>
+     */
     function __construct($user_name, $api_key) {
         $this->helper = new ConnectionHelper($user_name, $api_key);
         $this->fields = array('input_format'=>'pdf', 'output_format'=>'html');
@@ -6602,11 +5278,8 @@ class PdfToHtmlClient {
     }
 
     /**
-    * Convert a PDF.
-    *
-    * @param url The address of the PDF to convert. Supported protocols are http:// and https://.
-    * @return Byte array containing the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_url">https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_url</a>
+     */
     function convertUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrl", "pdf-to-html", "Supported protocols are http:// and https://.", "convert_url"), 470);
@@ -6616,11 +5289,8 @@ class PdfToHtmlClient {
     }
 
     /**
-    * Convert a PDF and write the result to an output stream.
-    *
-    * @param url The address of the PDF to convert. Supported protocols are http:// and https://.
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_url_to_stream">https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_url_to_stream</a>
+     */
     function convertUrlToStream($url, $out_stream) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "pdf-to-html", "Supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
@@ -6630,11 +5300,8 @@ class PdfToHtmlClient {
     }
 
     /**
-    * Convert a PDF and write the result to a local file.
-    *
-    * @param url The address of the PDF to convert. Supported protocols are http:// and https://.
-    * @param file_path The output file path. The string must not be empty. The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_url_to_file">https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_url_to_file</a>
+     */
     function convertUrlToFile($url, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertUrlToFile::file_path", "pdf-to-html", "The string must not be empty.", "convert_url_to_file"), 470);
@@ -6659,11 +5326,8 @@ class PdfToHtmlClient {
     }
 
     /**
-    * Convert a local file.
-    *
-    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
-    * @return Byte array containing the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_file">https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_file</a>
+     */
     function convertFile($file) {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFile", "pdf-to-html", "The file must exist and not be empty.", "convert_file"), 470);
@@ -6673,11 +5337,8 @@ class PdfToHtmlClient {
     }
 
     /**
-    * Convert a local file and write the result to an output stream.
-    *
-    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_file_to_stream">https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_file_to_stream</a>
+     */
     function convertFileToStream($file, $out_stream) {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFileToStream::file", "pdf-to-html", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
@@ -6687,11 +5348,8 @@ class PdfToHtmlClient {
     }
 
     /**
-    * Convert a local file and write the result to a local file.
-    *
-    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
-    * @param file_path The output file path. The string must not be empty. The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_file_to_file">https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_file_to_file</a>
+     */
     function convertFileToFile($file, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertFileToFile::file_path", "pdf-to-html", "The string must not be empty.", "convert_file_to_file"), 470);
@@ -6716,33 +5374,24 @@ class PdfToHtmlClient {
     }
 
     /**
-    * Convert raw data.
-    *
-    * @param data The raw content to be converted.
-    * @return Byte array with the output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_raw_data">https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_raw_data</a>
+     */
     function convertRawData($data) {
         $this->raw_data['file'] = $data;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
 
     /**
-    * Convert raw data and write the result to an output stream.
-    *
-    * @param data The raw content to be converted.
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_raw_data_to_stream">https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_raw_data_to_stream</a>
+     */
     function convertRawDataToStream($data, $out_stream) {
         $this->raw_data['file'] = $data;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
 
     /**
-    * Convert raw data to a file.
-    *
-    * @param data The raw content to be converted.
-    * @param file_path The output file path. The string must not be empty. The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_raw_data_to_file">https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_raw_data_to_file</a>
+     */
     function convertRawDataToFile($data, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertRawDataToFile::file_path", "pdf-to-html", "The string must not be empty.", "convert_raw_data_to_file"), 470);
@@ -6767,33 +5416,24 @@ class PdfToHtmlClient {
     }
 
     /**
-    * Convert the contents of an input stream.
-    *
-    * @param in_stream The input stream with source data.<br>
-    * @return Byte array containing the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_stream">https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_stream</a>
+     */
     function convertStream($in_stream) {
         $this->raw_data['stream'] = stream_get_contents($in_stream);
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
 
     /**
-    * Convert the contents of an input stream and write the result to an output stream.
-    *
-    * @param in_stream The input stream with source data.<br>
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_stream_to_stream">https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_stream_to_stream</a>
+     */
     function convertStreamToStream($in_stream, $out_stream) {
         $this->raw_data['stream'] = stream_get_contents($in_stream);
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
 
     /**
-    * Convert the contents of an input stream and write the result to a local file.
-    *
-    * @param in_stream The input stream with source data.<br>
-    * @param file_path The output file path. The string must not be empty. The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_stream_to_file">https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_stream_to_file</a>
+     */
     function convertStreamToFile($in_stream, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertStreamToFile::file_path", "pdf-to-html", "The string must not be empty.", "convert_stream_to_file"), 470);
@@ -6818,22 +5458,16 @@ class PdfToHtmlClient {
     }
 
     /**
-    * Password to open the encrypted PDF file.
-    *
-    * @param password The input PDF password.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_pdf_password">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_pdf_password</a>
+     */
     function setPdfPassword($password) {
         $this->fields['pdf_password'] = $password;
         return $this;
     }
 
     /**
-    * Set the scaling factor (zoom) for the main page area.
-    *
-    * @param factor The percentage value. Must be a positive integer.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_scale_factor">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_scale_factor</a>
+     */
     function setScaleFactor($factor) {
         if (!(intval($factor) > 0))
             throw new Error(create_invalid_value_message($factor, "setScaleFactor", "pdf-to-html", "Must be a positive integer.", "set_scale_factor"), 470);
@@ -6843,11 +5477,8 @@ class PdfToHtmlClient {
     }
 
     /**
-    * Set the page range to print.
-    *
-    * @param pages A comma separated list of page numbers or ranges.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_print_page_range">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_print_page_range</a>
+     */
     function setPrintPageRange($pages) {
         if (!preg_match("/^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$/", $pages))
             throw new Error(create_invalid_value_message($pages, "setPrintPageRange", "pdf-to-html", "A comma separated list of page numbers or ranges.", "set_print_page_range"), 470);
@@ -6857,22 +5488,16 @@ class PdfToHtmlClient {
     }
 
     /**
-    * Set the output graphics DPI.
-    *
-    * @param dpi The DPI value.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_dpi">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_dpi</a>
+     */
     function setDpi($dpi) {
         $this->fields['dpi'] = $dpi;
         return $this;
     }
 
     /**
-    * Specifies where the images are stored.
-    *
-    * @param mode The image storage mode. Allowed values are embed, separate, none.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_image_mode">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_image_mode</a>
+     */
     function setImageMode($mode) {
         if (!preg_match("/(?i)^(embed|separate|none)$/", $mode))
             throw new Error(create_invalid_value_message($mode, "setImageMode", "pdf-to-html", "Allowed values are embed, separate, none.", "set_image_mode"), 470);
@@ -6882,11 +5507,8 @@ class PdfToHtmlClient {
     }
 
     /**
-    * Specifies the format for the output images.
-    *
-    * @param image_format The image format. Allowed values are png, jpg, svg.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_image_format">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_image_format</a>
+     */
     function setImageFormat($image_format) {
         if (!preg_match("/(?i)^(png|jpg|svg)$/", $image_format))
             throw new Error(create_invalid_value_message($image_format, "setImageFormat", "pdf-to-html", "Allowed values are png, jpg, svg.", "set_image_format"), 470);
@@ -6896,11 +5518,8 @@ class PdfToHtmlClient {
     }
 
     /**
-    * Specifies where the style sheets are stored.
-    *
-    * @param mode The style sheet storage mode. Allowed values are embed, separate.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_css_mode">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_css_mode</a>
+     */
     function setCssMode($mode) {
         if (!preg_match("/(?i)^(embed|separate)$/", $mode))
             throw new Error(create_invalid_value_message($mode, "setCssMode", "pdf-to-html", "Allowed values are embed, separate.", "set_css_mode"), 470);
@@ -6910,11 +5529,8 @@ class PdfToHtmlClient {
     }
 
     /**
-    * Specifies where the fonts are stored.
-    *
-    * @param mode The font storage mode. Allowed values are embed, separate.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_font_mode">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_font_mode</a>
+     */
     function setFontMode($mode) {
         if (!preg_match("/(?i)^(embed|separate)$/", $mode))
             throw new Error(create_invalid_value_message($mode, "setFontMode", "pdf-to-html", "Allowed values are embed, separate.", "set_font_mode"), 470);
@@ -6924,11 +5540,8 @@ class PdfToHtmlClient {
     }
 
     /**
-    * Sets the processing mode for handling Type 3 fonts.
-    *
-    * @param mode The type3 font mode. Allowed values are raster, convert.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_type3_mode">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_type3_mode</a>
+     */
     function setType3Mode($mode) {
         if (!preg_match("/(?i)^(raster|convert)$/", $mode))
             throw new Error(create_invalid_value_message($mode, "setType3Mode", "pdf-to-html", "Allowed values are raster, convert.", "set_type3_mode"), 470);
@@ -6938,22 +5551,16 @@ class PdfToHtmlClient {
     }
 
     /**
-    * Converts ligatures, two or more letters combined into a single glyph, back into their individual ASCII characters.
-    *
-    * @param value Set to <code>true</code> to split ligatures.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_split_ligatures">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_split_ligatures</a>
+     */
     function setSplitLigatures($value) {
         $this->fields['split_ligatures'] = $value;
         return $this;
     }
 
     /**
-    * Apply custom CSS to the output HTML document. It allows you to modify the visual appearance and layout. Tip: Using <code>!important</code> in custom CSS provides a way to prioritize and override conflicting styles.
-    *
-    * @param css A string containing valid CSS. The string must not be empty.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_custom_css">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_custom_css</a>
+     */
     function setCustomCss($css) {
         if (!($css != null && $css !== ''))
             throw new Error(create_invalid_value_message($css, "setCustomCss", "pdf-to-html", "The string must not be empty.", "set_custom_css"), 470);
@@ -6963,11 +5570,8 @@ class PdfToHtmlClient {
     }
 
     /**
-    * Add the specified prefix to all id and class attributes in the HTML content, creating a namespace for safe integration into another HTML document. This ensures unique identifiers, preventing conflicts when merging with other HTML.
-    *
-    * @param prefix The prefix to add before each id and class attribute name. Start with a letter or underscore, and use only letters, numbers, hyphens, underscores, or colons.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_html_namespace">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_html_namespace</a>
+     */
     function setHtmlNamespace($prefix) {
         if (!preg_match("/(?i)^[a-z_][a-z0-9_:-]*$/", $prefix))
             throw new Error(create_invalid_value_message($prefix, "setHtmlNamespace", "pdf-to-html", "Start with a letter or underscore, and use only letters, numbers, hyphens, underscores, or colons.", "set_html_namespace"), 470);
@@ -6977,155 +5581,120 @@ class PdfToHtmlClient {
     }
 
     /**
-    * A helper method to determine if the output file is a zip archive. The output of the conversion may be either an HTML file or a zip file containing the HTML and its external assets.
-    * @return <code>True</code> if the conversion output is a zip file, otherwise <code>False</code>.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#is_zipped_output">https://pdfcrowd.com/api/pdf-to-html-php/ref/#is_zipped_output</a>
+     */
     function isZippedOutput() {
         return (isset($this->fields['image_mode']) && $this->fields['image_mode'] == 'separate') || (isset($this->fields['css_mode']) && $this->fields['css_mode'] == 'separate') || (isset($this->fields['font_mode']) && $this->fields['font_mode'] == 'separate') || (isset($this->fields['force_zip']) && $this->fields['force_zip'] == 'true');
     }
 
     /**
-    * Enforces the zip output format.
-    *
-    * @param value Set to <code>true</code> to get the output as a zip archive.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_force_zip">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_force_zip</a>
+     */
     function setForceZip($value) {
         $this->fields['force_zip'] = $value;
         return $this;
     }
 
     /**
-    * Set the HTML title. The title from the input PDF is used by default.
-    *
-    * @param title The HTML title.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_title">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_title</a>
+     */
     function setTitle($title) {
         $this->fields['title'] = $title;
         return $this;
     }
 
     /**
-    * Set the HTML subject. The subject from the input PDF is used by default.
-    *
-    * @param subject The HTML subject.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_subject">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_subject</a>
+     */
     function setSubject($subject) {
         $this->fields['subject'] = $subject;
         return $this;
     }
 
     /**
-    * Set the HTML author. The author from the input PDF is used by default.
-    *
-    * @param author The HTML author.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_author">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_author</a>
+     */
     function setAuthor($author) {
         $this->fields['author'] = $author;
         return $this;
     }
 
     /**
-    * Associate keywords with the HTML document. Keywords from the input PDF are used by default.
-    *
-    * @param keywords The string containing the keywords.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_keywords">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_keywords</a>
+     */
     function setKeywords($keywords) {
         $this->fields['keywords'] = $keywords;
         return $this;
     }
 
     /**
-    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method or available in <a href='/user/account/log/conversion/'>conversion statistics</a>.
-    *
-    * @param value Set to <code>true</code> to enable the debug logging.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_debug_log">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_debug_log</a>
+     */
     function setDebugLog($value) {
         $this->fields['debug_log'] = $value;
         return $this;
     }
 
     /**
-    * Get the URL of the debug log for the last conversion.
-    * @return The link to the debug log.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#get_debug_log_url">https://pdfcrowd.com/api/pdf-to-html-php/ref/#get_debug_log_url</a>
+     */
     function getDebugLogUrl() {
         return $this->helper->getDebugLogUrl();
     }
 
     /**
-    * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
-    * This method can only be called after a call to one of the convertXtoY methods.
-    * The returned value can differ from the actual count if you run parallel conversions.
-    * The special value <code>999999</code> is returned if the information is not available.
-    * @return The number of credits.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#get_remaining_credit_count">https://pdfcrowd.com/api/pdf-to-html-php/ref/#get_remaining_credit_count</a>
+     */
     function getRemainingCreditCount() {
         return $this->helper->getRemainingCreditCount();
     }
 
     /**
-    * Get the number of credits consumed by the last conversion.
-    * @return The number of credits.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#get_consumed_credit_count">https://pdfcrowd.com/api/pdf-to-html-php/ref/#get_consumed_credit_count</a>
+     */
     function getConsumedCreditCount() {
         return $this->helper->getConsumedCreditCount();
     }
 
     /**
-    * Get the job id.
-    * @return The unique job identifier.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#get_job_id">https://pdfcrowd.com/api/pdf-to-html-php/ref/#get_job_id</a>
+     */
     function getJobId() {
         return $this->helper->getJobId();
     }
 
     /**
-    * Get the number of pages in the output document.
-    * @return The page count.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#get_page_count">https://pdfcrowd.com/api/pdf-to-html-php/ref/#get_page_count</a>
+     */
     function getPageCount() {
         return $this->helper->getPageCount();
     }
 
     /**
-    * Get the size of the output in bytes.
-    * @return The count of bytes.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#get_output_size">https://pdfcrowd.com/api/pdf-to-html-php/ref/#get_output_size</a>
+     */
     function getOutputSize() {
         return $this->helper->getOutputSize();
     }
 
     /**
-    * Get the version details.
-    * @return API version, converter version, and client version.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#get_version">https://pdfcrowd.com/api/pdf-to-html-php/ref/#get_version</a>
+     */
     function getVersion() {
         return 'client '.ConnectionHelper::CLIENT_VERSION.', API v2, converter '.$this->helper->getConverterVersion();
     }
 
     /**
-    * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
-    *
-    * @param tag A string with the custom tag.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_tag">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_tag</a>
+     */
     function setTag($tag) {
         $this->fields['tag'] = $tag;
         return $this;
     }
 
     /**
-    * A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
-    *
-    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_http_proxy">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_http_proxy</a>
+     */
     function setHttpProxy($proxy) {
         if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
             throw new Error(create_invalid_value_message($proxy, "setHttpProxy", "pdf-to-html", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
@@ -7135,11 +5704,8 @@ class PdfToHtmlClient {
     }
 
     /**
-    * A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
-    *
-    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_https_proxy">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_https_proxy</a>
+     */
     function setHttpsProxy($proxy) {
         if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
             throw new Error(create_invalid_value_message($proxy, "setHttpsProxy", "pdf-to-html", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
@@ -7149,11 +5715,8 @@ class PdfToHtmlClient {
     }
 
     /**
-    * Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
-    *
-    * @param version The version identifier. Allowed values are 24.04, 20.10, 18.10, latest.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_converter_version">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_converter_version</a>
+     */
     function setConverterVersion($version) {
         if (!preg_match("/(?i)^(24.04|20.10|18.10|latest)$/", $version))
             throw new Error(create_invalid_value_message($version, "setConverterVersion", "pdf-to-html", "Allowed values are 24.04, 20.10, 18.10, latest.", "set_converter_version"), 470);
@@ -7163,70 +5726,48 @@ class PdfToHtmlClient {
     }
 
     /**
-    * Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API.
-    * Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
-    *
-    * @param value Set to <code>true</code> to use HTTP.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_use_http">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_use_http</a>
+     */
     function setUseHttp($value) {
         $this->helper->setUseHttp($value);
         return $this;
     }
 
     /**
-    * Specifies the User-Agent HTTP header that the client library will use when interacting with the API.
-    *
-    * @param agent The user agent string.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_client_user_agent">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_client_user_agent</a>
+     */
     function setClientUserAgent($agent) {
         $this->helper->setUserAgent($agent);
         return $this;
     }
 
     /**
-    * Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
-    *
-    * @param agent The user agent string.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_user_agent">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_user_agent</a>
+     */
     function setUserAgent($agent) {
         $this->helper->setUserAgent($agent);
         return $this;
     }
 
     /**
-    * Specifies an HTTP proxy that the API client library will use to connect to the internet.
-    *
-    * @param host The proxy hostname.
-    * @param port The proxy port.
-    * @param user_name The username.
-    * @param password The password.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_proxy">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_proxy</a>
+     */
     function setProxy($host, $port, $user_name, $password) {
         $this->helper->setProxy($host, $port, $user_name, $password);
         return $this;
     }
 
     /**
-    * Use cURL for the conversion request instead of the file_get_contents() PHP function.
-    *
-    * @param value Set to <code>true</code> to use PHP's cURL.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_use_curl">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_use_curl</a>
+     */
     function setUseCurl($value) {
         $this->helper->setUseCurl($value);
         return $this;
     }
 
     /**
-    * Specifies the number of automatic retries when the 502 or 503 HTTP status code is received. The status code indicates a temporary network issue. This feature can be disabled by setting to 0.
-    *
-    * @param count Number of retries.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_retry_count">https://pdfcrowd.com/api/pdf-to-html-php/ref/#set_retry_count</a>
+     */
     function setRetryCount($count) {
         $this->helper->setRetryCount($count);
         return $this;
@@ -7239,8 +5780,10 @@ class PdfToHtmlClient {
 }
 
 /**
-* Conversion from PDF to text.
-*/
+ * Conversion from PDF to text.
+ *
+ * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/">https://pdfcrowd.com/api/pdf-to-text-php/</a>
+ */
 class PdfToTextClient {
     private $helper;
     private $fields;
@@ -7249,11 +5792,8 @@ class PdfToTextClient {
     private $raw_data;
 
     /**
-    * Constructor for the PDFCrowd API client.
-    *
-    * @param user_name Your username at PDFCrowd.
-    * @param api_key Your API key.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#__construct">https://pdfcrowd.com/api/pdf-to-text-php/ref/#__construct</a>
+     */
     function __construct($user_name, $api_key) {
         $this->helper = new ConnectionHelper($user_name, $api_key);
         $this->fields = array('input_format'=>'pdf', 'output_format'=>'txt');
@@ -7263,11 +5803,8 @@ class PdfToTextClient {
     }
 
     /**
-    * Convert a PDF.
-    *
-    * @param url The address of the PDF to convert. Supported protocols are http:// and https://.
-    * @return Byte array containing the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_url">https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_url</a>
+     */
     function convertUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrl", "pdf-to-text", "Supported protocols are http:// and https://.", "convert_url"), 470);
@@ -7277,11 +5814,8 @@ class PdfToTextClient {
     }
 
     /**
-    * Convert a PDF and write the result to an output stream.
-    *
-    * @param url The address of the PDF to convert. Supported protocols are http:// and https://.
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_url_to_stream">https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_url_to_stream</a>
+     */
     function convertUrlToStream($url, $out_stream) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "pdf-to-text", "Supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
@@ -7291,11 +5825,8 @@ class PdfToTextClient {
     }
 
     /**
-    * Convert a PDF and write the result to a local file.
-    *
-    * @param url The address of the PDF to convert. Supported protocols are http:// and https://.
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_url_to_file">https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_url_to_file</a>
+     */
     function convertUrlToFile($url, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertUrlToFile::file_path", "pdf-to-text", "The string must not be empty.", "convert_url_to_file"), 470);
@@ -7317,11 +5848,8 @@ class PdfToTextClient {
     }
 
     /**
-    * Convert a local file.
-    *
-    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
-    * @return Byte array containing the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_file">https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_file</a>
+     */
     function convertFile($file) {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFile", "pdf-to-text", "The file must exist and not be empty.", "convert_file"), 470);
@@ -7331,11 +5859,8 @@ class PdfToTextClient {
     }
 
     /**
-    * Convert a local file and write the result to an output stream.
-    *
-    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_file_to_stream">https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_file_to_stream</a>
+     */
     function convertFileToStream($file, $out_stream) {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFileToStream::file", "pdf-to-text", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
@@ -7345,11 +5870,8 @@ class PdfToTextClient {
     }
 
     /**
-    * Convert a local file and write the result to a local file.
-    *
-    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_file_to_file">https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_file_to_file</a>
+     */
     function convertFileToFile($file, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertFileToFile::file_path", "pdf-to-text", "The string must not be empty.", "convert_file_to_file"), 470);
@@ -7371,33 +5893,24 @@ class PdfToTextClient {
     }
 
     /**
-    * Convert raw data.
-    *
-    * @param data The raw content to be converted.
-    * @return Byte array with the output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_raw_data">https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_raw_data</a>
+     */
     function convertRawData($data) {
         $this->raw_data['file'] = $data;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
 
     /**
-    * Convert raw data and write the result to an output stream.
-    *
-    * @param data The raw content to be converted.
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_raw_data_to_stream">https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_raw_data_to_stream</a>
+     */
     function convertRawDataToStream($data, $out_stream) {
         $this->raw_data['file'] = $data;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
 
     /**
-    * Convert raw data to a file.
-    *
-    * @param data The raw content to be converted.
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_raw_data_to_file">https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_raw_data_to_file</a>
+     */
     function convertRawDataToFile($data, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertRawDataToFile::file_path", "pdf-to-text", "The string must not be empty.", "convert_raw_data_to_file"), 470);
@@ -7419,33 +5932,24 @@ class PdfToTextClient {
     }
 
     /**
-    * Convert the contents of an input stream.
-    *
-    * @param in_stream The input stream with source data.<br>
-    * @return Byte array containing the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_stream">https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_stream</a>
+     */
     function convertStream($in_stream) {
         $this->raw_data['stream'] = stream_get_contents($in_stream);
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
 
     /**
-    * Convert the contents of an input stream and write the result to an output stream.
-    *
-    * @param in_stream The input stream with source data.<br>
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_stream_to_stream">https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_stream_to_stream</a>
+     */
     function convertStreamToStream($in_stream, $out_stream) {
         $this->raw_data['stream'] = stream_get_contents($in_stream);
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
 
     /**
-    * Convert the contents of an input stream and write the result to a local file.
-    *
-    * @param in_stream The input stream with source data.<br>
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_stream_to_file">https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_stream_to_file</a>
+     */
     function convertStreamToFile($in_stream, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertStreamToFile::file_path", "pdf-to-text", "The string must not be empty.", "convert_stream_to_file"), 470);
@@ -7467,22 +5971,16 @@ class PdfToTextClient {
     }
 
     /**
-    * The password to open the encrypted PDF file.
-    *
-    * @param password The input PDF password.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_pdf_password">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_pdf_password</a>
+     */
     function setPdfPassword($password) {
         $this->fields['pdf_password'] = $password;
         return $this;
     }
 
     /**
-    * Set the page range to print.
-    *
-    * @param pages A comma separated list of page numbers or ranges.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_print_page_range">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_print_page_range</a>
+     */
     function setPrintPageRange($pages) {
         if (!preg_match("/^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$/", $pages))
             throw new Error(create_invalid_value_message($pages, "setPrintPageRange", "pdf-to-text", "A comma separated list of page numbers or ranges.", "set_print_page_range"), 470);
@@ -7492,22 +5990,16 @@ class PdfToTextClient {
     }
 
     /**
-    * Ignore the original PDF layout.
-    *
-    * @param value Set to <code>true</code> to ignore the layout.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_no_layout">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_no_layout</a>
+     */
     function setNoLayout($value) {
         $this->fields['no_layout'] = $value;
         return $this;
     }
 
     /**
-    * The end-of-line convention for the text output.
-    *
-    * @param eol Allowed values are unix, dos, mac.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_eol">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_eol</a>
+     */
     function setEol($eol) {
         if (!preg_match("/(?i)^(unix|dos|mac)$/", $eol))
             throw new Error(create_invalid_value_message($eol, "setEol", "pdf-to-text", "Allowed values are unix, dos, mac.", "set_eol"), 470);
@@ -7517,11 +6009,8 @@ class PdfToTextClient {
     }
 
     /**
-    * Specify the page break mode for the text output.
-    *
-    * @param mode Allowed values are none, default, custom.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_page_break_mode">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_page_break_mode</a>
+     */
     function setPageBreakMode($mode) {
         if (!preg_match("/(?i)^(none|default|custom)$/", $mode))
             throw new Error(create_invalid_value_message($mode, "setPageBreakMode", "pdf-to-text", "Allowed values are none, default, custom.", "set_page_break_mode"), 470);
@@ -7531,22 +6020,16 @@ class PdfToTextClient {
     }
 
     /**
-    * Specify the custom page break.
-    *
-    * @param page_break String to insert between the pages.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_custom_page_break">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_custom_page_break</a>
+     */
     function setCustomPageBreak($page_break) {
         $this->fields['custom_page_break'] = $page_break;
         return $this;
     }
 
     /**
-    * Specify the paragraph detection mode.
-    *
-    * @param mode Allowed values are none, bounding-box, characters.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_paragraph_mode">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_paragraph_mode</a>
+     */
     function setParagraphMode($mode) {
         if (!preg_match("/(?i)^(none|bounding-box|characters)$/", $mode))
             throw new Error(create_invalid_value_message($mode, "setParagraphMode", "pdf-to-text", "Allowed values are none, bounding-box, characters.", "set_paragraph_mode"), 470);
@@ -7556,11 +6039,8 @@ class PdfToTextClient {
     }
 
     /**
-    * Set the maximum line spacing when the paragraph detection mode is enabled.
-    *
-    * @param threshold The value must be a positive integer percentage.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_line_spacing_threshold">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_line_spacing_threshold</a>
+     */
     function setLineSpacingThreshold($threshold) {
         if (!preg_match("/(?i)^0$|^[0-9]+%$/", $threshold))
             throw new Error(create_invalid_value_message($threshold, "setLineSpacingThreshold", "pdf-to-text", "The value must be a positive integer percentage.", "set_line_spacing_threshold"), 470);
@@ -7570,33 +6050,24 @@ class PdfToTextClient {
     }
 
     /**
-    * Remove the hyphen character from the end of lines.
-    *
-    * @param value Set to <code>true</code> to remove hyphens.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_remove_hyphenation">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_remove_hyphenation</a>
+     */
     function setRemoveHyphenation($value) {
         $this->fields['remove_hyphenation'] = $value;
         return $this;
     }
 
     /**
-    * Remove empty lines from the text output.
-    *
-    * @param value Set to <code>true</code> to remove empty lines.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_remove_empty_lines">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_remove_empty_lines</a>
+     */
     function setRemoveEmptyLines($value) {
         $this->fields['remove_empty_lines'] = $value;
         return $this;
     }
 
     /**
-    * Set the top left X coordinate of the crop area in points.
-    *
-    * @param x Must be a positive integer or 0.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_crop_area_x">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_crop_area_x</a>
+     */
     function setCropAreaX($x) {
         if (!(intval($x) >= 0))
             throw new Error(create_invalid_value_message($x, "setCropAreaX", "pdf-to-text", "Must be a positive integer or 0.", "set_crop_area_x"), 470);
@@ -7606,11 +6077,8 @@ class PdfToTextClient {
     }
 
     /**
-    * Set the top left Y coordinate of the crop area in points.
-    *
-    * @param y Must be a positive integer or 0.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_crop_area_y">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_crop_area_y</a>
+     */
     function setCropAreaY($y) {
         if (!(intval($y) >= 0))
             throw new Error(create_invalid_value_message($y, "setCropAreaY", "pdf-to-text", "Must be a positive integer or 0.", "set_crop_area_y"), 470);
@@ -7620,11 +6088,8 @@ class PdfToTextClient {
     }
 
     /**
-    * Set the width of the crop area in points.
-    *
-    * @param width Must be a positive integer or 0.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_crop_area_width">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_crop_area_width</a>
+     */
     function setCropAreaWidth($width) {
         if (!(intval($width) >= 0))
             throw new Error(create_invalid_value_message($width, "setCropAreaWidth", "pdf-to-text", "Must be a positive integer or 0.", "set_crop_area_width"), 470);
@@ -7634,11 +6099,8 @@ class PdfToTextClient {
     }
 
     /**
-    * Set the height of the crop area in points.
-    *
-    * @param height Must be a positive integer or 0.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_crop_area_height">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_crop_area_height</a>
+     */
     function setCropAreaHeight($height) {
         if (!(intval($height) >= 0))
             throw new Error(create_invalid_value_message($height, "setCropAreaHeight", "pdf-to-text", "Must be a positive integer or 0.", "set_crop_area_height"), 470);
@@ -7648,14 +6110,8 @@ class PdfToTextClient {
     }
 
     /**
-    * Set the crop area. It allows to extract just a part of a PDF page.
-    *
-    * @param x Set the top left X coordinate of the crop area in points. Must be a positive integer or 0.
-    * @param y Set the top left Y coordinate of the crop area in points. Must be a positive integer or 0.
-    * @param width Set the width of the crop area in points. Must be a positive integer or 0.
-    * @param height Set the height of the crop area in points. Must be a positive integer or 0.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_crop_area">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_crop_area</a>
+     */
     function setCropArea($x, $y, $width, $height) {
         $this->setCropAreaX($x);
         $this->setCropAreaY($y);
@@ -7665,92 +6121,73 @@ class PdfToTextClient {
     }
 
     /**
-    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method or available in <a href='/user/account/log/conversion/'>conversion statistics</a>.
-    *
-    * @param value Set to <code>true</code> to enable the debug logging.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_debug_log">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_debug_log</a>
+     */
     function setDebugLog($value) {
         $this->fields['debug_log'] = $value;
         return $this;
     }
 
     /**
-    * Get the URL of the debug log for the last conversion.
-    * @return The link to the debug log.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#get_debug_log_url">https://pdfcrowd.com/api/pdf-to-text-php/ref/#get_debug_log_url</a>
+     */
     function getDebugLogUrl() {
         return $this->helper->getDebugLogUrl();
     }
 
     /**
-    * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
-    * This method can only be called after a call to one of the convertXtoY methods.
-    * The returned value can differ from the actual count if you run parallel conversions.
-    * The special value <code>999999</code> is returned if the information is not available.
-    * @return The number of credits.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#get_remaining_credit_count">https://pdfcrowd.com/api/pdf-to-text-php/ref/#get_remaining_credit_count</a>
+     */
     function getRemainingCreditCount() {
         return $this->helper->getRemainingCreditCount();
     }
 
     /**
-    * Get the number of credits consumed by the last conversion.
-    * @return The number of credits.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#get_consumed_credit_count">https://pdfcrowd.com/api/pdf-to-text-php/ref/#get_consumed_credit_count</a>
+     */
     function getConsumedCreditCount() {
         return $this->helper->getConsumedCreditCount();
     }
 
     /**
-    * Get the job id.
-    * @return The unique job identifier.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#get_job_id">https://pdfcrowd.com/api/pdf-to-text-php/ref/#get_job_id</a>
+     */
     function getJobId() {
         return $this->helper->getJobId();
     }
 
     /**
-    * Get the number of pages in the output document.
-    * @return The page count.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#get_page_count">https://pdfcrowd.com/api/pdf-to-text-php/ref/#get_page_count</a>
+     */
     function getPageCount() {
         return $this->helper->getPageCount();
     }
 
     /**
-    * Get the size of the output in bytes.
-    * @return The count of bytes.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#get_output_size">https://pdfcrowd.com/api/pdf-to-text-php/ref/#get_output_size</a>
+     */
     function getOutputSize() {
         return $this->helper->getOutputSize();
     }
 
     /**
-    * Get the version details.
-    * @return API version, converter version, and client version.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#get_version">https://pdfcrowd.com/api/pdf-to-text-php/ref/#get_version</a>
+     */
     function getVersion() {
         return 'client '.ConnectionHelper::CLIENT_VERSION.', API v2, converter '.$this->helper->getConverterVersion();
     }
 
     /**
-    * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
-    *
-    * @param tag A string with the custom tag.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_tag">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_tag</a>
+     */
     function setTag($tag) {
         $this->fields['tag'] = $tag;
         return $this;
     }
 
     /**
-    * A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
-    *
-    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_http_proxy">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_http_proxy</a>
+     */
     function setHttpProxy($proxy) {
         if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
             throw new Error(create_invalid_value_message($proxy, "setHttpProxy", "pdf-to-text", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
@@ -7760,11 +6197,8 @@ class PdfToTextClient {
     }
 
     /**
-    * A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
-    *
-    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_https_proxy">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_https_proxy</a>
+     */
     function setHttpsProxy($proxy) {
         if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
             throw new Error(create_invalid_value_message($proxy, "setHttpsProxy", "pdf-to-text", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
@@ -7774,70 +6208,48 @@ class PdfToTextClient {
     }
 
     /**
-    * Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API.
-    * Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
-    *
-    * @param value Set to <code>true</code> to use HTTP.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_use_http">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_use_http</a>
+     */
     function setUseHttp($value) {
         $this->helper->setUseHttp($value);
         return $this;
     }
 
     /**
-    * Specifies the User-Agent HTTP header that the client library will use when interacting with the API.
-    *
-    * @param agent The user agent string.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_client_user_agent">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_client_user_agent</a>
+     */
     function setClientUserAgent($agent) {
         $this->helper->setUserAgent($agent);
         return $this;
     }
 
     /**
-    * Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
-    *
-    * @param agent The user agent string.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_user_agent">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_user_agent</a>
+     */
     function setUserAgent($agent) {
         $this->helper->setUserAgent($agent);
         return $this;
     }
 
     /**
-    * Specifies an HTTP proxy that the API client library will use to connect to the internet.
-    *
-    * @param host The proxy hostname.
-    * @param port The proxy port.
-    * @param user_name The username.
-    * @param password The password.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_proxy">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_proxy</a>
+     */
     function setProxy($host, $port, $user_name, $password) {
         $this->helper->setProxy($host, $port, $user_name, $password);
         return $this;
     }
 
     /**
-    * Use cURL for the conversion request instead of the file_get_contents() PHP function.
-    *
-    * @param value Set to <code>true</code> to use PHP's cURL.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_use_curl">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_use_curl</a>
+     */
     function setUseCurl($value) {
         $this->helper->setUseCurl($value);
         return $this;
     }
 
     /**
-    * Specifies the number of automatic retries when the 502 or 503 HTTP status code is received. The status code indicates a temporary network issue. This feature can be disabled by setting to 0.
-    *
-    * @param count Number of retries.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_retry_count">https://pdfcrowd.com/api/pdf-to-text-php/ref/#set_retry_count</a>
+     */
     function setRetryCount($count) {
         $this->helper->setRetryCount($count);
         return $this;
@@ -7846,8 +6258,10 @@ class PdfToTextClient {
 }
 
 /**
-* Conversion from PDF to image.
-*/
+ * Conversion from PDF to image.
+ *
+ * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/">https://pdfcrowd.com/api/pdf-to-image-php/</a>
+ */
 class PdfToImageClient {
     private $helper;
     private $fields;
@@ -7856,11 +6270,8 @@ class PdfToImageClient {
     private $raw_data;
 
     /**
-    * Constructor for the PDFCrowd API client.
-    *
-    * @param user_name Your username at PDFCrowd.
-    * @param api_key Your API key.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#__construct">https://pdfcrowd.com/api/pdf-to-image-php/ref/#__construct</a>
+     */
     function __construct($user_name, $api_key) {
         $this->helper = new ConnectionHelper($user_name, $api_key);
         $this->fields = array('input_format'=>'pdf', 'output_format'=>'png');
@@ -7870,11 +6281,8 @@ class PdfToImageClient {
     }
 
     /**
-    * Convert an image.
-    *
-    * @param url The address of the image to convert. Supported protocols are http:// and https://.
-    * @return Byte array containing the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_url">https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_url</a>
+     */
     function convertUrl($url) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrl", "pdf-to-image", "Supported protocols are http:// and https://.", "convert_url"), 470);
@@ -7884,11 +6292,8 @@ class PdfToImageClient {
     }
 
     /**
-    * Convert an image and write the result to an output stream.
-    *
-    * @param url The address of the image to convert. Supported protocols are http:// and https://.
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_url_to_stream">https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_url_to_stream</a>
+     */
     function convertUrlToStream($url, $out_stream) {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "pdf-to-image", "Supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
@@ -7898,11 +6303,8 @@ class PdfToImageClient {
     }
 
     /**
-    * Convert an image and write the result to a local file.
-    *
-    * @param url The address of the image to convert. Supported protocols are http:// and https://.
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_url_to_file">https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_url_to_file</a>
+     */
     function convertUrlToFile($url, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertUrlToFile::file_path", "pdf-to-image", "The string must not be empty.", "convert_url_to_file"), 470);
@@ -7924,11 +6326,8 @@ class PdfToImageClient {
     }
 
     /**
-    * Convert a local file.
-    *
-    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
-    * @return Byte array containing the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_file">https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_file</a>
+     */
     function convertFile($file) {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFile", "pdf-to-image", "The file must exist and not be empty.", "convert_file"), 470);
@@ -7938,11 +6337,8 @@ class PdfToImageClient {
     }
 
     /**
-    * Convert a local file and write the result to an output stream.
-    *
-    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_file_to_stream">https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_file_to_stream</a>
+     */
     function convertFileToStream($file, $out_stream) {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFileToStream::file", "pdf-to-image", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
@@ -7952,11 +6348,8 @@ class PdfToImageClient {
     }
 
     /**
-    * Convert a local file and write the result to a local file.
-    *
-    * @param file The path to a local file to convert.<br>  The file must exist and not be empty.
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_file_to_file">https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_file_to_file</a>
+     */
     function convertFileToFile($file, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertFileToFile::file_path", "pdf-to-image", "The string must not be empty.", "convert_file_to_file"), 470);
@@ -7978,33 +6371,24 @@ class PdfToImageClient {
     }
 
     /**
-    * Convert raw data.
-    *
-    * @param data The raw content to be converted.
-    * @return Byte array with the output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_raw_data">https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_raw_data</a>
+     */
     function convertRawData($data) {
         $this->raw_data['file'] = $data;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
 
     /**
-    * Convert raw data and write the result to an output stream.
-    *
-    * @param data The raw content to be converted.
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_raw_data_to_stream">https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_raw_data_to_stream</a>
+     */
     function convertRawDataToStream($data, $out_stream) {
         $this->raw_data['file'] = $data;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
 
     /**
-    * Convert raw data to a file.
-    *
-    * @param data The raw content to be converted.
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_raw_data_to_file">https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_raw_data_to_file</a>
+     */
     function convertRawDataToFile($data, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertRawDataToFile::file_path", "pdf-to-image", "The string must not be empty.", "convert_raw_data_to_file"), 470);
@@ -8026,33 +6410,24 @@ class PdfToImageClient {
     }
 
     /**
-    * Convert the contents of an input stream.
-    *
-    * @param in_stream The input stream with source data.<br>
-    * @return Byte array containing the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_stream">https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_stream</a>
+     */
     function convertStream($in_stream) {
         $this->raw_data['stream'] = stream_get_contents($in_stream);
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
 
     /**
-    * Convert the contents of an input stream and write the result to an output stream.
-    *
-    * @param in_stream The input stream with source data.<br>
-    * @param out_stream The output stream that will contain the conversion output.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_stream_to_stream">https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_stream_to_stream</a>
+     */
     function convertStreamToStream($in_stream, $out_stream) {
         $this->raw_data['stream'] = stream_get_contents($in_stream);
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
 
     /**
-    * Convert the contents of an input stream and write the result to a local file.
-    *
-    * @param in_stream The input stream with source data.<br>
-    * @param file_path The output file path. The string must not be empty.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_stream_to_file">https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_stream_to_file</a>
+     */
     function convertStreamToFile($in_stream, $file_path) {
         if (!($file_path != null && $file_path !== ''))
             throw new Error(create_invalid_value_message($file_path, "convertStreamToFile::file_path", "pdf-to-image", "The string must not be empty.", "convert_stream_to_file"), 470);
@@ -8074,11 +6449,8 @@ class PdfToImageClient {
     }
 
     /**
-    * The format of the output file.
-    *
-    * @param output_format Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_output_format">https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_output_format</a>
+     */
     function setOutputFormat($output_format) {
         if (!preg_match("/(?i)^(png|jpg|gif|tiff|bmp|ico|ppm|pgm|pbm|pnm|psb|pct|ras|tga|sgi|sun|webp)$/", $output_format))
             throw new Error(create_invalid_value_message($output_format, "setOutputFormat", "pdf-to-image", "Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.", "set_output_format"), 470);
@@ -8088,22 +6460,16 @@ class PdfToImageClient {
     }
 
     /**
-    * Password to open the encrypted PDF file.
-    *
-    * @param password The input PDF password.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_pdf_password">https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_pdf_password</a>
+     */
     function setPdfPassword($password) {
         $this->fields['pdf_password'] = $password;
         return $this;
     }
 
     /**
-    * Set the page range to print.
-    *
-    * @param pages A comma separated list of page numbers or ranges.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_print_page_range">https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_print_page_range</a>
+     */
     function setPrintPageRange($pages) {
         if (!preg_match("/^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$/", $pages))
             throw new Error(create_invalid_value_message($pages, "setPrintPageRange", "pdf-to-image", "A comma separated list of page numbers or ranges.", "set_print_page_range"), 470);
@@ -8113,52 +6479,39 @@ class PdfToImageClient {
     }
 
     /**
-    * Set the output graphics DPI.
-    *
-    * @param dpi The DPI value.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_dpi">https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_dpi</a>
+     */
     function setDpi($dpi) {
         $this->fields['dpi'] = $dpi;
         return $this;
     }
 
     /**
-    * A helper method to determine if the output file from a conversion process is a zip archive. The conversion output can be either a single image file or a zip file containing one or more image files. This method should be called after the conversion has been successfully completed.
-    * @return <code>True</code> if the conversion output is a zip archive, otherwise <code>False</code>.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#is_zipped_output">https://pdfcrowd.com/api/pdf-to-image-php/ref/#is_zipped_output</a>
+     */
     function isZippedOutput() {
         return (isset($this->fields['force_zip']) && $this->fields['force_zip'] == 'true') || $this->getPageCount() > 1;
     }
 
     /**
-    * Enforces the zip output format.
-    *
-    * @param value Set to <code>true</code> to get the output as a zip archive.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_force_zip">https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_force_zip</a>
+     */
     function setForceZip($value) {
         $this->fields['force_zip'] = $value;
         return $this;
     }
 
     /**
-    * Use the crop box rather than media box.
-    *
-    * @param value Set to <code>true</code> to use crop box.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_use_cropbox">https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_use_cropbox</a>
+     */
     function setUseCropbox($value) {
         $this->fields['use_cropbox'] = $value;
         return $this;
     }
 
     /**
-    * Set the top left X coordinate of the crop area in points.
-    *
-    * @param x Must be a positive integer or 0.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_crop_area_x">https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_crop_area_x</a>
+     */
     function setCropAreaX($x) {
         if (!(intval($x) >= 0))
             throw new Error(create_invalid_value_message($x, "setCropAreaX", "pdf-to-image", "Must be a positive integer or 0.", "set_crop_area_x"), 470);
@@ -8168,11 +6521,8 @@ class PdfToImageClient {
     }
 
     /**
-    * Set the top left Y coordinate of the crop area in points.
-    *
-    * @param y Must be a positive integer or 0.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_crop_area_y">https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_crop_area_y</a>
+     */
     function setCropAreaY($y) {
         if (!(intval($y) >= 0))
             throw new Error(create_invalid_value_message($y, "setCropAreaY", "pdf-to-image", "Must be a positive integer or 0.", "set_crop_area_y"), 470);
@@ -8182,11 +6532,8 @@ class PdfToImageClient {
     }
 
     /**
-    * Set the width of the crop area in points.
-    *
-    * @param width Must be a positive integer or 0.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_crop_area_width">https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_crop_area_width</a>
+     */
     function setCropAreaWidth($width) {
         if (!(intval($width) >= 0))
             throw new Error(create_invalid_value_message($width, "setCropAreaWidth", "pdf-to-image", "Must be a positive integer or 0.", "set_crop_area_width"), 470);
@@ -8196,11 +6543,8 @@ class PdfToImageClient {
     }
 
     /**
-    * Set the height of the crop area in points.
-    *
-    * @param height Must be a positive integer or 0.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_crop_area_height">https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_crop_area_height</a>
+     */
     function setCropAreaHeight($height) {
         if (!(intval($height) >= 0))
             throw new Error(create_invalid_value_message($height, "setCropAreaHeight", "pdf-to-image", "Must be a positive integer or 0.", "set_crop_area_height"), 470);
@@ -8210,14 +6554,8 @@ class PdfToImageClient {
     }
 
     /**
-    * Set the crop area. It allows to extract just a part of a PDF page.
-    *
-    * @param x Set the top left X coordinate of the crop area in points. Must be a positive integer or 0.
-    * @param y Set the top left Y coordinate of the crop area in points. Must be a positive integer or 0.
-    * @param width Set the width of the crop area in points. Must be a positive integer or 0.
-    * @param height Set the height of the crop area in points. Must be a positive integer or 0.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_crop_area">https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_crop_area</a>
+     */
     function setCropArea($x, $y, $width, $height) {
         $this->setCropAreaX($x);
         $this->setCropAreaY($y);
@@ -8227,103 +6565,81 @@ class PdfToImageClient {
     }
 
     /**
-    * Generate a grayscale image.
-    *
-    * @param value Set to <code>true</code> to generate a grayscale image.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_use_grayscale">https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_use_grayscale</a>
+     */
     function setUseGrayscale($value) {
         $this->fields['use_grayscale'] = $value;
         return $this;
     }
 
     /**
-    * Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the <a href='#get_debug_log_url'>getDebugLogUrl</a> method or available in <a href='/user/account/log/conversion/'>conversion statistics</a>.
-    *
-    * @param value Set to <code>true</code> to enable the debug logging.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_debug_log">https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_debug_log</a>
+     */
     function setDebugLog($value) {
         $this->fields['debug_log'] = $value;
         return $this;
     }
 
     /**
-    * Get the URL of the debug log for the last conversion.
-    * @return The link to the debug log.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#get_debug_log_url">https://pdfcrowd.com/api/pdf-to-image-php/ref/#get_debug_log_url</a>
+     */
     function getDebugLogUrl() {
         return $this->helper->getDebugLogUrl();
     }
 
     /**
-    * Get the number of conversion credits available in your <a href='/user/account/'>account</a>.
-    * This method can only be called after a call to one of the convertXtoY methods.
-    * The returned value can differ from the actual count if you run parallel conversions.
-    * The special value <code>999999</code> is returned if the information is not available.
-    * @return The number of credits.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#get_remaining_credit_count">https://pdfcrowd.com/api/pdf-to-image-php/ref/#get_remaining_credit_count</a>
+     */
     function getRemainingCreditCount() {
         return $this->helper->getRemainingCreditCount();
     }
 
     /**
-    * Get the number of credits consumed by the last conversion.
-    * @return The number of credits.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#get_consumed_credit_count">https://pdfcrowd.com/api/pdf-to-image-php/ref/#get_consumed_credit_count</a>
+     */
     function getConsumedCreditCount() {
         return $this->helper->getConsumedCreditCount();
     }
 
     /**
-    * Get the job id.
-    * @return The unique job identifier.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#get_job_id">https://pdfcrowd.com/api/pdf-to-image-php/ref/#get_job_id</a>
+     */
     function getJobId() {
         return $this->helper->getJobId();
     }
 
     /**
-    * Get the number of pages in the output document.
-    * @return The page count.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#get_page_count">https://pdfcrowd.com/api/pdf-to-image-php/ref/#get_page_count</a>
+     */
     function getPageCount() {
         return $this->helper->getPageCount();
     }
 
     /**
-    * Get the size of the output in bytes.
-    * @return The count of bytes.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#get_output_size">https://pdfcrowd.com/api/pdf-to-image-php/ref/#get_output_size</a>
+     */
     function getOutputSize() {
         return $this->helper->getOutputSize();
     }
 
     /**
-    * Get the version details.
-    * @return API version, converter version, and client version.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#get_version">https://pdfcrowd.com/api/pdf-to-image-php/ref/#get_version</a>
+     */
     function getVersion() {
         return 'client '.ConnectionHelper::CLIENT_VERSION.', API v2, converter '.$this->helper->getConverterVersion();
     }
 
     /**
-    * Tag the conversion with a custom value. The tag is used in <a href='/user/account/log/conversion/'>conversion statistics</a>. A value longer than 32 characters is cut off.
-    *
-    * @param tag A string with the custom tag.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_tag">https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_tag</a>
+     */
     function setTag($tag) {
         $this->fields['tag'] = $tag;
         return $this;
     }
 
     /**
-    * A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
-    *
-    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_http_proxy">https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_http_proxy</a>
+     */
     function setHttpProxy($proxy) {
         if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
             throw new Error(create_invalid_value_message($proxy, "setHttpProxy", "pdf-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
@@ -8333,11 +6649,8 @@ class PdfToImageClient {
     }
 
     /**
-    * A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
-    *
-    * @param proxy The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_https_proxy">https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_https_proxy</a>
+     */
     function setHttpsProxy($proxy) {
         if (!preg_match("/(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$/", $proxy))
             throw new Error(create_invalid_value_message($proxy, "setHttpsProxy", "pdf-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
@@ -8347,70 +6660,48 @@ class PdfToImageClient {
     }
 
     /**
-    * Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API.
-    * Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
-    *
-    * @param value Set to <code>true</code> to use HTTP.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_use_http">https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_use_http</a>
+     */
     function setUseHttp($value) {
         $this->helper->setUseHttp($value);
         return $this;
     }
 
     /**
-    * Specifies the User-Agent HTTP header that the client library will use when interacting with the API.
-    *
-    * @param agent The user agent string.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_client_user_agent">https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_client_user_agent</a>
+     */
     function setClientUserAgent($agent) {
         $this->helper->setUserAgent($agent);
         return $this;
     }
 
     /**
-    * Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
-    *
-    * @param agent The user agent string.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_user_agent">https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_user_agent</a>
+     */
     function setUserAgent($agent) {
         $this->helper->setUserAgent($agent);
         return $this;
     }
 
     /**
-    * Specifies an HTTP proxy that the API client library will use to connect to the internet.
-    *
-    * @param host The proxy hostname.
-    * @param port The proxy port.
-    * @param user_name The username.
-    * @param password The password.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_proxy">https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_proxy</a>
+     */
     function setProxy($host, $port, $user_name, $password) {
         $this->helper->setProxy($host, $port, $user_name, $password);
         return $this;
     }
 
     /**
-    * Use cURL for the conversion request instead of the file_get_contents() PHP function.
-    *
-    * @param value Set to <code>true</code> to use PHP's cURL.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_use_curl">https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_use_curl</a>
+     */
     function setUseCurl($value) {
         $this->helper->setUseCurl($value);
         return $this;
     }
 
     /**
-    * Specifies the number of automatic retries when the 502 or 503 HTTP status code is received. The status code indicates a temporary network issue. This feature can be disabled by setting to 0.
-    *
-    * @param count Number of retries.
-    * @return The converter object.
-    */
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_retry_count">https://pdfcrowd.com/api/pdf-to-image-php/ref/#set_retry_count</a>
+     */
     function setRetryCount($count) {
         $this->helper->setRetryCount($count);
         return $this;
