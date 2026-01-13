@@ -1,6 +1,16 @@
 Change Log
 ==========
 
+6.5.5
+-----
+
+- FIX: remove PHP deprecated get_magic_quotes_runtime
+
+6.5.4
+-----
+
+- DOCS: use online API reference instead of docstrings
+
 6.5.3
 -----
 

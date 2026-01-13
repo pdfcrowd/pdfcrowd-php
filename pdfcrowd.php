@@ -396,7 +396,7 @@ Possible reasons:
     private $error;
     private $outstream;
 
-    public static $client_version = "6.5.4";
+    public static $client_version = "6.5.5";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -489,14 +489,15 @@ Links:
             return strlen($data);
         }
 
+        $len = strlen($data);
         $written = fwrite($this->outstream, $data);
-        if ($written != strlen($data)) {
-            if (get_magic_quotes_runtime()) {
-                throw new PdfcrowdException("Cannot write the PDF file because the 'magic_quotes_runtime' setting is enabled.
-Please disable it either in your php.ini file, or in your code by calling 'set_magic_quotes_runtime(false)'.");
-            } else {
-                throw new PdfcrowdException('Writing the PDF file failed. The disk may be full.');
-            }
+        if ($written < $len) {
+            throw new PdfcrowdException(
+                'Writing the PDF file failed. The disk may be full.');
+        }
+        if ($written > $len) {
+            throw new PdfcrowdException(
+                "Writing the PDF file failed. The 'magic_quotes_runtime' may be enabled.");
         }
         return $written;
     }
@@ -594,7 +595,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/6.5.4 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/6.5.5 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '24.04';
@@ -642,7 +643,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '6.5.4';
+    const CLIENT_VERSION = '6.5.5';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -691,12 +692,15 @@ You need to restart your web server after installation.';
         if ($out_stream == null)
             return $body;
 
+        $len = strlen($body);
         $written = fwrite($out_stream, $body);
-        if ($written != strlen($body)) {
-            if (get_magic_quotes_runtime()) {
-                throw new Error("Cannot write the PDF file because the 'magic_quotes_runtime' setting is enabled. Please disable it either in your php.ini file, or in your code by calling 'set_magic_quotes_runtime(false)'.");
-            }
-            throw new Error('Writing the PDF file failed. The disk may be full.');
+        if ($written < $len) {
+            throw new Error(
+                'Writing the PDF file failed. The disk may be full.');
+        }
+        if ($written > $len) {
+            throw new Error(
+                "Writing the PDF file failed. The 'magic_quotes_runtime' may be enabled.");
         }
     }
 
