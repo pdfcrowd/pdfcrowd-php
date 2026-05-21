@@ -396,7 +396,7 @@ Possible reasons:
     private $error;
     private $outstream;
 
-    public static $client_version = "6.5.5";
+    public static $client_version = "6.6.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -595,7 +595,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/6.5.5 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/6.6.0 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '24.04';
@@ -643,7 +643,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '6.5.5';
+    const CLIENT_VERSION = '6.6.0';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -2219,6 +2219,17 @@ class HtmlToPdfClient {
     }
 
     /**
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_data_variable_markers">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_data_variable_markers</a>
+     */
+    function setDataVariableMarkers($markers) {
+        if (!preg_match("/(?i)^(standard|square|angle)$/", $markers))
+            throw new Error(create_invalid_value_message($markers, "setDataVariableMarkers", "html-to-pdf", "Allowed values are standard, square, angle.", "set_data_variable_markers"), 470);
+        
+        $this->fields['data_variable_markers'] = $markers;
+        return $this;
+    }
+
+    /**
      * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_data_options">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_data_options</a>
      */
     function setDataOptions($options) {
@@ -3125,6 +3136,17 @@ class HtmlToImageClient {
      */
     function setDataTrimBlocks($value) {
         $this->fields['data_trim_blocks'] = $value;
+        return $this;
+    }
+
+    /**
+     * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#set_data_variable_markers">https://pdfcrowd.com/api/html-to-image-php/ref/#set_data_variable_markers</a>
+     */
+    function setDataVariableMarkers($markers) {
+        if (!preg_match("/(?i)^(standard|square|angle)$/", $markers))
+            throw new Error(create_invalid_value_message($markers, "setDataVariableMarkers", "html-to-image", "Allowed values are standard, square, angle.", "set_data_variable_markers"), 470);
+        
+        $this->fields['data_variable_markers'] = $markers;
         return $this;
     }
 

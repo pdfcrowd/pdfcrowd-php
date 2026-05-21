@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+6.6.0
+-----
+
+- NEW: setDataVariableMarkers
+
 6.5.5
 -----
 
