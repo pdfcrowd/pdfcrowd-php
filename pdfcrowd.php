@@ -396,7 +396,7 @@ Possible reasons:
     private $error;
     private $outstream;
 
-    public static $client_version = "6.6.0";
+    public static $client_version = "6.7.0";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -595,7 +595,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/6.6.0 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/6.7.0 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '24.04';
@@ -643,7 +643,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '6.6.0';
+    const CLIENT_VERSION = '6.7.0';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -2045,6 +2045,37 @@ class HtmlToPdfClient {
      */
     function setExtractMetaTags($value) {
         $this->fields['extract_meta_tags'] = $value;
+        return $this;
+    }
+
+    /**
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_conformance">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_conformance</a>
+     */
+    function setConformance($conformance) {
+        if (!preg_match("/(?i)^(PDF\/A-2a|PDF\/A-2b|PDF\/A-2u|PDF\/A-3a|PDF\/A-3b|PDF\/A-3u|PDF\/A-4|PDF\/A-4e|PDF\/A-4f)$/", $conformance))
+            throw new Error(create_invalid_value_message($conformance, "setConformance", "html-to-pdf", "Allowed values are PDF/A-2a, PDF/A-2b, PDF/A-2u, PDF/A-3a, PDF/A-3b, PDF/A-3u, PDF/A-4, PDF/A-4e, PDF/A-4f.", "set_conformance"), 470);
+        
+        $this->fields['conformance'] = $conformance;
+        return $this;
+    }
+
+    /**
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_tagged_pdf">https://pdfcrowd.com/api/html-to-pdf-php/ref/#set_tagged_pdf</a>
+     */
+    function setTaggedPdf($value) {
+        $this->fields['tagged_pdf'] = $value;
+        return $this;
+    }
+
+    /**
+     * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#add_attachment">https://pdfcrowd.com/api/html-to-pdf-php/ref/#add_attachment</a>
+     */
+    function addAttachment($attachment) {
+        if (!(filesize($attachment) > 0))
+            throw new Error(create_invalid_value_message($attachment, "addAttachment", "html-to-pdf", "The file must exist and not be empty.", "add_attachment"), 470);
+        
+        $this->files['attachment_' . $this->file_id] = $attachment;
+        $this->file_id++;
         return $this;
     }
 
@@ -4205,6 +4236,18 @@ class PdfToPdfClient {
     }
 
     /**
+     * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#add_attachment">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#add_attachment</a>
+     */
+    function addAttachment($attachment) {
+        if (!(filesize($attachment) > 0))
+            throw new Error(create_invalid_value_message($attachment, "addAttachment", "pdf-to-pdf", "The file must exist and not be empty.", "add_attachment"), 470);
+        
+        $this->files['attachment_' . $this->file_id] = $attachment;
+        $this->file_id++;
+        return $this;
+    }
+
+    /**
      * @see <a href="https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_page_layout">https://pdfcrowd.com/api/pdf-to-pdf-php/ref/#set_page_layout</a>
      */
     function setPageLayout($layout) {
@@ -5033,6 +5076,18 @@ class ImageToPdfClient {
      */
     function setKeywords($keywords) {
         $this->fields['keywords'] = $keywords;
+        return $this;
+    }
+
+    /**
+     * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#add_attachment">https://pdfcrowd.com/api/image-to-pdf-php/ref/#add_attachment</a>
+     */
+    function addAttachment($attachment) {
+        if (!(filesize($attachment) > 0))
+            throw new Error(create_invalid_value_message($attachment, "addAttachment", "image-to-pdf", "The file must exist and not be empty.", "add_attachment"), 470);
+        
+        $this->files['attachment_' . $this->file_id] = $attachment;
+        $this->file_id++;
         return $this;
     }
 

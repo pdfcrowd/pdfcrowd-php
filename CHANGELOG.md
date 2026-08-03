@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+6.7.0
+-----
+
+- NEW: setConformance method for the HtmlToPdf API client - produce the output PDF at a specified PDF/A conformance level
+- NEW: addAttachment method for the HtmlToPdf, PdfToPdf and ImageToPdf API clients - embed files as attachments in the output PDF
+- NEW: setTaggedPdf method for the HtmlToPdf API client - create a tagged PDF for accessibility and content reflow
+
 6.6.0
 -----
 
