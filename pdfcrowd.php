@@ -396,7 +396,7 @@ Possible reasons:
     private $error;
     private $outstream;
 
-    public static $client_version = "6.7.0";
+    public static $client_version = "6.7.1";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -576,6 +576,35 @@ function create_invalid_value_message($value, $field, $converter, $hint, $id) {
 
 class ConnectionHelper
 {
+    public static function readInputStream($stream) {
+        // A warning can accompany a partial read, not just a false result.
+        set_error_handler(function($severity, $message, $file, $line) {
+            throw new \ErrorException($message, 0, $severity, $file, $line);
+        });
+        try {
+            $data = stream_get_contents($stream);
+            if ($data === false || !feof($stream)) {
+                throw new Error('Reading the input stream failed.', 0);
+            }
+        } catch (\Exception $why) {
+            restore_error_handler();
+            throw $why;
+        } catch (\Throwable $why) {
+            restore_error_handler();
+            throw $why;
+        }
+        restore_error_handler();
+        return $data;
+    }
+
+    public static function closeFailedOutput($stream, $path) {
+        // Cleanup must not replace the conversion or input error.
+        try { fclose($stream); } catch (\Exception $ignored) {
+        } catch (\Throwable $ignored) {}
+        try { unlink($path); } catch (\Exception $ignored) {
+        } catch (\Throwable $ignored) {}
+    }
+
     private static $REQ_NOT_AVAILABLE = 'pdfcrowd.php can not post HTTP request.
 Solution 1: Edit your php.ini file and enable:
     allow_url_fopen = On
@@ -595,7 +624,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/6.7.0 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/6.7.1 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '24.04';
@@ -643,7 +672,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '6.7.0';
+    const CLIENT_VERSION = '6.7.1';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
@@ -715,6 +744,12 @@ You need to restart your web server after installation.';
             return true;
         }
         return false;
+    }
+
+    public function reset_input(&$fields, &$files, &$raw_data) {
+        // Preserve conversion options and auxiliary files between requests.
+        unset($fields['url'], $fields['text'], $files['file'],
+              $raw_data['file'], $raw_data['stream']);
     }
 
     public function post($fields, $files, $raw_data, $out_stream = null) {
@@ -1009,6 +1044,7 @@ class HtmlToPdfClient {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrl", "html-to-pdf", "Supported protocols are http:// and https://.", "convert_url"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->fields['url'] = $url;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
@@ -1020,6 +1056,7 @@ class HtmlToPdfClient {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "html-to-pdf", "Supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->fields['url'] = $url;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
@@ -1037,13 +1074,21 @@ class HtmlToPdfClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertUrlToStream($url, $output_file);
-            fclose($output_file);
+            $this->convertUrlToStream($url,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -1054,6 +1099,7 @@ class HtmlToPdfClient {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFile", "html-to-pdf", "The file must exist and not be empty.", "convert_file"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->files['file'] = $file;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
@@ -1065,6 +1111,7 @@ class HtmlToPdfClient {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFileToStream::file", "html-to-pdf", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->files['file'] = $file;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
@@ -1082,13 +1129,21 @@ class HtmlToPdfClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertFileToStream($file, $output_file);
-            fclose($output_file);
+            $this->convertFileToStream($file,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -1099,6 +1154,7 @@ class HtmlToPdfClient {
         if (!($text != null && $text !== ''))
             throw new Error(create_invalid_value_message($text, "convertString", "html-to-pdf", "The string must not be empty.", "convert_string"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->fields['text'] = $text;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
@@ -1110,6 +1166,7 @@ class HtmlToPdfClient {
         if (!($text != null && $text !== ''))
             throw new Error(create_invalid_value_message($text, "convertStringToStream::text", "html-to-pdf", "The string must not be empty.", "convert_string_to_stream"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->fields['text'] = $text;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
@@ -1127,13 +1184,21 @@ class HtmlToPdfClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertStringToStream($text, $output_file);
-            fclose($output_file);
+            $this->convertStringToStream($text,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -1141,7 +1206,8 @@ class HtmlToPdfClient {
      * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_stream">https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_stream</a>
      */
     function convertStream($in_stream) {
-        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
+        $this->raw_data['stream'] = ConnectionHelper::readInputStream($in_stream);
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
 
@@ -1149,7 +1215,8 @@ class HtmlToPdfClient {
      * @see <a href="https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_stream_to_stream">https://pdfcrowd.com/api/html-to-pdf-php/ref/#convert_stream_to_stream</a>
      */
     function convertStreamToStream($in_stream, $out_stream) {
-        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
+        $this->raw_data['stream'] = ConnectionHelper::readInputStream($in_stream);
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
 
@@ -1166,13 +1233,21 @@ class HtmlToPdfClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertStreamToStream($in_stream, $output_file);
-            fclose($output_file);
+            $this->convertStreamToStream($in_stream,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -2641,6 +2716,7 @@ class HtmlToImageClient {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrl", "html-to-image", "Supported protocols are http:// and https://.", "convert_url"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->fields['url'] = $url;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
@@ -2652,6 +2728,7 @@ class HtmlToImageClient {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "html-to-image", "Supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->fields['url'] = $url;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
@@ -2669,13 +2746,21 @@ class HtmlToImageClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertUrlToStream($url, $output_file);
-            fclose($output_file);
+            $this->convertUrlToStream($url,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -2686,6 +2771,7 @@ class HtmlToImageClient {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFile", "html-to-image", "The file must exist and not be empty.", "convert_file"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->files['file'] = $file;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
@@ -2697,6 +2783,7 @@ class HtmlToImageClient {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFileToStream::file", "html-to-image", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->files['file'] = $file;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
@@ -2714,13 +2801,21 @@ class HtmlToImageClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertFileToStream($file, $output_file);
-            fclose($output_file);
+            $this->convertFileToStream($file,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -2731,6 +2826,7 @@ class HtmlToImageClient {
         if (!($text != null && $text !== ''))
             throw new Error(create_invalid_value_message($text, "convertString", "html-to-image", "The string must not be empty.", "convert_string"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->fields['text'] = $text;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
@@ -2742,6 +2838,7 @@ class HtmlToImageClient {
         if (!($text != null && $text !== ''))
             throw new Error(create_invalid_value_message($text, "convertStringToStream::text", "html-to-image", "The string must not be empty.", "convert_string_to_stream"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->fields['text'] = $text;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
@@ -2759,13 +2856,21 @@ class HtmlToImageClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertStringToStream($text, $output_file);
-            fclose($output_file);
+            $this->convertStringToStream($text,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -2773,7 +2878,8 @@ class HtmlToImageClient {
      * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#convert_stream">https://pdfcrowd.com/api/html-to-image-php/ref/#convert_stream</a>
      */
     function convertStream($in_stream) {
-        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
+        $this->raw_data['stream'] = ConnectionHelper::readInputStream($in_stream);
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
 
@@ -2781,7 +2887,8 @@ class HtmlToImageClient {
      * @see <a href="https://pdfcrowd.com/api/html-to-image-php/ref/#convert_stream_to_stream">https://pdfcrowd.com/api/html-to-image-php/ref/#convert_stream_to_stream</a>
      */
     function convertStreamToStream($in_stream, $out_stream) {
-        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
+        $this->raw_data['stream'] = ConnectionHelper::readInputStream($in_stream);
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
 
@@ -2798,13 +2905,21 @@ class HtmlToImageClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertStreamToStream($in_stream, $output_file);
-            fclose($output_file);
+            $this->convertStreamToStream($in_stream,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -3404,6 +3519,7 @@ class ImageToImageClient {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrl", "image-to-image", "Supported protocols are http:// and https://.", "convert_url"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->fields['url'] = $url;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
@@ -3415,6 +3531,7 @@ class ImageToImageClient {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "image-to-image", "Supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->fields['url'] = $url;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
@@ -3432,13 +3549,21 @@ class ImageToImageClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertUrlToStream($url, $output_file);
-            fclose($output_file);
+            $this->convertUrlToStream($url,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -3449,6 +3574,7 @@ class ImageToImageClient {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFile", "image-to-image", "The file must exist and not be empty.", "convert_file"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->files['file'] = $file;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
@@ -3460,6 +3586,7 @@ class ImageToImageClient {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFileToStream::file", "image-to-image", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->files['file'] = $file;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
@@ -3477,13 +3604,21 @@ class ImageToImageClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertFileToStream($file, $output_file);
-            fclose($output_file);
+            $this->convertFileToStream($file,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -3491,6 +3626,7 @@ class ImageToImageClient {
      * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#convert_raw_data">https://pdfcrowd.com/api/image-to-image-php/ref/#convert_raw_data</a>
      */
     function convertRawData($data) {
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->raw_data['file'] = $data;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
@@ -3499,6 +3635,7 @@ class ImageToImageClient {
      * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#convert_raw_data_to_stream">https://pdfcrowd.com/api/image-to-image-php/ref/#convert_raw_data_to_stream</a>
      */
     function convertRawDataToStream($data, $out_stream) {
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->raw_data['file'] = $data;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
@@ -3516,13 +3653,21 @@ class ImageToImageClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertRawDataToStream($data, $output_file);
-            fclose($output_file);
+            $this->convertRawDataToStream($data,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -3530,7 +3675,8 @@ class ImageToImageClient {
      * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#convert_stream">https://pdfcrowd.com/api/image-to-image-php/ref/#convert_stream</a>
      */
     function convertStream($in_stream) {
-        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
+        $this->raw_data['stream'] = ConnectionHelper::readInputStream($in_stream);
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
 
@@ -3538,7 +3684,8 @@ class ImageToImageClient {
      * @see <a href="https://pdfcrowd.com/api/image-to-image-php/ref/#convert_stream_to_stream">https://pdfcrowd.com/api/image-to-image-php/ref/#convert_stream_to_stream</a>
      */
     function convertStreamToStream($in_stream, $out_stream) {
-        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
+        $this->raw_data['stream'] = ConnectionHelper::readInputStream($in_stream);
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
 
@@ -3555,13 +3702,21 @@ class ImageToImageClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertStreamToStream($in_stream, $output_file);
-            fclose($output_file);
+            $this->convertStreamToStream($in_stream,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -4001,8 +4156,27 @@ class PdfToPdfClient {
             throw new Error(create_invalid_value_message($file_path, "convertToFile", "pdf-to-pdf", "The string must not be empty.", "convert_to_file"), 470);
         
         $output_file = fopen($file_path, "wb");
-        $this->convertToStream($output_file);
-        fclose($output_file);
+        if (!$output_file) {
+            $error = error_get_last();
+            throw new \Exception($error['message']);
+        }
+        try {
+            $this->convertToStream($output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
+        }
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
+        }
     }
 
     /**
@@ -4514,6 +4688,7 @@ class ImageToPdfClient {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrl", "image-to-pdf", "Supported protocols are http:// and https://.", "convert_url"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->fields['url'] = $url;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
@@ -4525,6 +4700,7 @@ class ImageToPdfClient {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "image-to-pdf", "Supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->fields['url'] = $url;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
@@ -4542,13 +4718,21 @@ class ImageToPdfClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertUrlToStream($url, $output_file);
-            fclose($output_file);
+            $this->convertUrlToStream($url,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -4559,6 +4743,7 @@ class ImageToPdfClient {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFile", "image-to-pdf", "The file must exist and not be empty.", "convert_file"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->files['file'] = $file;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
@@ -4570,6 +4755,7 @@ class ImageToPdfClient {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFileToStream::file", "image-to-pdf", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->files['file'] = $file;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
@@ -4587,13 +4773,21 @@ class ImageToPdfClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertFileToStream($file, $output_file);
-            fclose($output_file);
+            $this->convertFileToStream($file,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -4601,6 +4795,7 @@ class ImageToPdfClient {
      * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_raw_data">https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_raw_data</a>
      */
     function convertRawData($data) {
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->raw_data['file'] = $data;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
@@ -4609,6 +4804,7 @@ class ImageToPdfClient {
      * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_raw_data_to_stream">https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_raw_data_to_stream</a>
      */
     function convertRawDataToStream($data, $out_stream) {
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->raw_data['file'] = $data;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
@@ -4626,13 +4822,21 @@ class ImageToPdfClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertRawDataToStream($data, $output_file);
-            fclose($output_file);
+            $this->convertRawDataToStream($data,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -4640,7 +4844,8 @@ class ImageToPdfClient {
      * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_stream">https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_stream</a>
      */
     function convertStream($in_stream) {
-        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
+        $this->raw_data['stream'] = ConnectionHelper::readInputStream($in_stream);
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
 
@@ -4648,7 +4853,8 @@ class ImageToPdfClient {
      * @see <a href="https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_stream_to_stream">https://pdfcrowd.com/api/image-to-pdf-php/ref/#convert_stream_to_stream</a>
      */
     function convertStreamToStream($in_stream, $out_stream) {
-        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
+        $this->raw_data['stream'] = ConnectionHelper::readInputStream($in_stream);
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
 
@@ -4665,13 +4871,21 @@ class ImageToPdfClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertStreamToStream($in_stream, $output_file);
-            fclose($output_file);
+            $this->convertStreamToStream($in_stream,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -5365,6 +5579,7 @@ class PdfToHtmlClient {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrl", "pdf-to-html", "Supported protocols are http:// and https://.", "convert_url"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->fields['url'] = $url;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
@@ -5376,6 +5591,7 @@ class PdfToHtmlClient {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "pdf-to-html", "Supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->fields['url'] = $url;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
@@ -5396,13 +5612,21 @@ class PdfToHtmlClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertUrlToStream($url, $output_file);
-            fclose($output_file);
+            $this->convertUrlToStream($url,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -5413,6 +5637,7 @@ class PdfToHtmlClient {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFile", "pdf-to-html", "The file must exist and not be empty.", "convert_file"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->files['file'] = $file;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
@@ -5424,6 +5649,7 @@ class PdfToHtmlClient {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFileToStream::file", "pdf-to-html", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->files['file'] = $file;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
@@ -5444,13 +5670,21 @@ class PdfToHtmlClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertFileToStream($file, $output_file);
-            fclose($output_file);
+            $this->convertFileToStream($file,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -5458,6 +5692,7 @@ class PdfToHtmlClient {
      * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_raw_data">https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_raw_data</a>
      */
     function convertRawData($data) {
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->raw_data['file'] = $data;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
@@ -5466,6 +5701,7 @@ class PdfToHtmlClient {
      * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_raw_data_to_stream">https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_raw_data_to_stream</a>
      */
     function convertRawDataToStream($data, $out_stream) {
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->raw_data['file'] = $data;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
@@ -5486,13 +5722,21 @@ class PdfToHtmlClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertRawDataToStream($data, $output_file);
-            fclose($output_file);
+            $this->convertRawDataToStream($data,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -5500,7 +5744,8 @@ class PdfToHtmlClient {
      * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_stream">https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_stream</a>
      */
     function convertStream($in_stream) {
-        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
+        $this->raw_data['stream'] = ConnectionHelper::readInputStream($in_stream);
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
 
@@ -5508,7 +5753,8 @@ class PdfToHtmlClient {
      * @see <a href="https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_stream_to_stream">https://pdfcrowd.com/api/pdf-to-html-php/ref/#convert_stream_to_stream</a>
      */
     function convertStreamToStream($in_stream, $out_stream) {
-        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
+        $this->raw_data['stream'] = ConnectionHelper::readInputStream($in_stream);
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
 
@@ -5528,13 +5774,21 @@ class PdfToHtmlClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertStreamToStream($in_stream, $output_file);
-            fclose($output_file);
+            $this->convertStreamToStream($in_stream,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -5890,6 +6144,7 @@ class PdfToTextClient {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrl", "pdf-to-text", "Supported protocols are http:// and https://.", "convert_url"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->fields['url'] = $url;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
@@ -5901,6 +6156,7 @@ class PdfToTextClient {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "pdf-to-text", "Supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->fields['url'] = $url;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
@@ -5918,13 +6174,21 @@ class PdfToTextClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertUrlToStream($url, $output_file);
-            fclose($output_file);
+            $this->convertUrlToStream($url,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -5935,6 +6199,7 @@ class PdfToTextClient {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFile", "pdf-to-text", "The file must exist and not be empty.", "convert_file"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->files['file'] = $file;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
@@ -5946,6 +6211,7 @@ class PdfToTextClient {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFileToStream::file", "pdf-to-text", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->files['file'] = $file;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
@@ -5963,13 +6229,21 @@ class PdfToTextClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertFileToStream($file, $output_file);
-            fclose($output_file);
+            $this->convertFileToStream($file,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -5977,6 +6251,7 @@ class PdfToTextClient {
      * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_raw_data">https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_raw_data</a>
      */
     function convertRawData($data) {
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->raw_data['file'] = $data;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
@@ -5985,6 +6260,7 @@ class PdfToTextClient {
      * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_raw_data_to_stream">https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_raw_data_to_stream</a>
      */
     function convertRawDataToStream($data, $out_stream) {
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->raw_data['file'] = $data;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
@@ -6002,13 +6278,21 @@ class PdfToTextClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertRawDataToStream($data, $output_file);
-            fclose($output_file);
+            $this->convertRawDataToStream($data,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -6016,7 +6300,8 @@ class PdfToTextClient {
      * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_stream">https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_stream</a>
      */
     function convertStream($in_stream) {
-        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
+        $this->raw_data['stream'] = ConnectionHelper::readInputStream($in_stream);
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
 
@@ -6024,7 +6309,8 @@ class PdfToTextClient {
      * @see <a href="https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_stream_to_stream">https://pdfcrowd.com/api/pdf-to-text-php/ref/#convert_stream_to_stream</a>
      */
     function convertStreamToStream($in_stream, $out_stream) {
-        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
+        $this->raw_data['stream'] = ConnectionHelper::readInputStream($in_stream);
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
 
@@ -6041,13 +6327,21 @@ class PdfToTextClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertStreamToStream($in_stream, $output_file);
-            fclose($output_file);
+            $this->convertStreamToStream($in_stream,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -6368,6 +6662,7 @@ class PdfToImageClient {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrl", "pdf-to-image", "Supported protocols are http:// and https://.", "convert_url"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->fields['url'] = $url;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
@@ -6379,6 +6674,7 @@ class PdfToImageClient {
         if (!preg_match("/(?i)^https?:\/\/.*$/", $url))
             throw new Error(create_invalid_value_message($url, "convertUrlToStream::url", "pdf-to-image", "Supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->fields['url'] = $url;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
@@ -6396,13 +6692,21 @@ class PdfToImageClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertUrlToStream($url, $output_file);
-            fclose($output_file);
+            $this->convertUrlToStream($url,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -6413,6 +6717,7 @@ class PdfToImageClient {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFile", "pdf-to-image", "The file must exist and not be empty.", "convert_file"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->files['file'] = $file;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
@@ -6424,6 +6729,7 @@ class PdfToImageClient {
         if (!(filesize($file) > 0))
             throw new Error(create_invalid_value_message($file, "convertFileToStream::file", "pdf-to-image", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
         
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->files['file'] = $file;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
@@ -6441,13 +6747,21 @@ class PdfToImageClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertFileToStream($file, $output_file);
-            fclose($output_file);
+            $this->convertFileToStream($file,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -6455,6 +6769,7 @@ class PdfToImageClient {
      * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_raw_data">https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_raw_data</a>
      */
     function convertRawData($data) {
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->raw_data['file'] = $data;
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
@@ -6463,6 +6778,7 @@ class PdfToImageClient {
      * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_raw_data_to_stream">https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_raw_data_to_stream</a>
      */
     function convertRawDataToStream($data, $out_stream) {
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
         $this->raw_data['file'] = $data;
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
@@ -6480,13 +6796,21 @@ class PdfToImageClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertRawDataToStream($data, $output_file);
-            fclose($output_file);
+            $this->convertRawDataToStream($data,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 
@@ -6494,7 +6818,8 @@ class PdfToImageClient {
      * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_stream">https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_stream</a>
      */
     function convertStream($in_stream) {
-        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
+        $this->raw_data['stream'] = ConnectionHelper::readInputStream($in_stream);
         return $this->helper->post($this->fields, $this->files, $this->raw_data);
     }
 
@@ -6502,7 +6827,8 @@ class PdfToImageClient {
      * @see <a href="https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_stream_to_stream">https://pdfcrowd.com/api/pdf-to-image-php/ref/#convert_stream_to_stream</a>
      */
     function convertStreamToStream($in_stream, $out_stream) {
-        $this->raw_data['stream'] = stream_get_contents($in_stream);
+        $this->helper->reset_input($this->fields, $this->files, $this->raw_data);
+        $this->raw_data['stream'] = ConnectionHelper::readInputStream($in_stream);
         $this->helper->post($this->fields, $this->files, $this->raw_data, $out_stream);
     }
 
@@ -6519,13 +6845,21 @@ class PdfToImageClient {
             throw new \Exception($error['message']);
         }
         try {
-            $this->convertStreamToStream($in_stream, $output_file);
-            fclose($output_file);
+            $this->convertStreamToStream($in_stream,$output_file);
+            if (!fflush($output_file)) {
+                throw new Error('Flushing the output file failed.', 0);
+            }
         }
-        catch(Error $why) {
-            fclose($output_file);
-            unlink($file_path);
+        catch(\Exception $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
             throw $why;
+        }
+        catch(\Throwable $why) {
+            ConnectionHelper::closeFailedOutput($output_file, $file_path);
+            throw $why;
+        }
+        if (!fclose($output_file)) {
+            throw new Error('Closing the output file failed.', 0);
         }
     }
 

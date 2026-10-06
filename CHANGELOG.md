@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+6.7.1
+-----
+
+- FIX: reset conversion inputs when switching methods on the same client instance, preserving conversion settings and auxiliary files
+- FIX: abort conversion when an input stream read fails or warns, and restore the application's error handler
+- FIX: close SDK-owned output files on SDK and native failures, and report output flush and close errors
+
 6.7.0
 -----
 
