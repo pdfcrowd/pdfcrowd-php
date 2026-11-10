@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+6.7.2
+-----
+
+- CHANGE: parsed error status and reason codes are now integers; use numeric strict comparisons instead of string comparisons; missing status remains 0 and missing reason remains -1; string output is preserved, including zero-padded reason codes
+
 6.7.1
 -----
 

@@ -396,7 +396,7 @@ Possible reasons:
     private $error;
     private $outstream;
 
-    public static $client_version = "6.7.1";
+    public static $client_version = "6.7.2";
     public static $http_port = 80;
     public static $https_port = 443;
     public static $api_host = 'pdfcrowd.com';
@@ -522,6 +522,7 @@ class Error extends \Exception {
     protected $error;
     protected $reasonCode;
     protected $docLink;
+    protected $includeCode = true;
 
     public function __construct($error, $statusCode = null)
     {
@@ -533,8 +534,10 @@ class Error extends \Exception {
 
         $pattern = '/^(\d+)\.(\d+)\s+-\s+(.*?)(?:\s+Documentation link:\s+(.*))?$/s';
         if (preg_match($pattern, $error, $matches)) {
-            $this->code = $matches[1];
-            $this->reasonCode = $matches[2];
+            $this->code = (int)$matches[1];
+            $this->reasonCode = (int)$matches[2];
+            // Preserve string output: only the literal "0" hid the code.
+            $this->includeCode = (bool)$matches[2];
             $this->message = $matches[3];
             $this->docLink = isset($matches[4]) ? $matches[4] : '';
         } else {
@@ -547,7 +550,7 @@ class Error extends \Exception {
 
     public function __toString()
     {
-        return $this->reasonCode ? $this->error : $this->message;
+        return $this->includeCode ? $this->error : $this->message;
     }
 
     public function getStatusCode()
@@ -624,7 +627,7 @@ You need to restart your web server after installation.';
         $this->reset_response_data();
         $this->setProxy(null, null, null, null);
         $this->setUseHttp(false);
-        $this->setUserAgent('pdfcrowd_php_client/6.7.1 (https://pdfcrowd.com)');
+        $this->setUserAgent('pdfcrowd_php_client/6.7.2 (https://pdfcrowd.com)');
 
         $this->retry_count = 1;
         $this->converter_version = '24.04';
@@ -672,7 +675,7 @@ You need to restart your web server after installation.';
 
     private static $SSL_ERRORS = array(35, 51, 53, 54, 58, 59, 60, 64, 66, 77, 80, 82, 83, 90, 91);
 
-    const CLIENT_VERSION = '6.7.1';
+    const CLIENT_VERSION = '6.7.2';
     public static $MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$';
 
     private function add_file_field($name, $file_name, $data, &$body) {
